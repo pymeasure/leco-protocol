@@ -11,6 +11,8 @@
    :caption: Contents:
 
    Hello_world
+   components
+   glossary
 
 
 
