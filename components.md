@@ -25,14 +25,32 @@ Potentially a GUI could be attached here too.
 
 The Actor would send commands to a Driver, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
 
-```{note}
+This could look for example like this:
+:::{mermaid}
+sequenceDiagram
+    par
+        Actor1->>Driver42: GET temp_K
+        Driver42->>HW-on-COM1: "*TEMP?\n"
+        HW-on-COM1->>Driver42: "275.14\n"
+        Driver42->>Actor1: 275.14
+    and
+        Actor1->>Driver11: GET temperature
+        Note over Driver11: Fetched a fresh value 23ms ago, using cached value
+        Driver11->>Actor1: 300.1
+    end
+    Note over Actor1: computes average temperature, converts to degC
+    Note over Actor1: stores/caches value maybe
+    Actor1->>Observer1: "Average oven temperature" 14.47 degC
+:::
+
+:::{note}
 We could achieve more complete separation and make the Actor purely about processing _inputs_, doing some _operation_ and generating _outputs_.
 This could be either stateless (temperature conversion) or stateful (PID control).
 Maybe a better name would be "Processor" then.
 This means that _all_ device-related stuff stays compartmentalized in the Driver, and an Actor would address that Driver over the network (to fetch the Parameter values it is interested in).
 
 Thoughts?
-```
+:::
 
 ## Driver
 A Driver is a component that interfaces with a (hardware) Device in a manner we don't specify, and that has a specific API on the ECP side.
@@ -52,11 +70,11 @@ A driver may contain/manage
 * Maybe concurrent access management/locking
 * Logging configuration
 
-```{note}
+:::{note}
 We might want to add the notion of "Channels", especially for the multi-Director stuff
-```
+:::
 
-# Parameter
+## Parameter
 A Parameter is a property (in the English, not the Pythonic sense) of the device represented by a Driver
 It has a name and can be read(`get`) or `set`, and recent values might be cached in the Driver.
 It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the instrument interface classes.
@@ -66,23 +84,8 @@ It may have unit information, that is used when sending data over the network.
 Sequences of steps that make up experiment runs, e.g. PyMeasure procedures.
 These instructions could be consumed by a Director and trigger a sequence of commands (ramps, loops, conditionals,...).
 
-```{note} This is a placeholder, we have not fleshed out the concept yet
-```
-
-### Actor Driver separation
-We want to keep Actor and Driver separated, to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
-If someone wants to just connect with a Driver instance, directly, that should be possible, and when looking at the class, easily understood (and implemented).
-
-Once a user is familiar with that, and a slightly bigger system is envisaged by them, one or two Driver classes (which might already exist for these specific instruments in pymeasure, or have easy templates) might get packaged into Actors, and a director attached to them (via broker/proxy/whatever), so both can be controlled together (e.g. in a sequence-like fashion.
-Once a user is familiar with this bigger framework, they can then add new actors, to grow their system one by one.
-
-For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with `Instrument`, and measure a small sequence of things, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is `Instrument` (and maybe not even that really). No need for servers, proxies, brokers, GUI, databases, etc. 
-
-This would give users a broad freedom, while at the same time they can be guided in a small-step by small-step fashion to master bigger challenges and journeys.
-
-```{note} There was a paragraph here on the that I (BB) integrated into the actor and driver texts, it did not seem current anymore.
-Also, please review the text on Driver and Actor, which I tried to make more consistent.
-```
+:::{note} This is a placeholder, we have not fleshed out the concept yet
+:::
 
 ## Coordinator
 A component primarily concerned with routing/coordinating the message flow between other components.
@@ -96,5 +99,21 @@ Currently, this corresponds to the zmq majordomo broker, and/or a zmq proxy.
 A component that receives data from other components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
 It only consumes message streams, but does not command `actors`.
 
-```{note} Depending on setup, some commanding might be necessary, e.g. to subscribe/register.
-```
+:::{note} Depending on setup, some commanding might be necessary, e.g. to subscribe/register.
+:::
+
+## Notes 
+### Actor Driver separation
+We want to keep Actor and Driver separated, to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
+If someone wants to just connect with a Driver instance, directly, that should be possible, and when looking at the class, easily understood (and implemented).
+
+Once a user is familiar with that, and a slightly bigger system is envisaged by them, one or two Driver classes (which might already exist for these specific instruments in pymeasure, or have easy templates) might get packaged into Actors, and a director attached to them (via broker/proxy/whatever), so both can be controlled together (e.g. in a sequence-like fashion.
+Once a user is familiar with this bigger framework, they can then add new actors, to grow their system one by one.
+
+For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with `Instrument`, and measure a small sequence of things, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is `Instrument` (and maybe not even that really). No need for servers, proxies, brokers, GUI, databases, etc. 
+
+This would give users a broad freedom, while at the same time they can be guided in a small-step by small-step fashion to master bigger challenges and journeys.
+
+:::{note} There was a paragraph here on the that I (BB) integrated into the actor and driver texts, it did not seem current anymore.
+Also, please review the text on Driver and Actor, which I tried to make more consistent.
+:::

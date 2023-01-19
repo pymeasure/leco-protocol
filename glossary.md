@@ -1,7 +1,7 @@
 # Glossary
 An alphabetical list of terms with a short description.
 
-```{glossary}
+:::{glossary}
 
 Actor
     A component which instantiates one or more Driver classes or does some kind of processing, see {ref}`components.md#actor`.
@@ -26,4 +26,4 @@ ECP
 
 Observer
     A component that receives data from other components, e.g. for logging, storage, or plotting, see {ref}`components.md#observer`.
-```
+:::
