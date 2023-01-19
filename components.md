@@ -54,7 +54,8 @@ Thoughts?
 
 ## Driver
 A Driver is a component that interfaces with a (hardware) Device in a manner we don't specify, and that has a specific API on the ECP side.
-This might contain or wrap a `pymeasure.Instrument` instance or something from another instrument library.
+A driver must contain some object dealing with hardware communication.
+This may be a `pymeasure.Instrument` instance or something from another instrument library.
 This is the place where all instrument libraries (including pymeasure) wire their hardware interface classes into ECP.
 
 Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.

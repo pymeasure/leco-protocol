@@ -10,6 +10,7 @@
    :maxdepth: 2
    :caption: Contents:
 
+   introduction
    components
    glossary
    Hello_world
