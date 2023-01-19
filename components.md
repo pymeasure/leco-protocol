@@ -43,7 +43,7 @@ sequenceDiagram
     Actor1->>Observer1: "Average oven temperature" 14.47 degC
 :::
 
-:::{note}
+:::{admonition} TODO
 We could achieve more complete separation and make the Actor purely about processing _inputs_, doing some _operation_ and generating _outputs_.
 This could be either stateless (temperature conversion) or stateful (PID control).
 Maybe a better name would be "Processor" then.
@@ -70,7 +70,7 @@ A driver may contain/manage
 * Maybe concurrent access management/locking
 * Logging configuration
 
-:::{note}
+:::{admonition} TODO
 We might want to add the notion of "Channels", especially for the multi-Director stuff
 :::
 
@@ -84,7 +84,8 @@ It may have unit information, that is used when sending data over the network.
 Sequences of steps that make up experiment runs, e.g. PyMeasure procedures.
 These instructions could be consumed by a Director and trigger a sequence of commands (ramps, loops, conditionals,...).
 
-:::{note} This is a placeholder, we have not fleshed out the concept yet
+:::{admonition} TODO
+This is a placeholder, we have not fleshed out the concept yet
 :::
 
 ## Coordinator
@@ -114,6 +115,7 @@ For quick tests, some simple measurements (and the first steps), one can still j
 
 This would give users a broad freedom, while at the same time they can be guided in a small-step by small-step fashion to master bigger challenges and journeys.
 
-:::{note} There was a paragraph here on the that I (BB) integrated into the actor and driver texts, it did not seem current anymore.
+:::{admonition} TODO
+There was a paragraph here on the that I (BB) integrated into the actor and driver texts, it did not seem current anymore.
 Also, please review the text on Driver and Actor, which I tried to make more consistent.
 :::
