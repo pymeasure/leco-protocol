@@ -60,14 +60,17 @@ This is the place where all instrument libraries (including pymeasure) wire thei
 Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
 What we define is how the other ECP components interact with the Driver, how it determines and announces its capabilities, etc.
 
-A driver may contain/manage
+A driver must contain/manage
 * An object that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
 * The name of the connected instrument
 * A list of available Parameters (properties/attributes to get/set) and Actions(methods to call)
-* A list of Parameters to poll/publish regularly (and the interval for that)
 * `set`/`get`/`get_all`/`call` interfaces (for incoming commands to use to act on Parameters and Actions)
-* A cache of parameter values (to avoid unnecessary communication)
-* Maybe concurrent access management/locking
+
+A driver may contain/manage
+* A list of Parameters to poll/publish regularly (and the interval for that)
+* A cache of parameter values (to avoid unnecessary communication). 
+    - If caching is included, the `get*` interfaces must include a configurable cache timeout and a way to force fetching a fresh value. 
+* Concurrent access management/locking
 * Logging configuration
 
 :::{admonition} TODO
@@ -76,7 +79,12 @@ We might want to add the notion of "Channels", especially for the multi-Director
 
 ## Parameter
 A Parameter is a property (in the English, not the Pythonic sense) of the device represented by a Driver
-It has a name and can be read(`get`) or `set`, and recent values might be cached in the Driver.
+It has a name and can be read(`get`) or `set`.
+
+:::{note}
+Recent values may be cached in the Driver.
+:::
+
 It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the instrument interface classes.
 It may have unit information, that is used when sending data over the network.
 
