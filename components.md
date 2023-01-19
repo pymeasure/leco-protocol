@@ -16,9 +16,10 @@ An Action represents a method or function of the device represented by a Driver.
 It can be called with zero or more arguments.
 
 ## Actor
-The Actor is a component which (typically) instantiates one or more Driver class and/or does some kind of processing.
+The actor participates in the network listening for commands and acts on them. 
+It may act regularly of its own accord.
+Typically an actor controls one or several devices via Drivers and/or does some kind of processing.
 Actions which the actor can take could be anything from measuring on a regular basis ("acting" as a sensor), commanding hardware devices through the use of the driver to do X or Y, processing some data and re-emitting results (e.g. a PID controller).
-The actor is part of the communication network, that means it is listening for messages and maybe sending messages by itself.
 
 Potentially a GUI could be attached here too.
 
@@ -34,21 +35,21 @@ Thoughts?
 ```
 
 ## Driver
-A Driver is a component that interfaces with some hardware in a manner we don't specify, and that has a specific API on the ECP side.
+A Driver is a component that interfaces with a (hardware) Device in a manner we don't specify, and that has a specific API on the ECP side.
 This might contain or wrap a `pymeasure.Instrument` instance or something from another instrument library.
 This is the place where all instrument libraries (including pymeasure) wire their hardware interface classes into ECP.
 
-Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with hardware (SCPI, dll, ...) should not be relevant for the protocol details.
+Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
 What we define is how the other ECP components interact with the Driver, how it determines and announces its capabilities, etc.
 
 A driver may contain/manage
-* An object that communicates with the connected hardware device/instrument, including managing its lifecycle (init, operations, shutdown)
+* An object that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
 * The name of the connected instrument
 * A list of available Parameters (properties/attributes to get/set) and Actions(methods to call)
 * A list of Parameters to poll/publish regularly (and the interval for that)
 * `set`/`get`/`get_all`/`call` interfaces (for incoming commands to use to act on Parameters and Actions)
 * A cache of parameter values (to avoid unnecessary communication)
-* Maybe a task queue and/or concurrent access management/locking
+* Maybe concurrent access management/locking
 * Logging configuration
 
 ```{note}
@@ -59,20 +60,21 @@ We might want to add the notion of "Channels", especially for the multi-Director
 A Parameter is a property (in the English, not the Pythonic sense) of the device represented by a Driver
 It has a name and can be read(`get`) or `set`, and recent values might be cached in the Driver.
 It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the instrument interface classes.
+It may have unit information, that is used when sending data over the network.
 
 ## Procedures
-Sequences of commands that make up experiment runs, e.g. PyMeasure procedures.
+Sequences of steps that make up experiment runs, e.g. PyMeasure procedures.
+These instructions could be consumed by a Director and trigger a sequence of commands (ramps, loops, conditionals,...).
 
-Procedures as they are now should maybe not rely on actors, but could, and again, need to look into it further). Once a user is familiar with this bigger framework, they can then add new actors, to grow their system one by one.
-
-```{note} This is a placeholder, we have not defined the concept yet
+```{note} This is a placeholder, we have not fleshed out the concept yet
 ```
 
 ### Actor Driver separation
 We want to keep Actor and Driver separated, to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
 If someone wants to just connect with a Driver instance, directly, that should be possible, and when looking at the class, easily understood (and implemented).
 
-Once a user is familiar with that, and a slightly bigger system is envisaged by them, one or two Driver classes (which might already exist for this specific instrument in pymeasure, or have easy templates) might get packaged into Actors, and a director attached to them (via broker/proxy/whatever), so both can be controlled together (e.g. in a sequence-like fashion.
+Once a user is familiar with that, and a slightly bigger system is envisaged by them, one or two Driver classes (which might already exist for these specific instruments in pymeasure, or have easy templates) might get packaged into Actors, and a director attached to them (via broker/proxy/whatever), so both can be controlled together (e.g. in a sequence-like fashion.
+Once a user is familiar with this bigger framework, they can then add new actors, to grow their system one by one.
 
 For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with `Instrument`, and measure a small sequence of things, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is `Instrument` (and maybe not even that really). No need for servers, proxies, brokers, GUI, databases, etc. 
 

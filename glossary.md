@@ -12,6 +12,9 @@ Component
 Coordinator
     A component primarily concerned with routing/coordinating the message flow, see {ref}`components.md#coordinator`.
 
+Device
+    Some piece of hardware controlled via ECP.
+
 Director
     The main controller orchestrating the whole thing, see {ref}`components.md#director`.
 
