@@ -11,13 +11,27 @@ It can, among other things,
 
 Potentially a GUI could be attached here too.
 
+## Action
+An Action represents a method or function of the device represented by a Driver.
+It can be called with zero or more arguments.
+
 ## Actor
 The Actor is a component which (typically) instantiates one or more Driver class and/or does some kind of processing.
 Actions which the actor can take could be anything from measuring on a regular basis ("acting" as a sensor), commanding hardware devices through the use of the driver to do X or Y, processing some data and re-emitting results (e.g. a PID controller).
-
 The actor is part of the communication network, that means it is listening for messages and maybe sending messages by itself.
 
 Potentially a GUI could be attached here too.
+
+The Actor would send commands to a Driver, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
+
+```{note}
+We could achieve more complete separation and make the Actor purely about processing _inputs_, doing some _operation_ and generating _outputs_.
+This could be either stateless (temperature conversion) or stateful (PID control).
+Maybe a better name would be "Processor" then.
+This means that _all_ device-related stuff stays compartmentalized in the Driver, and an Actor would address that Driver over the network (to fetch the Parameter values it is interested in).
+
+Thoughts?
+```
 
 ## Driver
 A Driver is a component that interfaces with some hardware in a manner we don't specify, and that has a specific API on the ECP side.
@@ -26,6 +40,25 @@ This is the place where all instrument libraries (including pymeasure) wire thei
 
 Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with hardware (SCPI, dll, ...) should not be relevant for the protocol details.
 What we define is how the other ECP components interact with the Driver, how it determines and announces its capabilities, etc.
+
+A driver may contain/manage
+* An object that communicates with the connected hardware device/instrument, including managing its lifecycle (init, operations, shutdown)
+* The name of the connected instrument
+* A list of available Parameters (properties/attributes to get/set) and Actions(methods to call)
+* A list of Parameters to poll/publish regularly (and the interval for that)
+* `set`/`get`/`get_all`/`call` interfaces (for incoming commands to use to act on Parameters and Actions)
+* A cache of parameter values (to avoid unnecessary communication)
+* Maybe a task queue and/or concurrent access management/locking
+* Logging configuration
+
+```{note}
+We might want to add the notion of "Channels", especially for the multi-Director stuff
+```
+
+# Parameter
+A Parameter is a property (in the English, not the Pythonic sense) of the device represented by a Driver
+It has a name and can be read(`get`) or `set`, and recent values might be cached in the Driver.
+It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the instrument interface classes.
 
 ## Procedures
 Sequences of commands that make up experiment runs, e.g. PyMeasure procedures.
