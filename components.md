@@ -1,18 +1,21 @@
 # Components
 
-This page provides details on the main components/entities of the ECP.
+This page provides details on the main component/entity types that make up a deployment of the ECP.
 
 ## Director
-The Director is the main controller orchestrating the whole thing, an object which can 
+A Director manages a part of or the entire setup, orchestrating the actors and observers according to the needs of the experiment.
+It can, among other things, 
 * issue commands to actors
-* possibly request data from individual actors
-* possibly read data from an observer
+* request data from individual actors
+* read data from an observer
 
 Potentially a GUI could be attached here too.
 
 ## Actor
 The Actor is a component which (typically) instantiates one or more Driver class and/or does some kind of processing.
 Actions which the actor can take could be anything from measuring on a regular basis ("acting" as a sensor), commanding hardware devices through the use of the driver to do X or Y, processing some data and re-emitting results (e.g. a PID controller).
+
+The actor is part of the communication network, that means it is listening for messages and maybe sending messages by itself.
 
 Potentially a GUI could be attached here too.
 
