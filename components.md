@@ -99,7 +99,7 @@ This is a placeholder, we have not fleshed out the concept yet
 
 ## Coordinator
 A component primarily concerned with routing/coordinating the message flow between other components.
-It represent the intermediate zmq brokers, proxies or somesuch.
+It represents the intermediate zmq brokers, proxies or somesuch.
 Multiple coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
 
 The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point approach. 
