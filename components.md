@@ -103,7 +103,7 @@ It represents the intermediate zmq brokers, proxies or somesuch.
 Multiple coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
 
 The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point approach. 
-Currently, this corresponds to the zmq majordomo broker, and/or a zmq proxy.
+Currently, this corresponds to the something like a zmq majordomo broker, and/or a zmq proxy.
 
 ## Observer
 A component that receives data from other components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
