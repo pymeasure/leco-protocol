@@ -30,8 +30,8 @@ This could look for example like this:
 sequenceDiagram
     par
         Actor1->>Driver42: GET temp_K
-        Driver42->>HW-on-COM1: "*TEMP?\n"
-        HW-on-COM1->>Driver42: "275.14\n"
+        Driver42-->>HW-on-COM1: "*TEMP?\n"
+        HW-on-COM1-->>Driver42: "275.14\n"
         Driver42->>Actor1: 275.14
     and
         Actor1->>Driver11: GET temperature
