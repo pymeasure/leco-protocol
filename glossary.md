@@ -16,7 +16,7 @@ Device
     Some piece of hardware controlled via ECP.
 
 Director
-    The main controller orchestrating the whole thing, see {ref}`components.md#director`.
+    A component which takes part in orchestrating a (i.e. ECP-controlled) measurement setup, see {ref}`components.md#director`.
 
 Driver
     A driver offers a standardized interface to communicate with some hardware (possibly via some intermediate object), see {ref}`components.md#driver`. 
