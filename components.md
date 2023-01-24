@@ -3,7 +3,7 @@
 This page provides details on the main component/entity types that make up a deployment of the ECP.
 
 ## Director
-A Director manages a part of or the entire setup, orchestrating the Actors and Observers according to the needs of the experiment.
+A Director manages a part of or the entire setup, orchestrating the Components according to the needs of the experiment.
 It can, among other things, 
 * issue commands to Actors
 * request data from individual Actors
@@ -11,83 +11,53 @@ It can, among other things,
 
 Potentially a GUI could be attached here too.
 
-## Action
-An Action represents a method or function of the device represented by a Driver.
-It can be called with zero or more arguments.
-
 ## Actor
-The Actor participates in the Network listening for commands and acts on them. 
-It may act regularly of its own accord.
-Typically an Actor controls one or several devices via Drivers and/or does some kind of processing.
-Actions which the Actor can take could be anything from measuring on a regular basis ("acting" as a sensor), commanding hardware devices through the use of the Driver to do X or Y, processing some data and re-emitting results (e.g. a PID controller).
+A Actor is a component that interfaces with a (hardware) Device and that has a specific API on the ECP side.
+A Actor must contain a Driver object dealing with communication with the Device.
 
-Potentially a GUI could be attached here too.
+We define how the other ECP components interact with the Actor, how it determines and announces its capabilities, etc.
+An Actor implements the mapping between ECP messages and Driver calls/attribute access.
 
-The Actor would send commands to a Driver, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
-
-This could look for example like this:
-:::{mermaid}
-sequenceDiagram
-    par
-        Actor1->>Driver42: GET temp_K
-        Driver42-->>HW-on-COM1: "*TEMP?\n"
-        HW-on-COM1-->>Driver42: "275.14\n"
-        Driver42->>Actor1: 275.14
-    and
-        Actor1->>Driver11: GET temperature
-        Note over Driver11: Fetched a fresh value 23ms ago, using cached value
-        Driver11->>Actor1: 300.1
-    end
-    Note over Actor1: computes average temperature, converts to degC
-    Note over Actor1: stores/caches value maybe
-    Actor1->>Observer1: "Average oven temperature" 14.47 degC
-:::
-
-:::{admonition} TODO
-We could achieve more complete separation and make the Actor purely about processing _inputs_, doing some _operation_ and generating _outputs_.
-This could be either stateless (temperature conversion) or stateful (PID control).
-Maybe a better name would be "Processor" then.
-This means that _all_ device-related stuff stays compartmentalized in the Driver, and an Actor would address that Driver over the Network (to fetch the Parameter values it is interested in).
-
-Thoughts?
-:::
-
-## Driver
-A Driver is a component that interfaces with a (hardware) Device in a manner we don't specify, and that has a specific API on the ECP side.
-A Driver must contain some object dealing with hardware communication.
-This may be a `pymeasure.Instrument` instance or something from another instrument library.
-This is the place where all instrument libraries (including pymeasure) wire their hardware interface classes into ECP.
-
-Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
-What we define is how the other ECP components interact with the Driver, how it determines and announces its capabilities, etc.
-
-A Driver must contain/manage
-* An object that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
+A Actor must contain/manage/provide
+* An Driver that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
 * The name of the connected instrument
 * A list of available Parameters (properties/attributes to get/set) and Actions (methods to call)
 * `set`/`get`/`get_all`/`call` interfaces (for incoming commands to use to act on Parameters and Actions)
 
-A Driver may contain/manage
+A Actor may contain/manage
 * A list of Parameters to poll/publish regularly (and the interval for that)
 * A cache of parameter values (to avoid unnecessary communication). 
     - If caching is included, the `get*` interfaces must include a configurable cache timeout and a way to force fetching a fresh value. 
 * Concurrent access management/locking
 * Logging configuration
 
+### Driver
+The Driver object takes care of communicating with the Device, and is always contained in an Actor.
+This object is external to ECP, for example a `pymeasure.Instrument` instance or something from another instrument library.
+This is the place where all instrument libraries (including pymeasure) wire their hardware interface classes into ECP.
+
+Interfacing with the Driver is the task of instrument-library-specific Actors.
+
+Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
+
 :::{admonition} TODO
 We might want to add the notion of "Channels", especially for the multi-Director stuff
 :::
 
+## Action
+An Action represents a method or function of the Driver represented by an Actor.
+It can be called with zero or more arguments.
+
 ## Parameter
-A Parameter is a property (in the English, not the Pythonic sense) of the device represented by a Driver
+A Parameter represents a property (in the English, not the Pythonic sense) of the Driver represented by a Actor.
 It has a name and can be read(`get`) or `set`.
 
 :::{note}
-Recent values may be cached in the Driver.
+Recent values may be cached in the Actor.
 :::
 
-It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the instrument interface classes.
-It may have unit information, that is used when sending data over the Network.
+It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the Driver.
+It may have unit information that is used when sending data over the Network.
 
 ## Procedures
 Sequences of steps that make up experiment runs, e.g. PyMeasure procedures.
@@ -97,34 +67,61 @@ These instructions could be consumed by a Director and trigger a sequence of com
 This is a placeholder, we have not fleshed out the concept yet
 :::
 
+## Processor
+The processor runs some kind of processing operation on one or more inputs and produces one or more outputs  
+It can be stateless (e.g. temperature conversion) or stateful (like a PID controller).
+It may act regularly of its own accord.
+
+The Processor would send commands to a Actor, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
+
+This could look for example like this:
+:::{mermaid}
+sequenceDiagram
+    par
+        Processor1->>Actor42: GET temp_K
+        Note over Actor42: Driver involvement not shown
+        Actor42-->>HW-on-COM1: "*TEMP?\n"
+        HW-on-COM1-->>Actor42: "275.14\n"
+        Actor42->>Processor1: 275.14
+    and
+        Processor1->>Actor11: GET temperature
+        Note over Actor11: Fetched a fresh value 23ms ago, using cached value
+        Actor11->>Processor1: 300.1
+    end
+    Note over Processor1: computes average temperature, converts to degC
+    Note over Processor1: stores/caches value maybe
+    Processor1->>Observer1: "Average oven temperature" 14.47 degC
+:::
+
 ## Coordinator
-A component primarily concerned with routing/coordinating the message flow between other components.
+A component primarily concerned with routing/coordinating the message flow between other Components.
 It represents the intermediate zmq brokers, proxies or somesuch.
 Multiple coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
 
-The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point approach. 
-Currently, this corresponds to the something like a zmq majordomo broker, and/or a zmq proxy.
+The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point messaging approach. 
 
 ## Observer
-A component that receives data from other components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
+A Component that receives data from other Components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
 It only consumes message streams, but does not command `Actors`.
 
 :::{note} Depending on setup, some commanding might be necessary, e.g. to subscribe/register.
 :::
 
 ## Notes 
-### Actor Driver separation
-We want to keep Actor and Driver separated, to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
-If someone wants to just connect with a Driver instance, directly, that should be possible, and when looking at the class, easily understood (and implemented).
+### Complexity scaling
+We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
+If someone wants to just connect with a Actor instance, that should be possible, and when looking at the class, easily understood, as the Actors have a consistent API.
+This assumes that the library-specific Actor has already been written by the library maintainers.
 
-Once a user is familiar with that, and a slightly bigger system is envisaged by them, one or two Driver classes (which might already exist for these specific instruments in pymeasure, or have easy templates) might get packaged into Actors, and a director attached to them (via broker/proxy/whatever), so both can be controlled together (e.g. in a sequence-like fashion.
-Once a user is familiar with this bigger framework, they can then add new Actors, to grow their system one by one.
+Once a user is familiar with that, and a slightly bigger system is envisaged by them, multiple Actor classes might be used, maybe with a Processor doing some useful transformations, and a director attached to them (via broker/proxy/whatever), so all can be controlled together.
+Possibly Procedures are added for sequencing, too.
+Once a user is familiar with this bigger framework, they can then add new Processors, to grow their system one by one.
 
-For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with `Instrument`, and measure a small sequence of things, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is `Instrument` (and maybe not even that really). No need for servers, proxies, brokers, GUI, databases, etc. 
+For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with an Actor (containing e.g. a `pymeasure.Instrument` Driver), and measure a small sequence of things, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is the Actor interface. 
+No need for servers, proxies, brokers, GUI, databases, etc. 
 
 This would give users a broad freedom, while at the same time they can be guided in a small-step by small-step fashion to master bigger challenges and journeys.
 
 :::{admonition} TODO
-There was a paragraph here on the that I (BB) integrated into the Actor and Driver texts, it did not seem current anymore.
-Also, please review the text on Driver and Actor, which I tried to make more consistent.
+This paragraph probably needs some updates/reinterpretation in the light of the new names.
 :::

@@ -5,7 +5,7 @@ To help distinguish between the plain English meaning of these terms, and our mo
 :::{glossary}
 
 Actor
-    A component which instantiates one or more Driver classes or does some kind of processing, see {ref}`components.md#actor`.
+    An Actor offers a standardized interface to the ECP network to communicate with some Device. This happens via a Driver contained in the Actor, see {ref}`components.md#actor`. An Actor implements the mapping/translation between ECP messages and the Driver's interface.
 
 Component
     A type of entity, a set of which make up the ECP communication Network, see {ref}`components.md#components`.
@@ -14,13 +14,13 @@ Coordinator
     A component primarily concerned with routing/coordinating the message flow, see {ref}`components.md#coordinator`.
 
 Device
-    Some piece of hardware controlled via ECP.
+    Some piece of hardware controlled by a Driver.
 
 Director
     A component which takes part in orchestrating a (i.e. ECP-controlled) measurement setup, see {ref}`components.md#director`.
 
 Driver
-    A driver offers a standardized interface to communicate with some Device (possibly via some intermediate object), see {ref}`components.md#driver`. 
+    An object that takes care of communicating with a Device. This object is external to ECP, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
 
 ECP
     The **E**xperiment **C**ontrol **P**rotocol framework.
@@ -30,4 +30,8 @@ Network
 
 Observer
     A component that receives data from other components, e.g. for logging, storage, or plotting, see {ref}`components.md#observer`.
+
+Processor
+    A Component on the ECP network which runs some kind of processing operation on one or more inputs and produces one or more outputs. Can be stateful or stateless. See {ref}`components.md#processor`.
+
 :::
