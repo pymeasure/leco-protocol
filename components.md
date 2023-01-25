@@ -68,7 +68,7 @@ This is a placeholder, we have not fleshed out the concept yet
 :::
 
 ## Processor
-The processor runs some kind of processing operation on one or more inputs and produces one or more outputs  
+The processor runs some kind of processing operation on one or more inputs and produces one or more outputs.  
 It can be stateless (e.g. temperature conversion) or stateful (like a PID controller).
 It may act regularly of its own accord.
 
@@ -110,18 +110,13 @@ It only consumes message streams, but does not command `Actors`.
 ## Notes 
 ### Complexity scaling
 We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
-If someone wants to just connect with a Actor instance, that should be possible, and when looking at the class, easily understood, as the Actors have a consistent API.
-This assumes that the library-specific Actor has already been written by the library maintainers.
+If someone wants to just connect with an Actor instance, that should be possible, and easily understood, as the Actors have a consistent API.
+This assumes that a library-specific Actor has already been written by the library maintainers.
 
 Once a user is familiar with that, and a slightly bigger system is envisaged by them, multiple Actor classes might be used, maybe with a Processor doing some useful transformations, and a Director attached to them (via Coordinators), so all can be controlled together.
 Possibly Procedures are added for sequencing, too.
-Once a user is familiar with this bigger framework, they can then add new Processors, to grow their system one by one.
+Once a user is familiar with this bigger framework, they can then add new Components as needed, to grow their system one by one.
 
-For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with an Actor (containing e.g. a `pymeasure.Instrument` Driver), and measure a small sequence of things, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is the Actor interface. 
-No need for servers, proxies, brokers, GUI, databases, etc. 
+For quick tests, some simple measurements (and the first steps), one can still just open a python interpreter, connect to the hardware with an Actor (containing e.g. a `pymeasure.Instrument` Driver), and measure some things using, ideally with out-of-pymeasure's-box classes for devices, and the only thing one needs to understand for it, is the Actor interface, no need for servers, proxies, brokers, GUI, databases, etc. 
 
-This would give users a broad freedom, while at the same time they can be guided in a small-step by small-step fashion to master bigger challenges and journeys.
-
-:::{admonition} TODO
-This paragraph probably needs some updates/reinterpretation in the light of the new names.
-:::
+This would give users a broad freedom, while at the same time they can be guided step by small step to master bigger challenges and journeys.
