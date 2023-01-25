@@ -18,13 +18,13 @@ A Actor must contain a Driver object dealing with communication with the Device.
 We define how the other ECP components interact with the Actor, how it determines and announces its capabilities, etc.
 An Actor implements the mapping between ECP messages and Driver calls/attribute access.
 
-A Actor must contain/manage/provide
+An Actor must contain/manage/provide
 * An Driver that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
 * The name of the connected instrument
 * A list of available Parameters (properties/attributes to get/set) and Actions (methods to call)
 * `set`/`get`/`get_all`/`call` interfaces (for incoming commands to use to act on Parameters and Actions)
 
-A Actor may contain/manage
+An Actor may contain/manage
 * A list of Parameters to poll/publish regularly (and the interval for that)
 * A cache of parameter values (to avoid unnecessary communication). 
     - If caching is included, the `get*` interfaces must include a configurable cache timeout and a way to force fetching a fresh value. 
@@ -72,7 +72,7 @@ The processor runs some kind of processing operation on one or more inputs and p
 It can be stateless (e.g. temperature conversion) or stateful (like a PID controller).
 It may act regularly of its own accord.
 
-The Processor would send commands to a Actor, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
+The Processor would send commands to an Actor, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
 
 This could look for example like this:
 :::{mermaid}
@@ -113,7 +113,7 @@ We want to leave the entry threshold as low as possible, the learning curve flat
 If someone wants to just connect with a Actor instance, that should be possible, and when looking at the class, easily understood, as the Actors have a consistent API.
 This assumes that the library-specific Actor has already been written by the library maintainers.
 
-Once a user is familiar with that, and a slightly bigger system is envisaged by them, multiple Actor classes might be used, maybe with a Processor doing some useful transformations, and a director attached to them (via broker/proxy/whatever), so all can be controlled together.
+Once a user is familiar with that, and a slightly bigger system is envisaged by them, multiple Actor classes might be used, maybe with a Processor doing some useful transformations, and a Director attached to them (via Coordinators), so all can be controlled together.
 Possibly Procedures are added for sequencing, too.
 Once a user is familiar with this bigger framework, they can then add new Processors, to grow their system one by one.
 
