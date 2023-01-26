@@ -16,8 +16,9 @@ author = 'PyMeasure maintainers'
 extensions = ['myst_parser', 'sphinxcontrib.mermaid', 'sphinx_rtd_theme']
 
 myst_enable_extensions = [
-  #"colon_fence",
+  "colon_fence",
 ]
+myst_heading_anchors = 3
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

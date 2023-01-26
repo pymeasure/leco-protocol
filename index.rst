@@ -10,13 +10,13 @@
    :maxdepth: 2
    :caption: Contents:
 
+   introduction
+   components
+   glossary
    Hello_world
-
-
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
