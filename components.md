@@ -12,8 +12,8 @@ It can, among other things,
 Potentially a GUI could be attached here too.
 
 ## Actor
-A Actor is a component that interfaces with a (hardware) Device and that has a specific API on the ECP side.
-A Actor must contain a Driver object dealing with communication with the Device.
+An Actor is a component that interfaces with a (hardware) Device and that has a specific API on the ECP side.
+An Actor must contain a separate Driver object which communicates with the Device.
 
 We define how the other ECP components interact with the Actor, how it determines and announces its capabilities, etc.
 An Actor implements the mapping between ECP messages and Driver calls/attribute access.
