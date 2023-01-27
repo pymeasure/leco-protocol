@@ -1,5 +1,5 @@
 # Goals
-To guide the design of the specification, here we have articulated the high-level goals of this protocol.
+To guide the design of the specification, here we have articulated the high-level goals of this protocol. Relevant Capitalized terms are defined in our {ref}`glossary.md#glossary`.
 
 ## Tying diverse solutions together
 First and foremost, we want to enable various, existing solutions in the lab automation niche to interoperate, irrespective of programming language, application niche (GUI, driver, orchestration, data storage,...) or project origin.
@@ -16,8 +16,8 @@ This specification will be independent of the programming language its Component
 Instead of implementing all the necessary Components, we want to give the communication tools to connect everything, to balance on the shoulders of giants.
 
 ## Small to medium-sized use cases
-We want ECP to serve laboratory setups of up to approximately 50 participants on one or more computation Nodes on a common network.
-For example, you might have up to ~dozens of instruments, a few data acquisition nodes, one or several GUIs and control nodes.
+We want ECP to serve laboratory setups of up to approximately 50 participating Components on one or more computation Nodes (e.g. personal computers) on a common network.
+For example, you might have up to ~dozens of instruments, a few data acquisition Components, one or several GUIs, and control Components.
 
 ## Flexible and modular
 "LEGO"-like modularity is important. We want to reassemble, change the constellation of devices, easily adapt to changing experiments, data rate needs, etc.
@@ -38,7 +38,8 @@ This way, communication delays will be determined by the slowest instrument, not
 
 Messages should be reliably delivered by the protocol and not lost (barring network problems, crashing Components, hardware failure, etc.).
 
-A failing node should not corrupt the measurement data acquired until then.
+A failing Component should not corrupt the measurement data acquired until then.
+That means that e.g. a failing Actor does not corrupt data of other Actors, and that a failing Observer has to have written the data to permanent storage before failing, e.g. by regularly writing instead of buffering a lot of data in memory.
 
 ## Onboarding experience
 We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
@@ -55,7 +56,7 @@ This is our list:
 Huge setups: We don't want to scale to large setups above O(50-100) Components.
 Such deployments are probably better served by projects like Tango, EPICS, Sardana, Bluesky, etc..
 
-Deployment of individual Components: We currently have no plans to specify how the various Components, possibly across multiple programming languages and operating systems, should be deployed/compiled/brought up. At first at least, this specification concerns itself with the interoperation of the various participants in the network.
+Deployment of individual Components: We currently have no plans to specify how the various Components, possibly across multiple programming languages and operating systems, should be deployed/compiled/brought up. At first at least, this specification concerns itself with the interoperation of the various Components in the network.
 
 Unit conversion: Getting involved with unit conversion or computations with units is out of scope.
 Propagating unit information is possible and optional, but the specification will not deal with unit conversion or computation.
