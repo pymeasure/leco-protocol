@@ -28,10 +28,28 @@ ECP
 Network
     The web of Components communicating with each other in an ECP deployment.
 
+Message Layer
+    The Message Layer is the communication layer that concerns itself with ECP message (de)composition, validation, serialisation, etc., see {ref}`network-structure.md#message-layer`.
+    :::{admonition} TODO
+    This is maybe gonna use Avro, but we still need to hash that out.
+    :::
+
+Message Transport Mode (LMT/DMT)
+    The Node-local Message Layer can have a local or distributed mode, see {ref}`network-structure.md#message-transport-mode-lmtdmt`.
+
+Node
+    A Node is a local context in which (part of) an ECP deployment runs. 
+    This may be a single application using one or more threads or processes. 
+    An ECP network has one or more Nodes, see {ref}`network-structure.md#node`.
+
 Observer
     A Component that receives data from other Components, e.g. for logging, storage, or plotting, see {ref}`components.md#observer`.
 
 Processor
     A Component on the ECP network which runs some kind of processing operation on one or more inputs and produces one or more outputs. Can be stateful or stateless. See {ref}`components.md#processor`.
+
+Transport Layer
+    The Transport Layer is the communication layer that transports ECP messages between Components.
+    This uses zeromq or simpler localised methods, see Message Transport Mode above. See {ref}`network-structure.md#transport-layer`.
 
 :::
