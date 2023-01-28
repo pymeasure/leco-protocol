@@ -1,7 +1,9 @@
+(comp)=
 # Components
 
 This page provides details on the main component/entity types that make up a deployment of the ECP.
 
+(comp:director)=
 ## Director
 A Director manages a part of or the entire setup, orchestrating the Components according to the needs of the experiment.
 It can, among other things, 
@@ -11,6 +13,7 @@ It can, among other things,
 
 Potentially a GUI could be attached here too.
 
+(comp:actor)=
 ## Actor
 An Actor is a component that interfaces with a (hardware) Device and that has a specific API on the ECP side.
 An Actor must contain a separate Driver object which communicates with the Device.
@@ -59,6 +62,7 @@ Recent values may be cached in the Actor.
 It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the Driver.
 It may have unit information that is used when sending data over the Network.
 
+(comp:procedure)=
 ## Procedures
 Sequences of steps that make up experiment runs, e.g. PyMeasure procedures.
 These instructions could be consumed by a Director and trigger a sequence of commands (ramps, loops, conditionals,...).
@@ -93,6 +97,7 @@ sequenceDiagram
     Processor1->>Observer1: "Average oven temperature" 14.47 degC
 :::
 
+(comp:coordinator)=
 ## Coordinator
 A component primarily concerned with routing/coordinating the message flow between other Components.
 It represents the intermediate zmq brokers, proxies or somesuch.
@@ -100,6 +105,7 @@ Multiple coordinator instances may be necessary for large deployments, but a sin
 
 The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point messaging approach. 
 
+(comp:observer)=
 ## Observer
 A Component that receives data from other Components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
 It only consumes message streams, but does not command `Actors`.

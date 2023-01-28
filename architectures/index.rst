@@ -10,13 +10,8 @@
    :maxdepth: 2
    :caption: Contents:
 
-   introduction
-   components
-   glossary
-   interfaces
-   messages
-   architectures/index
-   Hello_world
+   pymeasure_v0.11
+   template
 
 ## Indices and tables
 
