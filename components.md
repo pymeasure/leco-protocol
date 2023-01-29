@@ -94,11 +94,16 @@ sequenceDiagram
 :::
 
 ## Coordinator
-A component primarily concerned with routing/coordinating the message flow between other Components.
+A component primarily tasked with routing/coordinating the message flow between other Components.
 It represents the intermediate zmq brokers, proxies or somesuch.
+
+Every network needs at least one Coordinator, as all Components within a Node directly exchange messages only with the Coordinator.
+
+Every Node must have exactly one Coordinator.
+
 Multiple coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
 
-The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point messaging approach. 
+The use of a coordinator should avoid the complexity/scaling of a purely point-to-point messaging approach. 
 
 ## Observer
 A Component that receives data from other Components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
