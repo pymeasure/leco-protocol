@@ -16,10 +16,10 @@ Decide if the "mode" is the same for all Components in a Node, and if yes, how w
 :::
 
 ## Message Layer
-The Message Layer is the communication layer that concerns itself with ECP message (de)composition, validation, serialisation, etc.
+The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of ECP Messages (see {ref}`messages.md#messages`).
 
 ## Transport Layer
-The Transport Layer is the communication layer that transports ECP messages between Components.
+The Transport Layer is the communication layer that transports ECP Messages between Components, making use of routing information in the Message header.
 This uses zeromq or simpler localised methods, see the next section "Message Transport Mode".
 
 ## Message Transport Mode (LMT/DMT)

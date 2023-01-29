@@ -12,6 +12,7 @@
 
    introduction
    components
+   messages
    network-structure
    glossary
    Hello_world

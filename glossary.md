@@ -28,6 +28,9 @@ ECP
 Network
     The web of Components communicating with each other in an ECP deployment.
 
+Message
+    An ECP Message is one set of data transmitted from one Component to another, see {ref}`messages.md#messages`.
+
 Message Layer
     The Message Layer is the communication layer that concerns itself with ECP message (de)composition, validation, serialisation, etc., see {ref}`network-structure.md#message-layer`.
     :::{admonition} TODO
