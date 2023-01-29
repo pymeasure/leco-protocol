@@ -131,3 +131,6 @@ dmypy.json
 
 # Generally ignore VS Code files
 .vscode
+
+# Generally ignore PyCharm files
+.idea
