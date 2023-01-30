@@ -21,10 +21,28 @@ In the future this might be relaxed, so that Components within a Node might oper
 Decide how we track which Node a Component belongs to, and how the mode information propagates within a Node.
 :::
 
-### Bridging Coordinators
-Messages _between_ Nodes must be passed between their respective Coordinators.
-Coordinator-Coordinator communication always uses DMT.
+## Multi-Node networks
+Every Component (except for Coordinators) is connected to exactly one Coordinator. 
+The Coordinators are connected to each other, such that any Component may only send a message to any other Component via their respective Coordinators.
 Put differently, Components may only communicate to outside their Node via a Coordinator in their Node.
+
+In this graph, messages would pass from `Component1` to `Coordinator1` to `Coordinator2` to the destination `Component4`.
+
+:::{mermaid}
+flowchart LR
+
+    subgraph Node1
+        Component1 -- "connects to" --- Coordinator1
+        Component2 -- "connects to" --- Coordinator1
+    end
+    Coordinator1 -- "coordinates with" --- Coordinator2
+    subgraph Node2
+        Coordinator2 -- "connects to" --- Component3
+        Coordinator2 -- "connects to" --- Component4
+    end
+:::
+
+Coordinator-Coordinator communication always uses DMT.
 
 ## Message Transport Mode (LMT/DMT)
 The Node-local Message Layer can have a local or distributed mode.
