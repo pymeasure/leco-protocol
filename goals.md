@@ -10,13 +10,13 @@ We want to enable users to pick drivers from some instrument control libraries w
 
 [PyMeasure](https://pymeasure.readthedocs.io) is our project, so we know it best, and this will surely influence the design effort.
 Also, we plan a reference implementation in Python that will also probably be primarily tested with PyMeasure.
-However, we intend PyMeasure to be only one of _many_ "customer" libraries that can interface with ECP.
+However, we intend PyMeasure to be only one of _many_ "customer" libraries that can interface with LECO.
 
 This specification will be independent of the programming language its Components are written in, so it will be possible to mix-and-match.
 Instead of implementing all the necessary Components, we want to give the communication tools to connect everything, to balance on the shoulders of giants.
 
 ## Small to medium-sized use cases
-We want ECP to serve laboratory setups of up to approximately 50 participating Components on one or more computation Nodes (e.g. personal computers) on a common network.
+We want LECO to serve laboratory setups of up to approximately 50 participating Components on one or more computation Nodes (e.g. personal computers) on a common network.
 For example, you might have up to ~dozens of instruments, a few data acquisition Components, one or several GUIs, and control Components.
 
 ## Flexible and modular
@@ -24,7 +24,7 @@ For example, you might have up to ~dozens of instruments, a few data acquisition
 
 We want people to easily be able to write their own software implementing (parts of) this protocol, for example to create just the GUI tool that they need.
 
-We want ECP to be very lightly coupled to the used software (like instrument driver libraries) -- we want to thinly wrap these with some interface code that is written (ideally) _once_.
+We want LECO to be very lightly coupled to the used software (like instrument driver libraries) -- we want to thinly wrap these with some interface code that is written (ideally) _once_.
 Given some instrument control library with a reasonably homogeneous/simple API, it should be easy to write an Actor variant to connect that library's Drivers with our Actor interface.
 
 ## Simple, yet powerful
@@ -42,7 +42,7 @@ A failing Component should not corrupt the measurement data acquired until then.
 That means that e.g. a failing Actor does not corrupt data of other Actors, and that a failing Observer has to have written the data to permanent storage before failing, e.g. by regularly writing instead of buffering a lot of data in memory.
 
 ## Onboarding experience
-We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
+We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of LECO modular.
 
 For simple measurements, a user should just need to download a package, write a little code to connect to the hardware with an Actor and a Driver from some instrument control library (e.g. a `pymeasure.Instrument`), and measure some things using the Actor interface.
 This assumes that an Actor variant interfacing to the given instrument control library has already been implemented.
