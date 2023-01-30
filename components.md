@@ -1,6 +1,6 @@
 # Components
 
-This page provides details on the main component/entity types that make up a deployment of the ECP.
+This page provides details on the main component/entity types that make up a deployment of the LECO.
 
 ## Director
 A Director manages a part of or the entire setup, orchestrating the Components according to the needs of the experiment.
@@ -12,11 +12,11 @@ It can, among other things,
 Potentially a GUI could be attached here too.
 
 ## Actor
-An Actor is a component that interfaces with a (hardware) Device and that has a specific API on the ECP side.
+An Actor is a component that interfaces with a (hardware) Device and that has a specific API on the LECO side.
 An Actor must contain a separate Driver object which communicates with the Device.
 
-We define how the other ECP components interact with the Actor, how it determines and announces its capabilities, etc.
-An Actor implements the mapping between ECP messages and Driver calls/attribute access.
+We define how the other LECO components interact with the Actor, how it determines and announces its capabilities, etc.
+An Actor implements the mapping between LECO messages and Driver calls/attribute access.
 
 An Actor must contain/manage/provide
 * An Driver that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
@@ -33,12 +33,12 @@ An Actor may contain/manage
 
 ### Driver
 The Driver object takes care of communicating with the Device, and is always contained in an Actor.
-This object is external to ECP, for example a `pymeasure.Instrument` instance or something from another instrument library.
-This is the place where all instrument libraries (including pymeasure) wire their hardware interface classes into ECP.
+This object is external to LECO, for example a `pymeasure.Instrument` instance or something from another instrument library.
+This is the place where all instrument libraries (including pymeasure) wire their hardware interface classes into LECO.
 
 Interfacing with the Driver is the task of instrument-library-specific Actors.
 
-Concerning the ECP, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
+Concerning the LECO, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
 
 :::{admonition} TODO
 We might want to add the notion of "Channels", especially for the multi-Director stuff
@@ -116,7 +116,7 @@ It only consumes message streams, but does not command `Actors`.
 
 ## Notes 
 ### Complexity scaling
-We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of ECP modular.
+We want to leave the entry threshold as low as possible, the learning curve flat, and the usability of LECO modular.
 If someone wants to just connect with an Actor instance, that should be possible, and easily understood, as the Actors have a consistent API.
 This assumes that a library-specific Actor has already been written by the library maintainers.
 

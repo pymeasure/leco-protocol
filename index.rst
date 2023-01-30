@@ -11,6 +11,7 @@
    :caption: Contents:
 
    introduction
+   goals
    components
    messages
    network-structure
