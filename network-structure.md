@@ -1,17 +1,17 @@
 # Network structure
 
 ## Message Layer
-The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of ECP Messages (see {ref}`messages.md#messages`).
+The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of LECO Messages (see {ref}`messages.md#messages`).
 
 ## Transport Layer
-The Transport Layer is the communication layer that transports ECP Messages between Components, making use of routing information in the Message header.
+The Transport Layer is the communication layer that transports LECO Messages between Components, making use of routing information in the Message header.
 This uses zeromq or simpler localised methods, see the section "Message Transport Mode".
 
 ## Node
-A Node is a local context in which (part of) an ECP deployment runs. 
+A Node is a local context in which (part of) a LECO deployment runs. 
 This may be a single application using one or more threads or processes. 
 
-An ECP network has one or more Nodes.
+A LECO network has one or more Nodes.
 Components within a Node may use the Local Message Transport (LMT/"local mode") or the Distributed Message Transport (DMT/"distributed mode") to communicate with each other, see below.
 All Components of a Node must use the same Message Transport Mode.
 :::{admonition} Note

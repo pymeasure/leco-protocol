@@ -20,19 +20,19 @@ Director
     A Component which takes part in orchestrating a (i.e. ECP-controlled) measurement setup, see {ref}`components.md#director`.
 
 Driver
-    An object that takes care of communicating with a Device. This object is external to ECP, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
+    An object that takes care of communicating with a Device. This object is external to LECO, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
 
-ECP
-    The **E**xperiment **C**ontrol **P**rotocol framework.
+LECO
+    The **L**aboratory **E**xperiment **CO**ntrol framework.
 
 Network
-    The web of Components communicating with each other in an ECP deployment.
+    The web of Components communicating with each other in a LECO deployment.
 
 Message
-    An ECP Message is one set of data transmitted from one Component to another, see {ref}`messages.md#messages`.
+    A LECO Message is one set of data transmitted from one Component to another, see {ref}`messages.md#messages`.
 
 Message Layer
-    The Message Layer is the communication layer that concerns itself with ECP message (de)composition, validation, serialisation, etc., see {ref}`network-structure.md#message-layer`.
+    The Message Layer is the communication layer that concerns itself with LECO message (de)composition, validation, serialisation, etc., see {ref}`network-structure.md#message-layer`.
     :::{admonition} TODO
     This is maybe gonna use Avro, but we still need to hash that out.
     :::
@@ -41,9 +41,9 @@ Message Transport Mode (LMT/DMT)
     The Node-local Message Layer can have a local or distributed mode, see {ref}`network-structure.md#message-transport-mode-lmtdmt`.
 
 Node
-    A Node is a local context in which (part of) an ECP deployment runs. 
+    A Node is a local context in which (part of) a LECO deployment runs. 
     This may be a single application using one or more threads or processes. 
-    An ECP network has one or more Nodes, see {ref}`network-structure.md#node`.
+    A LECO network has one or more Nodes, see {ref}`network-structure.md#node`.
 
 Observer
     A Component that receives data from other Components, e.g. for logging, storage, or plotting, see {ref}`components.md#observer`.
@@ -52,7 +52,7 @@ Processor
     A Component on the ECP network which runs some kind of processing operation on one or more inputs and produces one or more outputs. Can be stateful or stateless. See {ref}`components.md#processor`.
 
 Transport Layer
-    The Transport Layer is the communication layer that transports ECP messages between Components.
+    The Transport Layer is the communication layer that transports LECO messages between Components.
     This uses zeromq or simpler localised methods, see Message Transport Mode above. See {ref}`network-structure.md#transport-layer`.
 
 :::
