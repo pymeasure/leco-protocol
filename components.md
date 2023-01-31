@@ -97,7 +97,7 @@ sequenceDiagram
 A component primarily tasked with routing/coordinating the message flow between other Components.
 It represents the intermediate zmq brokers, proxies or somesuch.
 
-Every network needs at least one Coordinator, as all other Components within a Node directly exchange messages only with the Coordinator.
+Every network needs at least one Coordinator, as all other Components within one Node directly exchange messages only with the Coordinator.
 
 Every Node must have exactly one Coordinator.
 
