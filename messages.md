@@ -6,6 +6,3 @@ It consists of a Header with some metadata (e.g. routing information needed for 
 A heartbeat message might not need a payload.
 :::
 
-:::{admonition} TODO
-Confirm if we need to include a checksum.
-:::
