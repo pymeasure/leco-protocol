@@ -12,9 +12,11 @@ A Node is a local context in which (part of) a LECO deployment runs.
 This may be a single application using one or more threads or processes. 
 
 A LECO network has one or more Nodes.
-Components within a Node may use the Local Message Transport (LMT/"local mode") or the Distributed Message Transport (DMT/"distributed mode") to communicate with each other, see below.
+Components within a Node use the Distributed Message Transport (DMT/"distributed mode", the default) or the Local Message Transport (LMT/"local mode") to communicate with each other, see below.
 All Components of a Node must use the same Message Transport Mode.
+
 :::{admonition} Note
+LMT details are still notional and undefined, for now the spec focuses on DMT. 
 In the future this might be relaxed, so that Components within a Node might operate in different modes.
 :::
 :::{admonition} TODO
@@ -42,13 +44,15 @@ flowchart LR
     end
 :::
 
-Coordinator-Coordinator communication always uses DMT.
+Control Coordinator to Control Coordinator communication always uses DMT.
 
 ## Message Transport Mode (LMT/DMT)
 The Node-local Message Layer can have a local or distributed mode.
-The Local Message Transport (LMT) only works within a Node.
 The Distributed Message Transport (DMT, using the zeromq TCP protocol) works within or across Nodes.
-Local Message Transport options include zeromq inproc, zeromq IPC, and queues between threads/processes.
-:::{admonition} Note
+
+The Local Message Transport (LMT) only works within a Node _and_ within a process.
+Local Message Transport options include queues between threads/processes and zeromq inproc.
+:::{admonition} Warning
+LMT details are still notional and not to be relied upon this will be fleshed out at a later date. 
 The list of LMT options is not definitive yet.
 :::
