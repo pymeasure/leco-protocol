@@ -11,7 +11,8 @@ Component
     A type of entity, a set of which make up the LECO communication Network, see {ref}`components.md#components`.
 
 Coordinator
-    A Component primarily concerned with routing/coordinating the message flow, see {ref}`components.md#coordinator`.
+    A Component primarily concerned with routing/coordinating the message flow between other Components, see {ref}`components.md#coordinator`.
+    There are Control Coordinators, Data Coordinators, and Logging Coordinators.
 
 Device
     Some piece of hardware controlled by a Driver.
@@ -27,6 +28,7 @@ LECO
 
 Message
     A LECO Message is one set of data transmitted from one Component to another, see {ref}`messages.md#messages`.
+    Messages are broadly divided into three categories or "channels": control, data, and logging messages.
 
 Message Layer
     The Message Layer is the communication layer that concerns itself with LECO message (de)composition, validation, serialisation, etc., see {ref}`network-structure.md#message-layer`.
