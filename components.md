@@ -95,7 +95,7 @@ sequenceDiagram
 
 ## Coordinator
 A component primarily tasked with routing/coordinating the message flow between other Components.
-It represents the intermediate zmq brokers, proxies or somesuch.
+It represents a zmq broker, proxy or similar entity.
 
 There are several Coordinator variants meant for various tasks.
 They are using different kind of communication types (zmq socket types) since they have different communication requirements.
