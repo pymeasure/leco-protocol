@@ -13,6 +13,7 @@
    introduction
    goals
    components
+   control_protocol
    glossary
    Hello_world
 
