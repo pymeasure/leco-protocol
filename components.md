@@ -94,11 +94,33 @@ sequenceDiagram
 :::
 
 ## Coordinator
-A component primarily concerned with routing/coordinating the message flow between other Components.
-It represents the intermediate zmq brokers, proxies or somesuch.
-Multiple coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
+A component primarily tasked with routing/coordinating the message flow between other Components.
+It represents a zmq broker, proxy or similar entity.
 
-The presence of a coordinator should avoid the complexity/scaling of a purely point-to-point messaging approach. 
+There are several Coordinator variants meant for various tasks.
+They are using different kind of communication types (zmq socket types) since they have different communication requirements.
+
+:::{admonition} Note
+The use of a Coordinator avoids the complexity/scaling of a purely point-to-point messaging approach between all Components. 
+:::
+
+### Control Coordinator
+A Control Coordinator is concerned with routing control channel messages from/to different Components, using a distributed request-reply communication pattern.
+
+Every network needs at least one Control Coordinator.
+Every Node must have exactly one Control Coordinator, all other Components within one Node directly exchange messages only with their Node's Control Coordinator.
+
+:::{admonition} Note
+Multiple Control Coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
+:::
+
+### Data Coordinator
+A Data Coordinator is responsible for receiving and publishing data channel messages.
+It uses a publish-subscribe connection pattern.
+
+### Logging Coordinator
+A Data Coordinator is responsible for receiving and publishing logging channel messages.
+Structurally, it is identical to a Data Controller, except that it deals with logging, not data channel messages.
 
 ## Observer
 A Component that receives data from other Components, e.g. for logging, storage, or plotting, either directly in a streaming fashion, batched, or delayed.
