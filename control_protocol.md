@@ -41,7 +41,7 @@ Messages must be sent to a Coordinator's ROUTER socket.
 
 A small introduction to ROUTER sockets, for more details see [zmq guide chapter 3](https://zguide.zeromq.org/docs/chapter3/#Exploring-ROUTER-Sockets).
 
-A router socket assigns a random identity to each connecting peer.
+A router socket assigns a random _identity_ to each connecting peer.
 If, for example, two Components `CA`, `CB` connect to the ROUTER sockets, the socket assigns the identities, which we call `IA`, `IB` (they can be any bytes sequence).
 
 Whenever a message is sent to the ROUTER socket from a peer, it reads as a first frame that identity.
@@ -216,28 +216,45 @@ Prerequisite of Communication between two Components are:
 
 
 The following flow chart shows the decision scheme and message modification in a Coordinator.
-`IA` and `IB` are the connection identities of `CA` and `Co1.Recipient`.
+`Node0`, `NodeR` are placeholders for sender and recipient Node ID.
+`Recipient` is a placeholder for the recipient Component ID.
+`IA` is the connection identity of `Co1.CA` or of `Node0.COORDINATOR`.
+`IB` is the connection identities of `Co1.Recipient`.
 Bold arrows indicate message flow, thin lines indicate decision flow.
+Thin, dotted lines indicate decision flow in case of errors
 
 :::{mermaid}
 flowchart TB
-    C([CA DEALER]) == "NodeID.Recipient|Co1.CA|Content" ==> R0
-    R0[Co1 ROUTER receive] == "IA|NodeID.Recipient|Co1.CA|Content" ==> Code[remove sender identity]
-    Code == "NodeID.Recipient|Co1.CA|Content" ==> NS
-    NS -- "is None" --> Local
-    NS{NodeID} -- "== Co1"--> Local
+    C([Node0.CA DEALER]) == "NodeR.Recipient|Node0.CA|Content" ==> R0
+    R0[receive] == "IA|NodeR.Recipient|Node0.CA|Content" ==> CN0{Node0 == Co1}
+    CN0-->|no| RemIdent
+    CN0-->|yes| Clocal{CA in <br>local address book?}
+    Clocal -->|yes| CidKnown{IA is CA's identity<br> in address book?}
+    CidKnown -->|yes| RemIdent
+    Clocal -.->|no| E1[ERROR: Sender did not sign in] ==>|"IA|Node0.CA|Co1.COORDINATOR|ERROR: Sender dit not sign in"| S
+    S[send] ==> WA([Node0.CA DEALER])
+    CidKnown -.->|no| E2[ERROR: ID and identity do not match]==>|"IA|Node0.CA|Co1.COORDINATOR|ERROR: ID and identity do not match"| S
+    RemIdent[remove sender identity] == "NodeR.Recipient|Node0.CA|Content" ==> CNR
+    CNR -- "is None" --> Local
+    CNR{NodeR} -- "== Co1"--> Local
     Local{Recipient<br>==<br>COORDINATOR} -- "yes" --> Self([Message for Co1<br> itself])
-    Local -- "no" --> Local2
-    Local2[add Recipient identity IB] == "IB|NodeID.Recipient|Co1.CA|Content" ==> R1[send]
-    R1 == "NodeID.Recipient|Co1.CA|Content" ==> W1([Wire to Co1.Recipient DEALER])
-    NS -- "== connected Coordinator Co2" --> Keep
-    Keep[send to Coordinator Co2] == "NodeID.Recipient|Co1.CA|Content" ==> R2[send]
-    R2 == "NodeID.Recipient|Co1.CA|Content" ==> W2([Wire to Co2 ROUTER])
-    NS -- "reachable via Coordinator CoX" --> Augment
-    Augment[send via CoX] == "NodeID.Recipient|Co1.CA|Content" ==> R3[send]
-    R3 == "NodeID.Recipient|Co1.CA|Content"==> W3([Wire to CoX ROUTER])
+    Local -- "no" --> Local2a{Recipient in Address book}
+    Local2a -->|yes, with Identity IB| Local2
+    Local2[add Recipient identity IB] == "IB|NodeR.Recipient|Node0.CA|Content" ==> R1[send]
+    R1 == "NodeR.Recipient|Node0.CA|Content" ==> W1([Wire to Co1.Recipient DEALER])
+    Local2a -.->|no| E3[ERROR Recipient unknown<br>send Error to original sender] ==>|"Node0.CA|Co1.COORDINATOR|ERROR Co1.Recipient is unknown"|CNR
+    CNR -- "== connected Coordinator Co2" --> Keep
+    Keep[send to Coordinator Co2] == "NodeR.Recipient|Node0.CA|Content" ==> R2[send]
+    R2 == "NodeR.Recipient|Node0.CA|Content" ==> W2([Wire to Co2 ROUTER])
+    CNR -- "reachable via Coordinator CoX" --> Augment
+    Augment[send via CoX] == "NodeR.Recipient|Node0.CA|Content" ==> R3[send]
+    R3 == "NodeR.Recipient|Node0.CA|Content"==> W3([Wire to CoX ROUTER])
+    subgraph Co1 ROUTER socket
+        R0
+    end
     subgraph Co1 ROUTER socket
         R1
+        S
     end
     subgraph Co1 DEALER socket to Co2
         R2
