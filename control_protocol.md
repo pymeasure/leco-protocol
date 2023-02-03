@@ -115,34 +115,35 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 
 #### Communication with the Coordinator
 
+(sign-in)=
 ##### Initial connection
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a CONNECT message indicating its ID.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its ID.
 The Coordinator shall respond with an ACKNOWLEDGE, giving the Node ID and other relevant information, or with an ERROR, if the ID is already taken.
 After that successful handshake, the Coordinator shall store the connection identity and corresponding Component ID in its local address book.
-It shall also publish to the other Coordinators in the network that this Component connected, see {ref}`Coordinator coordination<coordinator-coordination>`.
+It shall also publish to the other Coordinators in the network that this Component signed in, see {ref}`Coordinator coordination<coordinator-coordination>`.
 Similarly, the Component shall store the Node ID and use it from this moment to generate its full ID.
 
-If a Component does send a message to someone without having signed in via CONNECT, the Coordinator shall refuse message handling and return an error.
+If a Component does send a message to someone without having signed in, the Coordinator shall refuse message handling and return an error.
 
 :::{mermaid}
 sequenceDiagram
     Note over CA,Co1: ID "CA" is still free
-    CA ->> Co1: COORDINATOR|CA|CONNECT
+    CA ->> Co1: COORDINATOR|CA|SIGNIN
     Note right of Co1: Connection identity "IA"
     Note right of Co1: Stores "CA" with identity "IA"
     Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE: Node ID is "Co1"
     Note left of CA: Stores "Co1" as Node ID
     Note over CA,Co1: ID "CA" is already used
-    CA ->> Co1: COORDINATOR|CA|CONNECT
+    CA ->> Co1: COORDINATOR|CA|SIGNIN
     Co1 ->> CA: CA|Co1.COORDINATOR|ERROR: ID "CA" is already used.
     Note left of CA: May retry with another ID
-    Note over CA,Co1: "CA" has not send CONNECT
+    Note over CA,Co1: "CA" has not send SIGNIN
     Note left of CA: Wants to send a message to CB
     CA ->> Co1: Co1.CB|CA|Content
     Note right of Co1: Does not know CA
     Co1 ->> CA: CA|Co1.COORDINATOR|ERROR:I do not know you
-    Note left of CA: Should send a CONNECT message
+    Note left of CA: Should send a SIGNIN message
 :::
 
 
@@ -153,23 +154,23 @@ We use heartbeat to know, whether a communication partner is still online.
 Every message received counts as a heartbeat.
 
 A Component should and a Coordinator shall send a STATUS request and wait some time before considering a connection dead.
-A Coordinator shall follow the {ref}`disconnect routine<disconnecting>` for a connected Component considered dead.
+A Coordinator shall follow the {ref}`sign out routine<sign-out>` for a signed in Component considered dead.
 
 :::{note}
 TBD: Respond to every non empty message with an empty one?
 :::
 
 
-(disconnecting)=
-##### Disconnecting
+(sign-out)=
+##### Signing out
 
-A Component should tell a Coordinator, when it stops working, with a DISCONNECT message.
-The Coordinator shall ACKNOWLEDGE the disconnect and remove the ID from its address book.
-It shall also publish to the other Coordinators in the network that this Component disconnected, see {ref}`Coordinator coordination<coordinator-coordination>`.
+A Component should tell a Coordinator, when it stops working, with a SIGNOUT message.
+The Coordinator shall ACKNOWLEDGE the sign out and remove the ID from its address book.
+It shall also publish to the other Coordinators in the network that this Component signed out, see {ref}`Coordinator coordination<coordinator-coordination>`.
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> Co1: COORDINATOR|Co1.CA|DISCONNECT
+    CA ->> Co1: COORDINATOR|Co1.CA|SIGNOUT
     Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE
     Note right of Co1: Removes "CA" with identity "IA"<br> from address book
     Note left of CA: Shall not send any message anymore
@@ -209,6 +210,10 @@ sequenceDiagram
     Co1 ->> CA: Co1.CA|Co2.CB| Property A has value 5.
 :::
 
+Prerequisite of Communication between two Components are:
+- Both Components are connected to a Coordinator and {ref}`signed in<sign-in>`.
+- Both Components are either connected to the same Coordinator (example one), or their Coordinators are connected to each other (example two).
+
 
 The following flow chart shows the decision scheme and message modification in a Coordinator.
 `IA` and `IB` are the connection identities of `CA` and `Co1.Recipient`.
@@ -247,7 +252,7 @@ flowchart TB
 #### Coordinator coordination
 
 Each Coordinator shall keep an up to date {ref}`global address book<address-book>` with the IDs of all Components in the Network.
-For this, Coordinators shall tell each other regarding connecting and disconnecting Components and Coordinators.
+For this, Coordinators shall tell each other regarding signing in and signing out Components and Coordinators.
 Coordinators shall send on request the IDs of their local address book, or of their global address book, depending on the request type.
 
 
