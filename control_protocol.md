@@ -50,20 +50,18 @@ That way, you can return an answer to exactly the original peer and not, for exa
 If you call the ROUTER's send command with `IA|Reply A`, the socket will send `Reply A` to the peer, whose connection is `IA`, in this case `CA`.
 
 The following diagram shows this example communication with two Components:
-:::{mermaid}
-graph TD
-    CA([CA]) -->|"Request A"| D[recv] -->|"IA|Request A"| A([Coordinator])
-    CB([CB]) -->|"Request B"| C[recv] -->|"IB|Request B"| A
-    subgraph ROUTER socket
-        B
-        C
-        D
-        E
-    end
-    A -. "IA|Reply A" .-> B
-    B[send] -. "Reply A" .-> CA
-    A -. "IB|Reply B" .-> E
-    E[send] -. "Reply B" .-> CB
+sequenceDiagram
+    participant Code
+    participant ROUTER as ROUTER socket
+    Note over Code, ROUTER: Coordinator
+    CA ->> ROUTER: "Request A"
+    ROUTER ->> Code: "IA|Request A"
+    Code ->> ROUTER: "IA|Reply A"
+    ROUTER ->> CA: "Reply A"
+    CB ->> ROUTER: "Request B"
+    ROUTER ->> Code: "IB|Request B"
+    Code ->> ROUTER: "IB|Reply B"
+    ROUTER ->> CB: "Reply B"
 :::
 
 
@@ -174,7 +172,7 @@ sequenceDiagram
     CA ->> Co1: COORDINATOR|Co1.CA|SIGNOUT
     Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE
     Note right of Co1: Removes "CA" with identity "IA"<br> from address book
-    Note left of CA: Shall not send any message anymore
+    Note left of CA: Shall not send any message anymore except SIGNIN
 :::
 
 
@@ -188,13 +186,15 @@ Coordinators shall hand on the message to the corresponding Coordinator or conne
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> Co1: Co1.CB|Co1.CA| Give me property A.
+    alt full ID
+        CA ->> Co1: Co1.CB|Co1.CA| Give me property A.
+    else only Component ID
+        CA ->> Co1: CB|Co1.CA| Give me property A.
+    end
     Co1 ->> CB: Co1.CB|Co1.CA| Give me property A.
     Note left of CB: Reads property A
     CB ->> Co1: Co1.CA|Co1.CB| Property A has value 5.
     Co1 ->> CA: Co1.CA|Co1.CB| Property A has value 5.
-    Note over CA,Co1: The first message could be as well:
-    CA ->> Co1: CB|Co1.CA| Give me property A.
 :::
 
 
