@@ -26,11 +26,11 @@ The first and fourth frames are empty frames.
 
 #### Configuration
 
-Each {ref}`Coordinator <components.md#coordinator>` shall offer one ROUTER socket, bound to a host name (or IP address or any address of a computer with "*") and port in the DMT.
+Each {ref}`Coordinator <components.md#coordinator>` shall offer one ROUTER socket, bound to a host name (or IP address or any address of a computer with "*") and port.
 
 {ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
 
-Coordinators shall have one DEALER socket per other Coordinator in the network.
+Coordinators shall have one DEALER socket per other Coordinator in the Network.
 This DEALER socket shall connect to the other Coordinator's ROUTER socket.
 
 Messages must be sent to a Coordinator's ROUTER socket.
@@ -73,13 +73,14 @@ graph TD
 
 Each Component has an individual ID, given by the user, the _Component ID_.
 A Component ID must be a series of bytes, without the ASCII character "." (byte value 46).
-Component IDs must be unique in a Node, i.e. among the Componets connected to a single Coordinator.
-The Coordinator itself has the Component ID `COORDINATOR`
+Component IDs must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Componets connected to a single Coordinator.
+The Coordinator itself has the Component ID `COORDINATOR`.
 :::{note}
 COORDINATOR is a placeholder for the final version.
 :::
 
-As each Component belongs to exactly one Coordinator, it is fully identified by the combination of Node ID and Component ID.
+Also every Node ID has to be unique in the Network.
+As each Component belongs to exactly one Coordinator, it is fully identified by the combination of Node ID and Component ID., which is globally unique.
 This _full ID_ is the composition of Node ID, ".", and Component ID.
 For example `Co1.CA` is the full ID of the Component `CA` in the Node `Co1`.
 
