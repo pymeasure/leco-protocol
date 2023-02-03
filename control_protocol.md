@@ -36,6 +36,7 @@ This DEALER socket shall connect to the other Coordinator's ROUTER socket.
 Messages must be sent to a Coordinator's ROUTER socket.
 
 
+(router-sockets)=
 #### Particularities of ROUTER sockets
 
 A small introduction to ROUTER sockets, for more details see [zmq guide chapter 3](https://zguide.zeromq.org/docs/chapter3/#Exploring-ROUTER-Sockets).
@@ -66,24 +67,26 @@ graph TD
 :::
 
 
-### Naming scheme
+### Protocol basics
 
-Each Component has an individual ID, given by the user, the Component ID.
+#### Naming scheme
+
+Each Component has an individual ID, given by the user, the _Component ID_.
 A Component ID must be a series of bytes, without the ASCII character "." (byte value 46).
 Component IDs must be unique in a Node, i.e. among the Componets connected to a single Coordinator.
+The Coordinator itself has the Component ID `COORDINATOR`
+:::{note}
+COORDINATOR is a placeholder for the final version.
+:::
 
 As each Component belongs to exactly one Coordinator, it is fully identified by the combination of Node ID and Component ID.
 This _full ID_ is the composition of Node ID, ".", and Component ID.
+For example `Co1.CA` is the full ID of the Component `CA` in the Node `Co1`.
 
 The receiver of a message may be specified without the Node ID, if the receiver lives in the same Node.
 
-:::{note}
-How to address the Coordinator? I used "no Recipient".
-Or a fixed name?
-:::
 
-
-### Message composition
+#### Message composition
 
 A message consists in two or more frames.
 1. The receiver full ID.
@@ -91,10 +94,19 @@ A message consists in two or more frames.
 3. Message content: The optional payload, which can be 0 or more frames.
 
 
+(address-book)=
+#### Address book
+
+Each Coordinator shall have a list of the Components connected to it.
+This is its _local address book_.
+
+The _global address book_ is the combination of the local address books of all Coordinators in a Network.
+
+
 ### Conversation protocol
 
-In the protocol examples, `CA`, `CB`, etc. indicate Components.
-`Co1`, `Co2`, etc. indicate Coordinators.
+In the protocol examples, `CA`, `CB`, etc. indicate Component IDs.
+`Co1`, `Co2`, etc. indicate Coordinators with their Node IDs.
 
 Here the Message content is expressed in plain English, for the exact definition see {ref}`message-layer`.
 
@@ -107,24 +119,30 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 
 After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a CONNECT message indicating its ID.
 The Coordinator shall respond with an ACKNOWLEDGE, giving the Node ID and other relevant information, or with an ERROR, if the ID is already taken.
-After that successful handshake, the Coordinator shall store the connection identity and correspondind Component ID in its address book.
-:::{note}
-publish that information
-:::
+After that successful handshake, the Coordinator shall store the connection identity and corresponding Component ID in its local address book.
+It shall also publish to the other Coordinators in the network that this Component connected, see {ref}`Coordinator coordination<coordinator-coordination>`.
 Similarly, the Component shall store the Node ID and use it from this moment to generate its full ID.
+
+If a Component does send a message to someone without having signed in via CONNECT, the Coordinator shall refuse message handling and return an error.
 
 :::{mermaid}
 sequenceDiagram
     Note over CA,Co1: ID "CA" is still free
-    CA ->> Co1: ||CA|CONNECT
+    CA ->> Co1: COORDINATOR|CA|CONNECT
     Note right of Co1: Connection identity "IA"
     Note right of Co1: Stores "CA" with identity "IA"
-    Co1 ->> CA: Co1.CA||ACKNOWLEDGE: Node ID is "Co1"
+    Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE: Node ID is "Co1"
     Note left of CA: Stores "Co1" as Node ID
     Note over CA,Co1: ID "CA" is already used
-    CA ->> Co1: ||CA|CONNECT
-    Co1 ->> CA: CA||ERROR: ID "CA" is already used.
+    CA ->> Co1: COORDINATOR|CA|CONNECT
+    Co1 ->> CA: CA|Co1.COORDINATOR|ERROR: ID "CA" is already used.
     Note left of CA: May retry with another ID
+    Note over CA,Co1: "CA" has not send CONNECT
+    Note left of CA: Wants to send a message to CB
+    CA ->> Co1: Co1.CB|CA|Content
+    Note right of Co1: Does not know CA
+    Co1 ->> CA: CA|Co1.COORDINATOR|ERROR:I do not know you
+    Note left of CA: Should send a CONNECT message
 :::
 
 
@@ -134,23 +152,25 @@ We use heartbeat to know, whether a communication partner is still online.
 
 Every message received counts as a heartbeat.
 
+A Component should and a Coordinator shall send a STATUS request and wait some time before considering a connection dead.
+A Coordinator shall follow the {ref}`disconnect routine<disconnecting>` for a connected Component considered dead.
+
 :::{note}
 TBD: Respond to every non empty message with an empty one?
 :::
 
 
+(disconnecting)=
 ##### Disconnecting
 
 A Component should tell a Coordinator, when it stops working, with a DISCONNECT message.
 The Coordinator shall ACKNOWLEDGE the disconnect and remove the ID from its address book.
-:::{note}
-publish that information
-:::
+It shall also publish to the other Coordinators in the network that this Component disconnected, see {ref}`Coordinator coordination<coordinator-coordination>`.
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> Co1: ||Co1.CA|DISCONNECT
-    Co1 ->> CA: Co1.CA||ACKNOWLEDGE
+    CA ->> Co1: COORDINATOR|Co1.CA|DISCONNECT
+    Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE
     Note right of Co1: Removes "CA" with identity "IA"<br> from address book
     Note left of CA: Shall not send any message anymore
 :::
@@ -201,7 +221,7 @@ flowchart TB
     Code == "NodeID.Recipient|Co1.CA|Content" ==> NS
     NS -- "is None" --> Local
     NS{NodeID} -- "== Co1"--> Local
-    Local{Recipient<br> is None} -- "yes" --> Self([Message for Co1<br> itself])
+    Local{Recipient<br>==<br>COORDINATOR} -- "yes" --> Self([Message for Co1<br> itself])
     Local -- "no" --> Local2
     Local2[add Recipient identity IB] == "IB|NodeID.Recipient|Co1.CA|Content" ==> R1[send]
     R1 == "NodeID.Recipient|Co1.CA|Content" ==> W1([Wire to Co1.Recipient DEALER])
@@ -220,6 +240,24 @@ flowchart TB
     subgraph Co1 DEALER socket to CoX
         R3
     end
+:::
+
+
+(coordinator-coordination)=
+#### Coordinator coordination
+
+Each Coordinator shall keep an up to date {ref}`global address book<address-book>` with the IDs of all Components in the Network.
+For this, Coordinators shall tell each other regarding connecting and disconnecting Components and Coordinators.
+Coordinators shall send on request the IDs of their local address book, or of their global address book, depending on the request type.
+
+
+Necessary information:
+- Event type (connect or disconnect)
+- Full ID (Node ID and Component ID) of the Component
+
+:::{note}
+TODO decide whether via Control or Data protocol.
+TODO add the log in of a Coordinator
 :::
 
 
