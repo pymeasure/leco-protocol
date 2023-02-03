@@ -13,6 +13,8 @@
    introduction
    goals
    components
+   messages
+   network-structure
    control_protocol
    glossary
    Hello_world
