@@ -80,7 +80,7 @@ COORDINATOR is a placeholder for the final version.
 Also every Node ID has to be unique in the Network.
 As each Component belongs to exactly one Coordinator, it is fully identified by the combination of Node ID and Component ID., which is globally unique.
 This _full ID_ is the composition of Node ID, ".", and Component ID.
-For example `Co1.CA` is the full ID of the Component `CA` in the Node `Co1`.
+For example `N1.CA` is the full ID of the Component `CA` in the Node `N1`.
 
 The receiver of a message may be specified without the Node ID, if the receiver lives in the same Node.
 
@@ -105,7 +105,7 @@ The _global address book_ is the combination of the local address books of all C
 ### Conversation protocol
 
 In the protocol examples, `CA`, `CB`, etc. indicate Component IDs.
-`Co1`, `Co2`, etc. indicate Coordinators with their Node IDs.
+`N1`, `N2`, etc. indicate Node IDs and `Co1`, `Co2` their corresponding Coordinators.
 
 Here the Message content is expressed in plain English, for the exact definition see {ref}`message-layer`.
 
@@ -127,21 +127,22 @@ If a Component does send a message to someone without having signed in, the Coor
 
 :::{mermaid}
 sequenceDiagram
-    Note over CA,Co1: ID "CA" is still free
-    CA ->> Co1: COORDINATOR|CA|SIGNIN
-    Note right of Co1: Connection identity "IA"
-    Note right of Co1: Stores "CA" with identity "IA"
-    Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE: Node ID is "Co1"
-    Note left of CA: Stores "Co1" as Node ID
-    Note over CA,Co1: ID "CA" is already used
-    CA ->> Co1: COORDINATOR|CA|SIGNIN
-    Co1 ->> CA: CA|Co1.COORDINATOR|ERROR: ID "CA" is already used.
+    Note over CA,N1: ID "CA" is still free
+    participant N1 as N1.COORDINATOR
+    CA ->> N1: COORDINATOR|CA|SIGNIN
+    Note right of N1: Connection identity "IA"
+    Note right of N1: Stores "CA" with identity "IA"
+    N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE: Node ID is "N1"
+    Note left of CA: Stores "N1" as Node ID
+    Note over CA,N1: ID "CA" is already used
+    CA ->> N1: COORDINATOR|CA|SIGNIN
+    N1 ->> CA: CA|N1.COORDINATOR|ERROR: ID "CA" is already used.
     Note left of CA: May retry with another ID
-    Note over CA,Co1: "CA" has not send SIGNIN
+    Note over CA,N1: "CA" has not send SIGNIN
     Note left of CA: Wants to send a message to CB
-    CA ->> Co1: Co1.CB|CA|Content
-    Note right of Co1: Does not know CA
-    Co1 ->> CA: CA|Co1.COORDINATOR|ERROR:I do not know you
+    CA ->> N1: N1.CB|CA|Content
+    Note right of N1: Does not know CA
+    N1 ->> CA: CA|N1.COORDINATOR|ERROR:I do not know you
     Note left of CA: Should send a SIGNIN message
 :::
 
@@ -169,9 +170,10 @@ It shall also publish to the other Coordinators in the network that this Compone
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> Co1: COORDINATOR|Co1.CA|SIGNOUT
-    Co1 ->> CA: Co1.CA|Co1.COORDINATOR|ACKNOWLEDGE
-    Note right of Co1: Removes "CA" with identity "IA"<br> from address book
+    CA ->> N1: COORDINATOR|N1.CA|SIGNOUT
+    participant N1 as N1.COORDINATOR
+    N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE
+    Note right of N1: Removes "CA" with identity "IA"<br> from address book
     Note left of CA: Shall not send any message anymore except SIGNIN
 :::
 
@@ -187,28 +189,31 @@ Coordinators shall hand on the message to the corresponding Coordinator or conne
 :::{mermaid}
 sequenceDiagram
     alt full ID
-        CA ->> Co1: Co1.CB|Co1.CA| Give me property A.
+        CA ->> N1: N1.CB|N1.CA| Give me property A.
     else only Component ID
-        CA ->> Co1: CB|Co1.CA| Give me property A.
+        CA ->> N1: CB|N1.CA| Give me property A.
     end
-    Co1 ->> CB: Co1.CB|Co1.CA| Give me property A.
+    participant N1 as N1.COORDINATOR
+    N1 ->> CB: N1.CB|N1.CA| Give me property A.
     Note left of CB: Reads property A
-    CB ->> Co1: Co1.CA|Co1.CB| Property A has value 5.
-    Co1 ->> CA: Co1.CA|Co1.CB| Property A has value 5.
+    CB ->> N1: N1.CA|N1.CB| Property A has value 5.
+    N1 ->> CA: N1.CA|N1.CB| Property A has value 5.
 :::
 
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> Co1: Co2.CB|Co1.CA| Give me property A.
-    Note over Co1,Co2: Co1.DEALER socket sends to Co2.ROUTER
-    Co1 ->> Co2: Co2.CB|Co1.CA| Give me property A.
-    Co2 ->> CB: Co2.CB|Co1.CA| Give me property A.
+    CA ->> N1: N2.CB|N1.CA| Give me property A.
+    participant N1 as N1.COORDINATOR
+    Note over N1,N2: N1 DEALER socket sends to N2 ROUTER
+    participant N2 as N2.COORDINATOR
+    N1 ->> N2: N2.CB|N1.CA| Give me property A.
+    N2 ->> CB: N2.CB|N1.CA| Give me property A.
     Note left of CB: Reads property A
-    CB ->> Co2: Co1.CA|Co2.CB| Property A has value 5.
-    Note over Co1,Co2: Co2.DEALER socket sends to Co1.ROUTER
-    Co2 ->> Co1: Co1.CA|Co2.CB| Property A has value 5.
-    Co1 ->> CA: Co1.CA|Co2.CB| Property A has value 5.
+    CB ->> N2: N1.CA|N2.CB| Property A has value 5.
+    Note over N1,N2: N2 DEALER socket sends to N1 ROUTER
+    N2 ->> N1: N1.CA|N2.CB| Property A has value 5.
+    N1 ->> CA: N1.CA|N2.CB| Property A has value 5.
 :::
 
 Prerequisite of Communication between two Components are:
