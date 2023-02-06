@@ -216,40 +216,41 @@ Prerequisite of Communication between two Components are:
 - Both Components are either connected to the same Coordinator (example one), or their Coordinators are connected to each other (example two).
 
 
-The following flow chart shows the decision scheme and message modification in a Coordinator.
-`Node0`, `NodeR` are placeholders for sender and recipient Node ID.
-`Recipient` is a placeholder for the recipient Component ID.
-`IA` is the connection identity of `Co1.CA` or of `Node0.COORDINATOR`.
-`IB` is the connection identities of `Co1.Recipient`.
+The following flow chart shows the decision scheme and message modification in a Coordinator `Co1` of Node `N1`.
+Its full ID is `N1.Coordinator`.
+`n0`, `nR` are placeholders for sender and recipient Node ID.
+`recipient` is a placeholder for the recipient Component ID.
+`IA` is the connection identity of the Component `N1.CA` (if it is directly connected to `Co1`) or of its Coordinator `n0.COORDINATOR`.
+`IB` is the connection identities of `N1.Recipient`.
 Bold arrows indicate message flow, thin lines indicate decision flow.
-Thin, dotted lines indicate decision flow in case of errors
+Thin, dotted lines indicate decision flow in case of errors.
+Placeholder values are written in lowercase, while actually known values are begin with an uppercase letter.
 
 :::{mermaid}
 flowchart TB
-    C([Node0.CA DEALER]) == "NodeR.Recipient|Node0.CA|Content" ==> R0
-    R0[receive] == "IA|NodeR.Recipient|Node0.CA|Content" ==> CN0{Node0 == Co1}
-    CN0-->|no| RemIdent
-    CN0-->|yes| Clocal{CA in <br>local address book?}
+    C1([N1.CA DEALER]) == "nr.recipient|n0.CA|Content<br>(==nr.recipient|N1.CA|Content)" ==> R0
+    C0([n0.COORDINATOR DEALER]) == "nr.recipient|n0.CA|Content" ==> R0
+    R0[receive] == "IA|nr.recipient|n0.CA|Content" ==> Cn0{n0 == N1?}
+    Cn0-->|no| RemIdent
+    Cn0-->|yes| Clocal{CA in <br>local address book?}
     Clocal -->|yes| CidKnown{IA is CA's identity<br> in address book?}
     CidKnown -->|yes| RemIdent
-    Clocal -.->|no| E1[ERROR: Sender did not sign in] ==>|"IA|Node0.CA|Co1.COORDINATOR|ERROR: Sender dit not sign in"| S
-    S[send] ==> WA([Node0.CA DEALER])
-    CidKnown -.->|no| E2[ERROR: ID and identity do not match]==>|"IA|Node0.CA|Co1.COORDINATOR|ERROR: ID and identity do not match"| S
-    RemIdent[remove sender identity] == "NodeR.Recipient|Node0.CA|Content" ==> CNR
-    CNR -- "is None" --> Local
-    CNR{NodeR} -- "== Co1"--> Local
-    Local{Recipient<br>==<br>COORDINATOR} -- "yes" --> Self([Message for Co1<br> itself])
-    Local -- "no" --> Local2a{Recipient in Address book}
+    Clocal -.->|no| E1[ERROR: Sender did not sign in] ==>|"IA|n0.CA|N1.COORDINATOR|ERROR: Sender dit not sign in<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
+    S[send] ==> WA([N1.CA DEALER])
+    CidKnown -.->|no| E2[ERROR: ID and identity do not match]==>|"IA|n0.CA|N1.COORDINATOR|ERROR: ID and identity do not match<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
+    RemIdent[remove sender identity] == "nr.recipient|n0.CA|Content" ==> Cnr
+    Cnr -- "is None" --> Local
+    Cnr{nr?} -- "== N1"--> Local
+    Local{recipient<br>==<br>COORDINATOR?} -- "yes" --> Self[Message for Co1<br> itself]
+    Self == "nr.recipient|n0.CA|Content<br>(==N1.COORDINATOR|n0.CA|Content)" ==> SC([Co1 Message handling])
+    Local -- "no" --> Local2a{recipient in Address book?}
     Local2a -->|yes, with Identity IB| Local2
-    Local2[add Recipient identity IB] == "IB|NodeR.Recipient|Node0.CA|Content" ==> R1[send]
-    R1 == "NodeR.Recipient|Node0.CA|Content" ==> W1([Wire to Co1.Recipient DEALER])
-    Local2a -.->|no| E3[ERROR Recipient unknown<br>send Error to original sender] ==>|"Node0.CA|Co1.COORDINATOR|ERROR Co1.Recipient is unknown"|CNR
-    CNR -- "== connected Coordinator Co2" --> Keep
-    Keep[send to Coordinator Co2] == "NodeR.Recipient|Node0.CA|Content" ==> R2[send]
-    R2 == "NodeR.Recipient|Node0.CA|Content" ==> W2([Wire to Co2 ROUTER])
-    CNR -- "reachable via Coordinator CoX" --> Augment
-    Augment[send via CoX] == "NodeR.Recipient|Node0.CA|Content" ==> R3[send]
-    R3 == "NodeR.Recipient|Node0.CA|Content"==> W3([Wire to CoX ROUTER])
+    Local2[add recipient identity IB] == "IB|nr.recipient|n0.CA|Content<br>(==IB|N1.recipient|n0.CA|Content)" ==> R1[send]
+    R1 == "nr.recipient|n0.CA|Content<br>(==N1.recipient|n0.CA|Content)" ==> W1([Wire to N1.recipient DEALER])
+    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"n0.CA|N1.COORDINATOR|ERROR N1.recipient is unknown"|Cnr
+    Cnr -- "== N2" --> Keep
+    Keep[send to N2.COORDINATOR] == "nr.recipient|n0.CA|Content<br>(==N2.recipient|n0.CA|Content)" ==> R2[send]
+    R2 == "nr.recipient|n0.CA|Content<br>(==N2.recipient|n0.CA|Content)" ==> W2([Wire to N2.COORDINATOR ROUTER])
     subgraph Co1 ROUTER socket
         R0
     end
@@ -257,11 +258,8 @@ flowchart TB
         R1
         S
     end
-    subgraph Co1 DEALER socket to Co2
+    subgraph Co1 DEALER socket <br>to N2.COORDINATOR
         R2
-    end
-    subgraph Co1 DEALER socket to CoX
-        R3
     end
 :::
 
