@@ -89,10 +89,10 @@ The receiver of a message may be specified without the Namespace, if the receive
 #### Message composition
 
 A message consists in two or more frames.
-1. The protocol version.
+1. The protocol version (abbreviated with "V" in examples).
 2. The receiver full name.
 3. The sender full name.
-4. A content header.
+4. A content header (abbreviated with "H" in examples).
 5. Message content: The optional payload, which can be 0 or more frames.
 
 
@@ -131,20 +131,20 @@ If a Component does send a message to someone without having signed in, the Coor
 sequenceDiagram
     Note over CA,N1: Name "CA" is still free
     participant N1 as N1.COORDINATOR
-    CA ->> N1: COORDINATOR|CA|SIGNIN
+    CA ->> N1: V|COORDINATOR|CA|H|SIGNIN
     Note right of N1: Connection identity "IA"
     Note right of N1: Stores "CA" with identity "IA"
-    N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE: Namespace is "N1"
+    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE: Namespace is "N1"
     Note left of CA: Stores "N1" as Namespace
     Note over CA,N1: Name "CA" is already used
-    CA ->> N1: COORDINATOR|CA|SIGNIN
-    N1 ->> CA: CA|N1.COORDINATOR|ERROR: Name "CA" is already used.
+    CA ->> N1: V|COORDINATOR|CA|H|SIGNIN
+    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: Name "CA" is already used.
     Note left of CA: May retry with another Name
     Note over CA,N1: "CA" has not send SIGNIN
     Note left of CA: Wants to send a message to CB
-    CA ->> N1: N1.CB|CA|Content
+    CA ->> N1: V|N1.CB|CA|H|Content
     Note right of N1: Does not know CA
-    N1 ->> CA: CA|N1.COORDINATOR|ERROR:I do not know you
+    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR:I do not know you
     Note left of CA: Should send a SIGNIN message
 :::
 
@@ -171,9 +171,9 @@ It shall also publish to the other Coordinators in the network that this Compone
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> N1: COORDINATOR|N1.CA|SIGNOUT
+    CA ->> N1: V|COORDINATOR|N1.CA|H|SIGNOUT
     participant N1 as N1.COORDINATOR
-    N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE
+    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE
     Note right of N1: Removes "CA" with identity "IA"<br> from directory
     Note left of CA: Shall not send any message anymore except SIGNIN
 :::
@@ -190,31 +190,31 @@ Coordinators shall hand on the message to the corresponding Coordinator or conne
 :::{mermaid}
 sequenceDiagram
     alt full name
-        CA ->> N1: N1.CB|N1.CA| Give me property A.
+        CA ->> N1: V|N1.CB|N1.CA|H| Give me property A.
     else only Component name
-        CA ->> N1: CB|N1.CA| Give me property A.
+        CA ->> N1: V|CB|N1.CA|H| Give me property A.
     end
     participant N1 as N1.COORDINATOR
-    N1 ->> CB: N1.CB|N1.CA| Give me property A.
+    N1 ->> CB: V|N1.CB|N1.CA|H| Give me property A.
     Note left of CB: Reads property A
-    CB ->> N1: N1.CA|N1.CB| Property A has value 5.
-    N1 ->> CA: N1.CA|N1.CB| Property A has value 5.
+    CB ->> N1: V|N1.CA|N1.CB|H| Property A has value 5.
+    N1 ->> CA: V|N1.CA|N1.CB|H| Property A has value 5.
 :::
 
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> N1: N2.CB|N1.CA| Give me property A.
+    CA ->> N1: V|N2.CB|N1.CA|H| Give me property A.
     participant N1 as N1.COORDINATOR
     Note over N1,N2: N1 DEALER socket sends to N2 ROUTER
     participant N2 as N2.COORDINATOR
-    N1 ->> N2: N2.CB|N1.CA| Give me property A.
-    N2 ->> CB: N2.CB|N1.CA| Give me property A.
+    N1 ->> N2: V|N2.CB|N1.CA|H| Give me property A.
+    N2 ->> CB: V|N2.CB|N1.CA|H| Give me property A.
     Note left of CB: Reads property A
-    CB ->> N2: N1.CA|N2.CB| Property A has value 5.
+    CB ->> N2: V|N1.CA|N2.CB|H| Property A has value 5.
     Note over N1,N2: N2 DEALER socket sends to N1 ROUTER
-    N2 ->> N1: N1.CA|N2.CB| Property A has value 5.
-    N1 ->> CA: N1.CA|N2.CB| Property A has value 5.
+    N2 ->> N1: V|N1.CA|N2.CB|H| Property A has value 5.
+    N1 ->> CA: V|N1.CA|N2.CB|H| Property A has value 5.
 :::
 
 Prerequisite of Communication between two Components are:
@@ -224,39 +224,40 @@ Prerequisite of Communication between two Components are:
 
 The following flow chart shows the decision scheme and message modification in a Coordinator `Co1` of Node `N1`.
 Its full name is `N1.Coordinator`.
-`n0`, `nR` are placeholders for sender and recipient Namespaces.
+`nS`, `nR` are placeholders for sender and recipient Namespaces.
 `recipient` is a placeholder for the recipient Component name.
-`IA` is the connection identity of the Component `N1.CA` (if it is directly connected to `Co1`) or of its Coordinator `n0.COORDINATOR`.
+`iA` is the connection identity of the incoming message, for example `IA` for Component `N1.CA`.
 `IB` is the connection identity of `N1.Recipient`.
 Bold arrows indicate message flow, thin lines indicate decision flow.
 Thin, dotted lines indicate decision flow in case of errors.
 Placeholder values are written in lowercase, while actually known values begin with an uppercase letter.
+For brevity's sake, the protocol version (in front of recipient frame) and the header (in front of content) are not shown.
 
 :::{mermaid}
 flowchart TB
-    C1([N1.CA DEALER]) == "nr.recipient|n0.CA|Content<br>(==nr.recipient|N1.CA|Content)" ==> R0
-    C0([n0.COORDINATOR DEALER]) == "nr.recipient|n0.CA|Content" ==> R0
-    R0[receive] == "IA|nr.recipient|n0.CA|Content" ==> Cn0{n0 == N1?}
-    Cn0-->|no| RemIdent
-    Cn0-->|yes| Clocal{CA in <br>local address book?}
-    Clocal -->|yes| CidKnown{IA is CA's identity<br> in address book?}
+    C1([N1.CA DEALER]) == "nR.recipient|nS.CA|Content<br>(==nR.recipient|N1.CA|Content)" ==> R0
+    C0([nS.COORDINATOR DEALER]) == "V|nR.recipient|nS.CA|Content" ==> R0
+    R0[receive] == "iaA|nR.recipient|nS.CA|Content" ==> CnS{nS == N1?}
+    CnS-->|no| RemIdent
+    CnS-->|yes| Clocal{CA in <br>local address book?}
+    Clocal -->|yes| CidKnown{iA is CA's identity<br> in address book?}
     CidKnown -->|yes| RemIdent
-    Clocal -.->|no| E1[ERROR: Sender did not sign in] ==>|"IA|n0.CA|N1.COORDINATOR|ERROR: Sender dit not sign in<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
+    Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|nS.CA|N1.COORDINATOR|ERROR: Sender unknown in<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
     S[send] ==> WA([N1.CA DEALER])
-    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"IA|n0.CA|N1.COORDINATOR|ERROR: Name and identity do not match<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
-    RemIdent[remove sender identity] == "nr.recipient|n0.CA|Content" ==> Cnr
-    Cnr -- "is None" --> Local
-    Cnr{nr?} -- "== N1"--> Local
+    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"iA|nS.CA|N1.COORDINATOR|ERROR: Name and identity do not match<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
+    RemIdent[remove sender identity] == "nR.recipient|nS.CA|Content" ==> CnR
+    CnR -- "is None" --> Local
+    CnR{nR?} -- "== N1"--> Local
     Local{recipient<br>==<br>COORDINATOR?} -- "yes" --> Self[Message for Co1<br> itself]
-    Self == "nr.recipient|n0.CA|Content<br>(==N1.COORDINATOR|n0.CA|Content)" ==> SC([Co1 Message handling])
+    Self == "nR.recipient|nS.CA|Content<br>(==N1.COORDINATOR|nS.CA|Content)" ==> SC([Co1 Message handling])
     Local -- "no" --> Local2a{recipient in Address book?}
     Local2a -->|yes, with Identity IB| Local2
-    Local2[add recipient identity IB] == "IB|nr.recipient|n0.CA|Content<br>(==IB|N1.recipient|n0.CA|Content)" ==> R1[send]
-    R1 == "nr.recipient|n0.CA|Content<br>(==N1.recipient|n0.CA|Content)" ==> W1([Wire to N1.recipient DEALER])
-    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"n0.CA|N1.COORDINATOR|ERROR N1.recipient is unknown"|Cnr
-    Cnr -- "== N2" --> Keep
-    Keep[send to N2.COORDINATOR] == "nr.recipient|n0.CA|Content<br>(==N2.recipient|n0.CA|Content)" ==> R2[send]
-    R2 == "nr.recipient|n0.CA|Content<br>(==N2.recipient|n0.CA|Content)" ==> W2([Wire to N2.COORDINATOR ROUTER])
+    Local2[add recipient identity IB] == "IB|nR.recipient|nS.CA|Content<br>(==IB|N1.recipient|nS.CA|Content)" ==> R1[send]
+    R1 == "nR.recipient|nS.CA|Content<br>(==N1.recipient|nS.CA|Content)" ==> W1([Wire to N1.recipient DEALER])
+    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"nS.CA|N1.COORDINATOR|ERROR N1.recipient is unknown"|CnR
+    CnR -- "== N2" --> Keep
+    Keep[send to N2.COORDINATOR] == "nR.recipient|nS.CA|Content<br>(==N2.recipient|nS.CA|Content)" ==> R2[send]
+    R2 == "nR.recipient|nS.CA|Content<br>(==N2.recipient|nS.CA|Content)" ==> W2([Wire to N2.COORDINATOR ROUTER])
     subgraph Co1 ROUTER socket
         R0
     end
@@ -280,6 +281,10 @@ For the format of the Messages, see {ref}`message-layer`.
 
 
 ##### Coordinator sign in
+
+:::{note}
+TODO
+:::
 
 Two Coordinators shall follow a more thorough sign in procedure, than Components:
 
