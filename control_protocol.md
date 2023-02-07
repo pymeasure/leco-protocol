@@ -51,7 +51,7 @@ If you call the ROUTER's send command with `IA|Reply A`, the socket will send `R
 
 The following diagram shows this example communication with two Components:
 sequenceDiagram
-    participant Code
+    participant Code as Message handling
     participant ROUTER as ROUTER socket
     Note over Code, ROUTER: Coordinator
     CA ->> ROUTER: "Request A"
@@ -69,43 +69,45 @@ sequenceDiagram
 
 #### Naming scheme
 
-Each Component has an individual ID, given by the user, the _Component ID_.
-A Component ID must be a series of bytes, without the ASCII character "." (byte value 46).
-Component IDs must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Componets connected to a single Coordinator.
-The Coordinator itself has the Component ID `COORDINATOR`.
+Each Component has an individual name, given by the user, the _Component Name_.
+A Component Name must be a series of bytes, without the ASCII character "." (byte value 46).
+Component Names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components connected to a single Coordinator.
+The Coordinator itself has the Component Name `COORDINATOR`.
 :::{note}
 COORDINATOR is a placeholder for the final version.
 :::
 
-Also every Node ID has to be unique in the Network.
-As each Component belongs to exactly one Coordinator, it is fully identified by the combination of Node ID and Component ID., which is globally unique.
-This _full ID_ is the composition of Node ID, ".", and Component ID.
-For example `N1.CA` is the full ID of the Component `CA` in the Node `N1`.
+Similarly, every node has a name, the _Namespace_.
+Every Namespace has to be unique in the Network.
+As each Component belongs to exactly one Node, it is fully identified by the combination of Namespace and Component Name, which is globally unique.
+This _full name_ is the composition of Namespace, ".", and Component Name.
+For example `N1.CA` is the full name of the Component `CA` in the Node `N1`.
 
-The receiver of a message may be specified without the Node ID, if the receiver lives in the same Node.
+The receiver of a message may be specified without the Namespace, if the receiver lives in the same Node.
 
 
 #### Message composition
 
 A message consists in two or more frames.
-1. The receiver full ID.
-2. The sender full ID.
-3. Message content: The optional payload, which can be 0 or more frames.
+1. The protocol version.
+2. The receiver full name.
+3. The sender full name.
+4. A content header.
+5. Message content: The optional payload, which can be 0 or more frames.
 
 
-(address-book)=
-#### Address book
+#### Directory
 
 Each Coordinator shall have a list of the Components connected to it.
-This is its _local address book_.
+This is its _local Directory_.
 
-The _global address book_ is the combination of the local address books of all Coordinators in a Network.
+The _global Directory_ is the combination of the local directories of all Coordinators in a Network.
 
 
 ### Conversation protocol
 
-In the protocol examples, `CA`, `CB`, etc. indicate Component IDs.
-`N1`, `N2`, etc. indicate Node IDs and `Co1`, `Co2` their corresponding Coordinators.
+In the protocol examples, `CA`, `CB`, etc. indicate Component Names.
+`N1`, `N2`, etc. indicate Node Namespaces and `Co1`, `Co2` their corresponding Coordinators.
 
 Here the Message content is expressed in plain English, for the exact definition see {ref}`message-layer`.
 
@@ -117,27 +119,27 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 (sign-in)=
 ##### Initial connection
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its ID.
-The Coordinator shall respond with an ACKNOWLEDGE, giving the Node ID and other relevant information, or with an ERROR, if the ID is already taken.
-After that successful handshake, the Coordinator shall store the connection identity and corresponding Component ID in its local address book.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its Component Name.
+The Coordinator shall respond with an ACKNOWLEDGE, giving the Namespace and other relevant information, or with an ERROR, if the Component Name is already taken.
+After that successful handshake, the Coordinator shall store the connection identity and corresponding Component Name in its local {ref}`directory`.
 It shall also publish to the other Coordinators in the network that this Component signed in, see {ref}`Coordinator coordination<coordinator-coordination>`.
-Similarly, the Component shall store the Node ID and use it from this moment to generate its full ID.
+Similarly, the Component shall store the Namespace and use it from this moment to generate its full name.
 
 If a Component does send a message to someone without having signed in, the Coordinator shall refuse message handling and return an error.
 
 :::{mermaid}
 sequenceDiagram
-    Note over CA,N1: ID "CA" is still free
+    Note over CA,N1: Name "CA" is still free
     participant N1 as N1.COORDINATOR
     CA ->> N1: COORDINATOR|CA|SIGNIN
     Note right of N1: Connection identity "IA"
     Note right of N1: Stores "CA" with identity "IA"
-    N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE: Node ID is "N1"
-    Note left of CA: Stores "N1" as Node ID
-    Note over CA,N1: ID "CA" is already used
+    N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE: Namespace is "N1"
+    Note left of CA: Stores "N1" as Namespace
+    Note over CA,N1: Name "CA" is already used
     CA ->> N1: COORDINATOR|CA|SIGNIN
-    N1 ->> CA: CA|N1.COORDINATOR|ERROR: ID "CA" is already used.
-    Note left of CA: May retry with another ID
+    N1 ->> CA: CA|N1.COORDINATOR|ERROR: Name "CA" is already used.
+    Note left of CA: May retry with another Name
     Note over CA,N1: "CA" has not send SIGNIN
     Note left of CA: Wants to send a message to CB
     CA ->> N1: N1.CB|CA|Content
@@ -153,19 +155,18 @@ We use heartbeat to know, whether a communication partner is still online.
 
 Every message received counts as a heartbeat.
 
-A Component should and a Coordinator shall send a STATUS request and wait some time before considering a connection dead.
-A Coordinator shall follow the {ref}`sign out routine<sign-out>` for a signed in Component considered dead.
+A Component should and a Coordinator shall send a PING and wait some time before considering a connection dead.
+A Coordinator shall follow the {ref}`sign out routine<signing-out>` for a signed in Component considered dead.
 
 :::{note}
 TBD: Respond to every non empty message with an empty one?
 :::
 
 
-(sign-out)=
 ##### Signing out
 
 A Component should tell a Coordinator, when it stops working, with a SIGNOUT message.
-The Coordinator shall ACKNOWLEDGE the sign out and remove the ID from its address book.
+The Coordinator shall ACKNOWLEDGE the sign out and remove the Name from its directory.
 It shall also publish to the other Coordinators in the network that this Component signed out, see {ref}`Coordinator coordination<coordinator-coordination>`.
 
 :::{mermaid}
@@ -173,7 +174,7 @@ sequenceDiagram
     CA ->> N1: COORDINATOR|N1.CA|SIGNOUT
     participant N1 as N1.COORDINATOR
     N1 ->> CA: N1.CA|N1.COORDINATOR|ACKNOWLEDGE
-    Note right of N1: Removes "CA" with identity "IA"<br> from address book
+    Note right of N1: Removes "CA" with identity "IA"<br> from directory
     Note left of CA: Shall not send any message anymore except SIGNIN
 :::
 
@@ -188,9 +189,9 @@ Coordinators shall hand on the message to the corresponding Coordinator or conne
 
 :::{mermaid}
 sequenceDiagram
-    alt full ID
+    alt full name
         CA ->> N1: N1.CB|N1.CA| Give me property A.
-    else only Component ID
+    else only Component name
         CA ->> N1: CB|N1.CA| Give me property A.
     end
     participant N1 as N1.COORDINATOR
@@ -222,14 +223,14 @@ Prerequisite of Communication between two Components are:
 
 
 The following flow chart shows the decision scheme and message modification in a Coordinator `Co1` of Node `N1`.
-Its full ID is `N1.Coordinator`.
-`n0`, `nR` are placeholders for sender and recipient Node ID.
-`recipient` is a placeholder for the recipient Component ID.
+Its full name is `N1.Coordinator`.
+`n0`, `nR` are placeholders for sender and recipient Namespaces.
+`recipient` is a placeholder for the recipient Component name.
 `IA` is the connection identity of the Component `N1.CA` (if it is directly connected to `Co1`) or of its Coordinator `n0.COORDINATOR`.
-`IB` is the connection identities of `N1.Recipient`.
+`IB` is the connection identity of `N1.Recipient`.
 Bold arrows indicate message flow, thin lines indicate decision flow.
 Thin, dotted lines indicate decision flow in case of errors.
-Placeholder values are written in lowercase, while actually known values are begin with an uppercase letter.
+Placeholder values are written in lowercase, while actually known values begin with an uppercase letter.
 
 :::{mermaid}
 flowchart TB
@@ -242,7 +243,7 @@ flowchart TB
     CidKnown -->|yes| RemIdent
     Clocal -.->|no| E1[ERROR: Sender did not sign in] ==>|"IA|n0.CA|N1.COORDINATOR|ERROR: Sender dit not sign in<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
     S[send] ==> WA([N1.CA DEALER])
-    CidKnown -.->|no| E2[ERROR: ID and identity do not match]==>|"IA|n0.CA|N1.COORDINATOR|ERROR: ID and identity do not match<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
+    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"IA|n0.CA|N1.COORDINATOR|ERROR: Name and identity do not match<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
     RemIdent[remove sender identity] == "nr.recipient|n0.CA|Content" ==> Cnr
     Cnr -- "is None" --> Local
     Cnr{nr?} -- "== N1"--> Local
@@ -269,27 +270,64 @@ flowchart TB
 :::
 
 
-(coordinator-coordination)=
 #### Coordinator coordination
 
-Each Coordinator shall keep an up to date {ref}`global address book<address-book>` with the IDs of all Components in the Network.
+Each Coordinator shall keep an up to date global {ref}`directory` with the names of all Components in the Network.
 For this, Coordinators shall tell each other regarding signing in and signing out Components and Coordinators.
-Coordinators shall send on request the IDs of their local address book, or of their global address book, depending on the request type.
+Coordinators shall send on request the Names of their local directory, or of their global directory, depending on the request type.
+
+For the format of the Messages, see {ref}`message-layer`.
 
 
-Necessary information:
-- Event type (connect or disconnect)
-- Full ID (Node ID and Component ID) of the Component
+##### Coordinator sign in
 
-:::{note}
-TODO decide whether via Control or Data protocol.
-TODO add the log in of a Coordinator
-:::
+Two Coordinators shall follow a more thorough sign in procedure, than Components:
+
+1. Coordinator Co1 signs in to Co2
+	1. Co1 creates a DEALER socket and connects to another Coordinator Co2 (ROUTER socket).
+	2. Co1 sends a CO-SIGNIN message indicating its own address (host and port) to Co2.
+	3. Co2 creates a DEALER socket and connects to Co1's DEALER socket.
+	4. Co2 stores the the Namespace of Co1 and references it to the corresponding DEALER socket
+	5. Co2 acknowledges to Co1 the Coordinator sign in.
+2. Co2 signs in to Co1
+	6. Co2 sends a CO-SIGNIN message to Co1.
+	7. Co1 stores the Co2 Namespace and references it to the corresponding DEALER socket
+	8. Co1 ackwnowledges to Co2 the Coordinator sign in.
+3. Co1 and Co2 request the local address book of the other one.
+4. If desired (see below), Co2 tells all its known Coordinators, that they shall sign in to Co1
+
+In a CO-SIGNIN message, a Coordinator may indicate, that the other Coordinator shall tell all the other Coordinators, that it is present in the Network.
+For example Co1 asks this from Co2 and Co2 tells Co3, Co4, etc., that they shall sign in to Co1.
+That way all Coordinators are connected to all other ones.
+
+
+##### Coordinator updates
+
+Whenever a Component signs in to or out of its Coordinator, the Coordinator shall send a note regarding this event to all the other Coordinators.
+The note shall contain the full name of the Component and the event type (sign in or out)
+The other Coordinators shall update their global directory according to this note (add or remove an entry).
+
+
+
+TODO Add full update (full local list)
+TODO Problem: If a full list arrives after an update: On the other hand: One message after the other: Sequence should work out.
 
 
 
 (message-layer)=
 ## Message layer
+
+
+
+### Messages for Transport Layer
+
+- SIGNIN
+- SIGNOUT
+- ACKNOWLEDGE
+- ERROR
+- PING
+
+
 
 :::{note}
 TODO
