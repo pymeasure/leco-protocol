@@ -226,38 +226,36 @@ The following flow chart shows the decision scheme and message modification in a
 Its full name is `N1.Coordinator`.
 `nS`, `nR` are placeholders for sender and recipient Namespaces.
 `recipient` is a placeholder for the recipient Component name.
-`iA` is the connection identity of the incoming message, for example `IA` for Component `N1.CA`.
-`IB` is the connection identity of `N1.Recipient`.
+`iA` is a placeholder for the connection identity of the incoming message and `iB` that of `N1.Recipient`.
 Bold arrows indicate message flow, thin lines indicate decision flow.
 Thin, dotted lines indicate decision flow in case of errors.
 Placeholder values are written in lowercase, while actually known values begin with an uppercase letter.
-For brevity's sake, the protocol version (in front of recipient frame) and the header (in front of content) are not shown.
 
 :::{mermaid}
 flowchart TB
-    C1([N1.CA DEALER]) == "nR.recipient|nS.CA|Content<br>(==nR.recipient|N1.CA|Content)" ==> R0
-    C0([nS.COORDINATOR DEALER]) == "V|nR.recipient|nS.CA|Content" ==> R0
-    R0[receive] == "iaA|nR.recipient|nS.CA|Content" ==> CnS{nS == N1?}
+    C1([N1.CA DEALER]) == "V|nR.recipient|nS.CA|H|Content" ==> R0
+    C0([nS.COORDINATOR DEALER]) == "V|nR.recipient|nS.CA|H|Content" ==> R0
+    R0[receive] == "iA|V|nR.recipient|nS.CA|H|Content" ==> CnS{nS == N1?}
     CnS-->|no| RemIdent
-    CnS-->|yes| Clocal{CA in <br>local address book?}
-    Clocal -->|yes| CidKnown{iA is CA's identity<br> in address book?}
+    CnS-->|yes| Clocal{CA in <br>local directory?}
+    Clocal -->|yes| CidKnown{iA is CA's identity<br> in directory?}
     CidKnown -->|yes| RemIdent
-    Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|nS.CA|N1.COORDINATOR|ERROR: Sender unknown in<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
+    Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Sender unknown"| S
     S[send] ==> WA([N1.CA DEALER])
-    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"iA|nS.CA|N1.COORDINATOR|ERROR: Name and identity do not match<br>(==IA|N1.CA|N1.COORDINATOR|ERROR...)"| S
-    RemIdent[remove sender identity] == "nR.recipient|nS.CA|Content" ==> CnR
+    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Name and identity do not match"| S
+    RemIdent[remove sender identity] == "V|nR.recipient|nS.CA|H|Content" ==> CnR
     CnR -- "is None" --> Local
     CnR{nR?} -- "== N1"--> Local
     Local{recipient<br>==<br>COORDINATOR?} -- "yes" --> Self[Message for Co1<br> itself]
-    Self == "nR.recipient|nS.CA|Content<br>(==N1.COORDINATOR|nS.CA|Content)" ==> SC([Co1 Message handling])
-    Local -- "no" --> Local2a{recipient in Address book?}
-    Local2a -->|yes, with Identity IB| Local2
-    Local2[add recipient identity IB] == "IB|nR.recipient|nS.CA|Content<br>(==IB|N1.recipient|nS.CA|Content)" ==> R1[send]
-    R1 == "nR.recipient|nS.CA|Content<br>(==N1.recipient|nS.CA|Content)" ==> W1([Wire to N1.recipient DEALER])
-    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"nS.CA|N1.COORDINATOR|ERROR N1.recipient is unknown"|CnR
+    Self == "V|nR.recipient|nS.CA|H|Content" ==> SC([Co1 Message handling])
+    Local -- "no" --> Local2a{recipient in directory?}
+    Local2a -->|yes, with Identity iB| Local2
+    Local2[add recipient identity iB] == "iB|V|nR.recipient|nS.CA|H|Content" ==> R1[send]
+    R1 == "V|nR.recipient|nS.CA|H|Content" ==> W1([Wire to N1.recipient DEALER])
+    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"V|nS.CA|N1.COORDINATOR|H|ERROR N1.recipient is unknown"|CnR
     CnR -- "== N2" --> Keep
-    Keep[send to N2.COORDINATOR] == "nR.recipient|nS.CA|Content<br>(==N2.recipient|nS.CA|Content)" ==> R2[send]
-    R2 == "nR.recipient|nS.CA|Content<br>(==N2.recipient|nS.CA|Content)" ==> W2([Wire to N2.COORDINATOR ROUTER])
+    Keep[send to N2.COORDINATOR] == "V|nR.recipient|nS.CA|H|Content" ==> R2[send]
+    R2 == "V|nR.recipient|nS.CA|H|Content" ==> W2([Wire to N2.COORDINATOR ROUTER])
     subgraph Co1 ROUTER socket
         R0
     end
