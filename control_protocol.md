@@ -90,7 +90,7 @@ The receiver of a message may be specified without the Namespace, if the receive
 
 A message consists in two or more frames.
 1. The protocol version (abbreviated with "V" in examples).
-2. The receiver full name.
+2. The receiver full name or Component name, if sender and receiver live in the same Node (Namespace).
 3. The sender full name.
 4. A content header (abbreviated with "H" in examples).
 5. Message content: The optional payload, which can be 0 or more frames.
@@ -280,28 +280,55 @@ For the format of the Messages, see {ref}`message-layer`.
 
 ##### Coordinator sign in
 
-:::{note}
-TODO
+A Coordinator `Co1`joining a network follows a few steps:
+1. It signs in to one Coordinator `Co2` of the Network.
+2. It sends a CO_TELL_ALL message to `Co2`, to tell all other Coordinators about `Co1`s address.
+3. `Co2` tells all the Coordinators signed in (`Co3`, `Co4`...) about `Co1` with a CO_NEW message.
+4. These other Coordinators (`Co3`, `Co4`...) sign in to `Co1`.
+5. All Coordinators are connected to all others.
+
+Two Coordinators shall follow a more thorough sign in/sign out procedure, than Components (address is for example host an port).
+The sign in might happen because of a CO_NEW message arrived or at startup.
+The sign out might happen because the Coordinator shuts down.
+
+:::{mermaid}
+sequenceDiagram
+    participant r1 as ROUTER
+    participant d1 as DEALER
+    participant r2 as ROUTER
+    participant d2 as DEALER
+    Note over r1,d1: N1 Coordinator<br>at address1
+    Note over r2,d2: N2 Coordinator<br>at address2
+    Note over r1,d2: Sign in between two Coordinators
+    Note right of r1: shall connect<br>to address2
+    activate d1
+    Note left of d1: created with<br> name "temp-NS"
+    d1-->>r2: connect to address2
+    d1->>r2: CO_SIGNIN<br>N1, address1,<br>ref:temp-NS
+    par
+        d1->>r2: GET local directory
+    and
+        Note right of r2: stores N1 identity
+        activate d2
+        Note left of d2: created with<br>name "N1"
+        d2-->>r1: connect to address1
+        d2->>r1: CO_SIGNIN<br>N2, address2<br>your ref:temp-NS
+        Note right of r1: stores N2 identity
+        Note left of d1: name changed<br>from "temp-NS"<br>to "N2"
+        d2->>r1: GET local directory
+    end
+    d2->>r1: Here is my<br>local directory
+    Note right of r1: Updates<br>global directory
+    d1->>r2: Here is my<br>local directory
+    Note right of r2: Updates<br>global directory
+    Note over r1,d2: Sign out between two Coordinators
+    Note right of r1: shall sign out from N2
+    d1->>r2: CO_SIGNOUT
+    Note right of r2: removes N1 identity
+    d2->>-r1: CO_SIGNOUT
+    Note right of r1: removes N2 identity
+    deactivate d1
 :::
-
-Two Coordinators shall follow a more thorough sign in procedure, than Components:
-
-1. Coordinator Co1 signs in to Co2
-	1. Co1 creates a DEALER socket and connects to another Coordinator Co2 (ROUTER socket).
-	2. Co1 sends a CO-SIGNIN message indicating its own address (host and port) to Co2.
-	3. Co2 creates a DEALER socket and connects to Co1's DEALER socket.
-	4. Co2 stores the the Namespace of Co1 and references it to the corresponding DEALER socket
-	5. Co2 acknowledges to Co1 the Coordinator sign in.
-2. Co2 signs in to Co1
-	6. Co2 sends a CO-SIGNIN message to Co1.
-	7. Co1 stores the Co2 Namespace and references it to the corresponding DEALER socket
-	8. Co1 ackwnowledges to Co2 the Coordinator sign in.
-3. Co1 and Co2 request the local address book of the other one.
-4. If desired (see below), Co2 tells all its known Coordinators, that they shall sign in to Co1
-
-In a CO-SIGNIN message, a Coordinator may indicate, that the other Coordinator shall tell all the other Coordinators, that it is present in the Network.
-For example Co1 asks this from Co2 and Co2 tells Co3, Co4, etc., that they shall sign in to Co1.
-That way all Coordinators are connected to all other ones.
 
 
 ##### Coordinator updates
@@ -309,12 +336,6 @@ That way all Coordinators are connected to all other ones.
 Whenever a Component signs in to or out of its Coordinator, the Coordinator shall send a note regarding this event to all the other Coordinators.
 The note shall contain the full name of the Component and the event type (sign in or out)
 The other Coordinators shall update their global directory according to this note (add or remove an entry).
-
-
-
-TODO Add full update (full local list)
-TODO Problem: If a full list arrives after an update: On the other hand: One message after the other: Sequence should work out.
-
 
 
 (message-layer)=
@@ -329,6 +350,10 @@ TODO Problem: If a full list arrives after an update: On the other hand: One mes
 - ACKNOWLEDGE
 - ERROR
 - PING
+- CO_SIGNIN
+- CO_SIGNOUT
+- CO_TELL_ALL
+- CO_NEW
 
 
 
