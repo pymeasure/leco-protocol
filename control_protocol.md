@@ -72,10 +72,7 @@ sequenceDiagram
 Each Component has an individual name, given by the user, the _Component Name_.
 A Component Name must be a series of bytes, without the ASCII character "." (byte value 46).
 Component Names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components connected to a single Coordinator.
-The Coordinator itself has the Component Name `COORDINATOR`.
-:::{note}
-COORDINATOR is a placeholder for the final version.
-:::
+The Coordinator itself has the Component Name `COORDINATOR` (ASCII encoded).
 
 Similarly, every node has a name, the _Namespace_.
 Every Namespace has to be unique in the Network.
