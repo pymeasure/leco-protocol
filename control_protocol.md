@@ -10,23 +10,12 @@ The {ref]}`message-layer` is the common language to understand commands, thus cr
 The transport layer ensures that a message arrives at its destination.
 
 
-### Sockets and Connections
+### Protocol basics
 
-[Zmq](https://zeromq.org/) sockets are used for our communication. For more details see the [zmq guide](https://zguide.zeromq.org/) or [zmq API](http://api.zeromq.org/)
+#### Socket Configuration
 
-
-#### Definitions
-
-Zmq messages consist in a series of frames, each is a byte sequence.
-The separation between frames is indicated with `|`.
-An empty frame is indicated with two frame separators `||`, even at the beginning or end of a message.
-For example `||Second frame|Third frame||Fifth frame` consists of 5 frames.
-The first and fourth frames are empty frames.
-
-
-#### Configuration
-
-Each {ref}`Coordinator <components.md#coordinator>` shall offer one ROUTER socket, bound to a host name (or IP address or any address of a computer with "*") and port.
+Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER<appendix.md#router-sockets>` socket, bound to an address.
+The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses and the port `12345`.
 
 {ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
 
@@ -40,51 +29,21 @@ While the number of DEALER sockets thus required scales badly with the number of
 Messages must be sent to a Coordinator's ROUTER socket.
 
 
-(router-sockets)=
-#### Particularities of ROUTER sockets
-
-A small introduction to ROUTER sockets, for more details see [zmq guide chapter 3](https://zguide.zeromq.org/docs/chapter3/#Exploring-ROUTER-Sockets).
-
-A router socket assigns a random _identity_ to each connecting peer.
-If, for example, two Components `CA`, `CB` connect to the ROUTER sockets, the socket assigns the identities, which will be called `IA`, `IB` here (they can be any byte sequence).
-
-Whenever a message is sent to the ROUTER socket from a peer, the socket prepends that identity in front of the message frames.
-For example if `CA` sends the message `Request A`, the ROUTER socket will read `IA|Request A`.
-That way, you can return an answer to exactly the original peer and not, for example `CB`.
-If you call the ROUTER's send command with `IA|Reply A`, the socket will send `Reply A` to the peer, whose connection is `IA`, in this case `CA`.
-
-The following diagram shows this example communication with two Components:
-sequenceDiagram
-    participant Code as Message handling
-    participant ROUTER as ROUTER socket
-    Note over Code, ROUTER: Coordinator
-    CA ->> ROUTER: "Request A"
-    ROUTER ->> Code: "IA|Request A"
-    Code ->> ROUTER: "IA|Reply A"
-    ROUTER ->> CA: "Reply A"
-    CB ->> ROUTER: "Request B"
-    ROUTER ->> Code: "IB|Request B"
-    Code ->> ROUTER: "IB|Reply B"
-    ROUTER ->> CB: "Reply B"
-:::
-
-
-### Protocol basics
-
 #### Naming scheme
 
-Each Component must have an individual name, given by the user, the _Component Name_.
-A Component Name must be a series of bytes, without the ASCII character "." (byte value 46).
-Component Names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
-A Coordinator itself must have the Component Name `COORDINATOR` (ASCII encoded).
+Each Component must have an individual name, given by the user, the _Component name_.
+A Component name must be a series of bytes, without the ASCII character "." (byte value 46).
+Component names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
+A Coordinator itself must have the Component name `COORDINATOR` (ASCII encoded).
 
-Similarly, every Node has a name, the _Namespace_.
+Similarly, every Node must have a name, the _Namespace_.
 Every Namespace must be unique in the Network.
-As each Component belongs to exactly one Node, it is fully identified by the combination of Namespace and Component Name, which is globally unique.
-This _full name_ is the composition of Namespace, ".", and Component Name.
-For example `N1.CA` is the full name of the Component `CA` in the Node `N1`.
+As each Component belongs to exactly one Node, it is fully identified by the combination of Namespace and Component name, which is globally unique.
+This _Full name_ is the composition of Namespace, ".", and Component name.
+For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
 
-The receiver of a message may be specified without the Namespace, if the receiver lives in the same Node.
+The receiver of a message may be specified by Component name alone if the receiver belongs to the same Node as the sender.
+In all other cases, the receiver of a message must be specified by Full name.
 
 
 #### Message composition
@@ -100,19 +59,19 @@ A message consists of 4 or more frames.
 #### Directory
 
 Each Coordinator shall have a list of the Components (including other Connectors) connected to it.
-This is its _local Directory_.
+This is its _Directory_.
 
-The _global Directory_ is the combination of the local directories of all Coordinators in a Network.
+The _Glossary_ is the combination of the Directories of all Coordinators in a Network.
 
 
 ### Conversation protocol
 
-In the protocol examples, `CA`, `CB`, etc. indicate Component Names.
+In the protocol examples, `CA`, `CB`, etc. indicate Component names.
 `N1`, `N2`, etc. indicate Node Namespaces and `Co1`, `Co2` their corresponding Coordinators.
 
 Here the Message content is expressed in plain English, for the exact definition see {ref}`message-layer`.
 
-In the exchange of messages, only the messages over the wire are shown, the connection identity of the ROUTER socket is not shown.
+In the exchange of messages, only the messages over the wire are shown, the connection identity used by the ROUTER socket is not shown.
 
 
 #### Communication with the Coordinator
@@ -120,14 +79,14 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 (sign-in)=
 ##### Initial connection
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its Component Name.
-The Coordinator shall indicate success/acceptance with an ACKNOWLEDGE response, giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component Name is already taken.
-In that case, the Coordinator may indicate a suitable still available variation on the indicated Component Name.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its Component name.
+The Coordinator shall indicate success/acceptance with an ACKNOWLEDGE response, giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
+In that case, the Coordinator may indicate a suitable still available variation on the indicated Component name.
 The Component may retry SIGNIN with a different chosen name.
 
-After a successful handshake, the Coordinator shall store the (zmq) connection identity and corresponding Component Name in its local {ref}`directory`.
+After a successful handshake, the Coordinator shall store the (zmq) connection identity and corresponding Component name in its {ref}`directory`.
 It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`Coordinator coordination<coordinator-coordination>`.
-Similarly, the Component shall store the Namespace and use it from this moment to generate its full name.
+Similarly, the Component shall store the Namespace and use it from this moment to generate its Full name.
 
 If a Component does send a message to someone without having signed in, the Coordinator shall refuse message handling and return an error.
 
@@ -170,7 +129,7 @@ TBD: Respond to every non empty message with an empty one?
 ##### Signing out
 
 A Component should tell a Coordinator when it stops participating in the network with a SIGNOUT message.
-The Coordinator shall ACKNOWLEDGE the sign-out and remove the Name from its directory.
+The Coordinator shall ACKNOWLEDGE the sign-out and remove the Name from its Directory.
 It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`Coordinator coordination<coordinator-coordination>`.
 
 :::{mermaid}
@@ -178,7 +137,7 @@ sequenceDiagram
     CA ->> N1: V|COORDINATOR|N1.CA|H|SIGNOUT
     participant N1 as N1.COORDINATOR
     N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE
-    Note right of N1: Removes "CA" with identity "IA"<br> from directory
+    Note right of N1: Removes "CA" with identity "IA"<br> from Directory
     Note right of N1: Notifies other Coordinators about sign-out of "CA"
     Note left of CA: Shall not send any message anymore except SIGNIN
 :::
@@ -194,7 +153,7 @@ Coordinators shall route the message to the corresponding Coordinator or connect
 
 :::{mermaid}
 sequenceDiagram
-    alt full name
+    alt Full name
         CA ->> N1: V|N1.CB|N1.CA|H| Give me property A.
     else only Component name
         CA ->> N1: V|CB|N1.CA|H| Give me property A.
@@ -228,7 +187,7 @@ Prerequisites of Communication between two Components are:
 
 
 The following flow chart shows the decision scheme and message modification in a Coordinator `Co1` of Node `N1`.
-Its full name is `N1.Coordinator`.
+Its Full name is `N1.Coordinator`.
 `nS`, `nR` are placeholders for sender and recipient Namespaces.
 `recipient` is a placeholder for the recipient Component name.
 `iA` is a placeholder for the connection identity of the incoming message and `iB` that of `N1.Recipient`.
@@ -242,8 +201,8 @@ flowchart TB
     C0([nS.COORDINATOR DEALER]) == "V|nR.recipient|nS.CA|H|Content" ==> R0
     R0[receive] == "iA|V|nR.recipient|nS.CA|H|Content" ==> CnS{nS == N1?}
     CnS-->|no| RemIdent
-    CnS-->|yes| Clocal{CA in <br>local directory?}
-    Clocal -->|yes| CidKnown{iA is CA's identity<br> in directory?}
+    CnS-->|yes| Clocal{CA in <br>Directory?}
+    Clocal -->|yes| CidKnown{iA is CA's identity<br> in Directory?}
     CidKnown -->|yes| RemIdent
     Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Sender unknown"| S
     S[send] ==> WA([N1.CA DEALER])
@@ -253,7 +212,7 @@ flowchart TB
     CnR{nR?} -- "== N1"--> Local
     Local{recipient<br>==<br>COORDINATOR?} -- "yes" --> Self[Message for Co1<br> itself]
     Self == "V|nR.recipient|nS.CA|H|Content" ==> SC([Co1 Message handling])
-    Local -- "no" --> Local2a{recipient in directory?}
+    Local -- "no" --> Local2a{recipient in Directory?}
     Local2a -->|yes, with Identity iB| Local2
     Local2[add recipient identity iB] == "iB|V|nR.recipient|nS.CA|H|Content" ==> R1[send]
     R1 == "V|nR.recipient|nS.CA|H|Content" ==> W1([Wire to N1.recipient DEALER])
@@ -276,9 +235,9 @@ flowchart TB
 
 #### Coordinator coordination
 
-Each Coordinator shall keep an up-to-date global {ref}`directory` with the names of all Components in the Network.
-For this, Coordinators shall tell each other about sign-ins and sign-outs of Components and Coordinators.
-On request, Coordinators shall send the Names of their local directory, or of their global directory, depending on the request type.
+Each Coordinator shall keep an up-to-date {ref}`Glossary<directory>` with the Names of all Components in the Network.
+For this, Coordinators shall notify each other about sign-ins and sign-outs of Components and Coordinators.
+On request, Coordinators shall send the Names of their Directory, or of their Glossary, depending on the request type.
 
 For the format of the Messages, see {ref}`message-layer`.
 
@@ -311,7 +270,7 @@ sequenceDiagram
     d1-->>r2: connect to address2
     d1->>r2: CO_SIGNIN<br>N1, address1,<br>ref:temp-NS
     par
-        d1->>r2: GET local directory
+        d1->>r2: GET Directory
     and
         Note right of r2: stores N1 identity
         activate d2
@@ -320,12 +279,12 @@ sequenceDiagram
         d2->>r1: CO_SIGNIN<br>N2, address2<br>your ref:temp-NS
         Note right of r1: stores N2 identity
         Note left of d1: name changed<br>from "temp-NS"<br>to "N2"
-        d2->>r1: GET local directory
+        d2->>r1: GET Directory
     end
-    d2->>r1: Here is my<br>local directory
-    Note right of r1: Updates<br>global directory
-    d1->>r2: Here is my<br>local directory
-    Note right of r2: Updates<br>global directory
+    d2->>r1: Here is my<br>Directory
+    Note right of r1: Updates<br>Glossary
+    d1->>r2: Here is my<br>Directory
+    Note right of r2: Updates<br>Glossary
     Note over r1,d2: Sign out between two Coordinators
     Note right of r1: shall sign out from N2
     d1->>r2: CO_SIGNOUT
@@ -338,9 +297,9 @@ sequenceDiagram
 
 ##### Coordinator updates
 
-Whenever a Component signs in to or out of its Coordinator, the Coordinator shall send a message regarding this event to all the other Coordinators.
-The message shall contain the full name of the Component and the event type (sign in or out)
-The other Coordinators shall update their global directory according to this message (add or remove an entry).
+Whenever a Component signs in to or out of its Coordinator, the Coordinator shall send a CO_UPDATE message regarding this event to all the other Coordinators.
+The message shall contain the Full name of the Component and the event type (sign in or out)
+The other Coordinators shall update their Glossary according to this message (add or remove an entry).
 
 
 (message-layer)=
@@ -359,6 +318,7 @@ The other Coordinators shall update their global directory according to this mes
 - CO_SIGNOUT
 - CO_TELL_ALL
 - CO_NEW
+- CO_UPDATE
 
 
 
