@@ -23,6 +23,9 @@ Device
 Director
     A Component which takes part in orchestrating a (i.e. LECO-controlled) measurement setup, see {ref}`components.md#director`.
 
+Directory
+    Each Coordinator maintains a local Directory with all the Components connected to it, and a global Directory with all Components in the Network, see {ref}`control_protocol.md#directory`.
+
 Driver
     An object that takes care of communicating with a Device. This object is external to LECO, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
 

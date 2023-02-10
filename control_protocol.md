@@ -58,10 +58,10 @@ A message consists of 4 or more frames.
 
 #### Directory
 
-Each Coordinator shall have a list of the Components (including other Connectors) connected to it.
-This is its _Directory_.
+Each Coordinator shall have a list of the Components (including other Coordinators) connected to it.
+This is its _local Directory_.
 
-The _Glossary_ is the combination of the Directories of all Coordinators in a Network.
+The _global Directory_ is the combination of the Directories of all Coordinators in a Network.
 
 
 ### Conversation protocol
@@ -128,8 +128,8 @@ TBD: Respond to every non empty message with an empty one?
 
 ##### Signing out
 
-A Component should tell a Coordinator when it stops participating in the network with a SIGNOUT message.
-The Coordinator shall ACKNOWLEDGE the sign-out and remove the Component name from its Directory.
+A Component should send a SIGNOUT message to its Coordinator when it stops participating in the Network.
+The Coordinator shall ACKNOWLEDGE the sign-out and remove the Component name from its local {ref}`directory`.
 It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`Coordinator coordination<coordinator-coordination>`.
 
 :::{mermaid}
@@ -137,7 +137,7 @@ sequenceDiagram
     CA ->> N1: V|COORDINATOR|N1.CA|H|SIGNOUT
     participant N1 as N1.COORDINATOR
     N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE
-    Note right of N1: Removes "CA" with identity "IA"<br> from Directory
+    Note right of N1: Removes "CA" with identity "IA"<br> from local Directory
     Note right of N1: Notifies other Coordinators about sign-out of "CA"
     Note left of CA: Shall not send any message anymore except SIGNIN
 :::
@@ -201,8 +201,8 @@ flowchart TB
     C0([nS.COORDINATOR DEALER]) == "V|nR.recipient|nS.CA|H|Content" ==> R0
     R0[receive] == "iA|V|nR.recipient|nS.CA|H|Content" ==> CnS{nS == N1?}
     CnS-->|no| RemIdent
-    CnS-->|yes| Clocal{CA in <br>Directory?}
-    Clocal -->|yes| CidKnown{iA is CA's identity<br> in Directory?}
+    CnS-->|yes| Clocal{CA in <br>local Directory?}
+    Clocal -->|yes| CidKnown{iA is CA's identity<br> in local Directory?}
     CidKnown -->|yes| RemIdent
     Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Sender unknown"| S
     S[send] ==> WA([N1.CA DEALER])
@@ -212,7 +212,7 @@ flowchart TB
     CnR{nR?} -- "== N1"--> Local
     Local{recipient<br>==<br>COORDINATOR?} -- "yes" --> Self[Message for Co1<br> itself]
     Self == "V|nR.recipient|nS.CA|H|Content" ==> SC([Co1 Message handling])
-    Local -- "no" --> Local2a{recipient in Directory?}
+    Local -- "no" --> Local2a{recipient in local Directory?}
     Local2a -->|yes, with Identity iB| Local2
     Local2[add recipient identity iB] == "iB|V|nR.recipient|nS.CA|H|Content" ==> R1[send]
     R1 == "V|nR.recipient|nS.CA|H|Content" ==> W1([Wire to N1.recipient DEALER])
@@ -235,7 +235,7 @@ flowchart TB
 
 #### Coordinator coordination
 
-Each Coordinator shall keep an up-to-date {ref}`Glossary<directory>` with the Names of all Components in the Network.
+Each Coordinator shall keep an up-to-date global {ref}`directory` with the Names of all Components in the Network.
 For this, Coordinators shall notify each other about sign-ins and sign-outs of Components and Coordinators.
 On request, Coordinators shall send the Names of their local or global Directory, depending on the request type.
 
@@ -270,7 +270,7 @@ sequenceDiagram
     d1-->>r2: connect to address2
     d1->>r2: CO_SIGNIN<br>N1, address1,<br>ref:temp-NS
     par
-        d1->>r2: GET Directory
+        d1->>r2: GET local Directory
     and
         Note right of r2: stores N1 identity
         activate d2
@@ -279,12 +279,12 @@ sequenceDiagram
         d2->>r1: CO_SIGNIN<br>N2, address2<br>your ref:temp-NS
         Note right of r1: stores N2 identity
         Note left of d1: name changed<br>from "temp-NS"<br>to "N2"
-        d2->>r1: GET Directory
+        d2->>r1: GET local Directory
     end
-    d2->>r1: Here is my<br>Directory
-    Note right of r1: Updates<br>Glossary
-    d1->>r2: Here is my<br>Directory
-    Note right of r2: Updates<br>Glossary
+    d2->>r1: Here is my<br>local Directory
+    Note right of r1: Updates<br>global Directory
+    d1->>r2: Here is my<br>local Directory
+    Note right of r2: Updates<br>global Directory
     Note over r1,d2: Sign out between two Coordinators
     Note right of r1: shall sign out from N2
     d1->>r2: CO_SIGNOUT
