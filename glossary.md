@@ -27,7 +27,7 @@ Driver
     An object that takes care of communicating with a Device. This object is external to LECO, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
 
 Full name
-    The name of a Component unique in the whole name.
+    The name of a Component unique for the whole setup.
     It consists of the {ref}`namespace` and {ref}`component-name`, see {ref}`control_protocol.md#naming-scheme`.
 
 LECO

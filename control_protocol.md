@@ -1,6 +1,6 @@
 # Control protocol
 
-The control protocol transmits messages via its {ref}`transport-layer` from one Component to another one.
+The control protocol transmits messages via its {ref}`transport-layer` from one Component to another.
 The {ref]}`message-layer` is the common language to understand commands, thus creating a remote procedure call.
 
 
@@ -15,7 +15,7 @@ The transport layer ensures that a message arrives at its destination.
 #### Socket Configuration
 
 Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER<appendix.md#router-sockets>` socket, bound to an address.
-The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses and the port `12345`.
+The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses at the port `12345`.
 
 {ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
 
@@ -32,7 +32,7 @@ Messages must be sent to a Coordinator's ROUTER socket.
 #### Naming scheme
 
 Each Component must have an individual name, given by the user, the _Component name_.
-A Component name must be a series of bytes, without the ASCII character "." (byte value 46).
+A Component name must be a series of bytes, without the ASCII character "." (the byte value 46 is not permitted).
 Component names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
 A Coordinator itself must have the Component name `COORDINATOR` (ASCII encoded).
 
@@ -43,7 +43,7 @@ This _Full name_ is the composition of Namespace, ".", and Component name.
 For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
 
 The receiver of a message may be specified by Component name alone if the receiver belongs to the same Node as the sender.
-In all other cases, the receiver of a message must be specified by Full name.
+In all other cases, the receiver of a message must be specified by the Full name.
 
 
 #### Message composition
@@ -81,12 +81,12 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 
 After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its Component name.
 The Coordinator shall indicate success/acceptance with an ACKNOWLEDGE response, giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
-In that case, the Coordinator may indicate a suitable still available variation on the indicated Component name.
+In that case, the Coordinator may indicate a suitable, still available variation on the indicated Component name.
 The Component may retry SIGNIN with a different chosen name.
 
 After a successful handshake, the Coordinator shall store the (zmq) connection identity and corresponding Component name in its {ref}`directory`.
 It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`Coordinator coordination<coordinator-coordination>`.
-Similarly, the Component shall store the Namespace and use it from this moment to generate its Full name.
+Similarly, the Component shall store the Namespace and use it from this moment on, to generate its Full name.
 
 If a Component does send a message to someone without having signed in, the Coordinator shall refuse message handling and return an error.
 
@@ -129,7 +129,7 @@ TBD: Respond to every non empty message with an empty one?
 ##### Signing out
 
 A Component should tell a Coordinator when it stops participating in the network with a SIGNOUT message.
-The Coordinator shall ACKNOWLEDGE the sign-out and remove the Name from its Directory.
+The Coordinator shall ACKNOWLEDGE the sign-out and remove the Component name from its Directory.
 It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`Coordinator coordination<coordinator-coordination>`.
 
 :::{mermaid}
@@ -186,7 +186,7 @@ Prerequisites of Communication between two Components are:
 - Both Components are either connected to the same Coordinator (example one), or their Coordinators are connected to each other (example two).
 
 
-The following flow chart shows the decision scheme and message modification in a Coordinator `Co1` of Node `N1`.
+The following flow chart shows the decision scheme and message modification in the Coordinator `Co1` of Node `N1`.
 Its Full name is `N1.Coordinator`.
 `nS`, `nR` are placeholders for sender and recipient Namespaces.
 `recipient` is a placeholder for the recipient Component name.
@@ -237,14 +237,14 @@ flowchart TB
 
 Each Coordinator shall keep an up-to-date {ref}`Glossary<directory>` with the Names of all Components in the Network.
 For this, Coordinators shall notify each other about sign-ins and sign-outs of Components and Coordinators.
-On request, Coordinators shall send the Names of their Directory, or of their Glossary, depending on the request type.
+On request, Coordinators shall send the Names of their local or global Directory, depending on the request type.
 
 For the format of the Messages, see {ref}`message-layer`.
 
 
 ##### Coordinator sign-in
 
-A Coordinator `Co1`joining a network follows a few steps:
+A Coordinator `Co1` joining a network follows a few steps:
 1. It signs in to one Coordinator `Co2` of the Network.
 2. It sends a CO_TELL_ALL message to `Co2`, to tell all other Coordinators about `Co1`s address.
 3. `Co2` tells all the Coordinators signed in (`Co3`, `Co4`...) about `Co1` with a CO_NEW message.
@@ -297,9 +297,9 @@ sequenceDiagram
 
 ##### Coordinator updates
 
-Whenever a Component signs in to or out of its Coordinator, the Coordinator shall send a CO_UPDATE message regarding this event to all the other Coordinators.
+Whenever a Component signs in to or out from its Coordinator, the Coordinator shall send a CO_UPDATE message regarding this event to all the other Coordinators.
 The message shall contain the Full name of the Component and the event type (sign in or out)
-The other Coordinators shall update their Glossary according to this message (add or remove an entry).
+The other Coordinators shall update their global Directory according to this message (add or remove an entry).
 
 
 (message-layer)=

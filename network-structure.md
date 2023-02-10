@@ -53,7 +53,7 @@ The Node-local Message Layer can have a local or distributed mode.
 ### Distributed Message Transport (DMT)
 
 The Distributed Message Transport works within or across Nodes.
-It uses [Zmq](https://zeromq.org/) sockets for the communication. For more details see the [zmq guide](https://zguide.zeromq.org/) or [zmq API](http://api.zeromq.org/)
+Currently, the only defined transport layer uses [Zmq](https://zeromq.org/) sockets for the communication. For more details see the [zmq guide](https://zguide.zeromq.org/) or [zmq API](http://api.zeromq.org/)
 
 Zmq messages consist in a series of frames, each is a byte sequence.
 In this documentation, the separation between frames is indicated by `|`.
@@ -68,6 +68,6 @@ For some useful information see our {ref}`appendix.md#zmq`.
 The Local Message Transport only works within a Node _and_ within a process.
 Local Message Transport options include queues between threads/processes and zeromq inproc.
 :::{admonition} Warning
-LMT details are still notional and not to be relied upon this will be fleshed out at a later date. 
+LMT details are still notional and not to be relied upon, this will be fleshed out at a later date. 
 The list of LMT options is not definitive yet.
 :::
