@@ -26,24 +26,28 @@ This DEALER socket shall connect to the other Coordinator's ROUTER socket.
 While the number of DEALER sockets thus required scales badly with the number of Connectors in a LECO Network, the scope of the protocol means that at most a few Coordinators will be involved.
 :::
 
-Messages must be sent to a Coordinator's ROUTER socket.
+Communicating with a Coordinator, messages must be sent to a Coordinator's ROUTER socket.
+Only for acknowledging a {ref}`coordinator-sign-in`, it is permitted to send a message to a Coordinator's DEALER socket.
 
 
 #### Naming scheme
 
 Each Component must have an individual name, given by the user, the _Component name_.
-A Component name must be a series of bytes, without the ASCII character "." (the byte value 46 is not permitted).
+A Component name must be a series of ASCII characters, without the character ".".
 Component names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
-A Coordinator itself must have the Component name `COORDINATOR` (ASCII encoded).
+A Coordinator itself must have the Component name `COORDINATOR`.
 
 Similarly, every Node must have a name, the _Namespace_.
 Every Namespace must be unique in the Network.
+It must be a series of ASCII characters, without the character ".".
 As each Component belongs to exactly one Node, it is fully identified by the combination of Namespace and Component name, which is globally unique.
 This _Full name_ is the composition of Namespace, ".", and Component name.
 For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
 
 The receiver of a message may be specified by Component name alone if the receiver belongs to the same Node as the sender.
 In all other cases, the receiver of a message must be specified by the Full name.
+
+The sender of a message must be specified by Full name, except during SIGNIN, when the Component name alone is sufficient.
 
 
 #### Message composition
@@ -146,7 +150,6 @@ sequenceDiagram
 #### Communication with other Components
 
 The following two examples show how a message is transferred between two components `CA`, `CB` via one or two Coordinators.
-Coordinators shall send messages from their DEALER socket to other Coordinator's ROUTER socket.
 
 Coordinators shall route the message to the corresponding Coordinator or connected Component.
 
