@@ -255,6 +255,10 @@ The sign-out might happen because the Coordinator shuts down.
 
 These are the sign-in/sign-out sequences between Coordinators, where `address` is for example the host name and port number of the Coordinator's ROUTER socket.
 
+In this diagram, the Namespaces (`N1`, `N2`) are added for clarity.
+They are transmitted in the sender frame.
+For example `ACK: Namespace is N2` is transmitted as `V|N1.COORDINATOR|N2.COORDINATOR|H|ACK`.
+
 :::{mermaid}
 sequenceDiagram
     participant r1 as ROUTER
@@ -297,11 +301,11 @@ sequenceDiagram
 The sign-in procedure is symmetric, with exception of not creating a DEALER socket, if it already exists.
 :::
 
-These are the decision processes for signing in:
+These are the decision processes of `N1`'s Coordinator (at `address1`) for signing in:
 :::{mermaid}
 graph TD
-    COS([ROUTER receives<br>'CO_SIGNIN N2 address2']) --> Store[Store the identity of 'N2']
-    Store --> ACK[Respond 'ACK N1'<br>via ROUTER]
+    COS([ROUTER receives<br>'CO_SIGNIN address2'<br>from N2.COORDINATOR]) --> Store[Store the identity of 'N2']
+    Store --> ACK[Respond 'ACK'<br>via ROUTER]
     ACK-->DEAL{DEALER socket<br>with name 'N2'<br>already created?}
     DEAL -->|yes| END([End])
     DEAL -->|no| CREATE[Create DEALER<br>named 'N2']
@@ -310,10 +314,10 @@ graph TD
     CMD([Command to sign in<br>to address2])-->CREATE2[Create DEALER<br>named 'temp-NS']
     CREATE2 --> CONNECT
 
-    CONNECT-->SEND[Send 'CO_SIGNIN N1 address1']
+    CONNECT-->SEND[Send 'CO_SIGNIN address1']
     SEND --> END
 
-    AR(['ACK N2' <br>at DEALER]) --> Known{DEALER name == 'N2'?}
+    AR(['ACK' from N2.COORDINATOR<br>at DEALER socket]) --> Known{DEALER name == 'N2'?}
     Known -->|no| Rename[Rename DEALER socket to 'N2'] -->SLD
     Known -->|yes| SLD([Send my local Directory])
 :::
@@ -340,8 +344,6 @@ The other Coordinators shall update their global Directory according to this mes
 - PING
 - CO_SIGNIN
 - CO_SIGNOUT
-- CO_TELL_ALL
-- CO_NEW
 - CO_UPDATE
 
 
