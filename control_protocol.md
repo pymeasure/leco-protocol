@@ -122,7 +122,7 @@ A Component should and a Coordinator shall send a PING and wait some time before
 A Coordinator shall follow the {ref}`sign out routine<signing-out>` for a signed in Component considered dead.
 
 :::{note}
-TBD: Respond to every non empty message with an empty one?
+TBD: Heartbeat details are still to be determined.
 :::
 
 
@@ -244,16 +244,13 @@ For the format of the Messages, see {ref}`message-layer`.
 
 ##### Coordinator sign-in
 
-A Coordinator `Co1` joining a network follows a few steps:
-1. It signs in to one Coordinator `Co2` of the Network.
-2. It sends a CO_TELL_ALL message to `Co2`, to tell all other Coordinators about `Co1`s address.
-3. `Co2` tells all the Coordinators signed in (`Co3`, `Co4`...) about `Co1` with a CO_NEW message.
-4. These other Coordinators (`Co3`, `Co4`...) sign in to `Co1`.
-5. All Coordinators are connected to all others.
-
-Two Coordinators shall follow a more thorough sign-in/sign-out procedure than Components (address is for example host and port).
-The sign-in might happen because of a CO_NEW message arrived or at startup.
+A Coordinator joins a Network by signing in to any Coordinator of that Network.
+The sign-in/sign-out procedure between two Coordinators is more thorough than that of Components.
+During the sign-in procedure, Coordinators exchange their local Directories and shall sign in to all Coordinators, they are not yet signed in.
+The sign-in might happen because the Coordinator learns a new Coordinator address via Directory updates or at startup.
 The sign-out might happen because the Coordinator shuts down.
+
+These are the sign-in/sign-out sequences between Coordinators, where `address` is for example the host name and port number of the Coordinator's ROUTER socket.
 
 :::{mermaid}
 sequenceDiagram
@@ -268,23 +265,21 @@ sequenceDiagram
     activate d1
     Note left of d1: created with<br> name "temp-NS"
     d1-->>r2: connect to address2
-    d1->>r2: CO_SIGNIN<br>N1, address1,<br>ref:temp-NS
-    par
-        d1->>r2: GET local Directory
-    and
-        Note right of r2: stores N1 identity
-        activate d2
-        Note left of d2: created with<br>name "N1"
-        d2-->>r1: connect to address1
-        d2->>r1: CO_SIGNIN<br>N2, address2<br>your ref:temp-NS
-        Note right of r1: stores N2 identity
-        Note left of d1: name changed<br>from "temp-NS"<br>to "N2"
-        d2->>r1: GET local Directory
-    end
-    d2->>r1: Here is my<br>local Directory
-    Note right of r1: Updates<br>global Directory
+    d1->>r2: CO_SIGNIN<br>N1, address1
+    Note right of r2: stores N1 identity
+    r2->>d1: ACK: Namespace is N2
+    Note left of d1: DEALER name <br>set to "N2"
+    activate d2
+    Note left of d2: created with<br>name "N1"
+    d2-->>r1: connect to address1
+    d2->>r1: CO_SIGNIN<br>N2, address2
+    Note right of r1: stores N2 identity
+    r1->>d2: ACK: Namespace is N1
+    Note left of d1: Already has <br>DEALER named N2
     d1->>r2: Here is my<br>local Directory
-    Note right of r2: Updates<br>global Directory
+    Note right of r2: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators
+    d2->>r1: Here is my<br>local Directory
+    Note right of r1: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators
     Note over r1,d2: Sign out between two Coordinators
     Note right of r1: shall sign out from N2
     d1->>r2: CO_SIGNOUT
@@ -292,6 +287,32 @@ sequenceDiagram
     d2->>-r1: CO_SIGNOUT
     Note right of r1: removes N2 identity
     deactivate d1
+:::
+
+
+:::{note}
+The sign-in procedure is symmetric, with exception of not creating a DEALER socket, if it already exists.
+:::
+
+These are the decision processes for signing in:
+:::{mermaid}
+graph TD
+    COS([ROUTER receives<br>'CO_SIGNIN N2 address2']) --> Store[Store the identity of 'N2']
+    Store --> ACK[Respond 'ACK N1'<br>via ROUTER]
+    ACK-->DEAL{DEALER socket<br>with name 'N2'<br>already created?}
+    DEAL -->|yes| END([End])
+    DEAL -->|no| CREATE[Create DEALER<br>named 'N2']
+    CREATE --> CONNECT[Connect to address2]
+
+    CMD([Command to sign in<br>to address2])-->CREATE2[Create DEALER<br>named 'temp-NS']
+    CREATE2 --> CONNECT
+
+    CONNECT-->SEND[Send 'CO_SIGNIN N1 address1']
+    SEND --> END
+
+    AR(['ACK N2' <br>at DEALER]) --> Known{DEALER name == 'N2'?}
+    Known -->|no| Rename[Rename DEALER socket to 'N2'] -->SLD
+    Known -->|yes| SLD([Send my local Directory])
 :::
 
 
