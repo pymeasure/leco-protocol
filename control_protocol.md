@@ -255,10 +255,6 @@ The sign-out might happen because the Coordinator shuts down.
 
 These are the sign-in/sign-out sequences between Coordinators, where `address` is for example the host name and port number of the Coordinator's ROUTER socket.
 
-In this diagram, the Namespaces (`N1`, `N2`) are added for clarity.
-They are transmitted in the sender frame.
-For example `ACK: Namespace is N2` is transmitted as `V|N1.COORDINATOR|N2.COORDINATOR|H|ACK`.
-
 :::{mermaid}
 sequenceDiagram
     participant r1 as ROUTER
@@ -272,20 +268,21 @@ sequenceDiagram
     activate d1
     Note left of d1: created with<br> name "temp-NS"
     d1-->>r2: connect to address2
-    d1->>r2: CO_SIGNIN<br>N1, address1
+    d1->>r2: V|COORDINATOR|N1.COORDINATOR|H|<br>CO_SIGNIN
     Note right of r2: stores N1 identity
-    r2->>d1: ACK: Namespace is N2
+    r2->>d1: V|N1.COORDINATOR|N2.COORDINATOR|H|ACK
     Note left of d1: DEALER name <br>set to "N2"
+    d1->>r2: V|N1.COORDINATOR|N2.COORDINATOR|H|<br>Here is my local directory
+    Note right of r2: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators,<br>also N1
+    Note over d1,r2: Mirror of above sign-in procedure
     activate d2
     Note left of d2: created with<br>name "N1"
     d2-->>r1: connect to address1
-    d2->>r1: CO_SIGNIN<br>N2, address2
+    d2->>r1: V|COORDINATOR|N2.COORDINATOR|H|<br>CO_SIGNIN
     Note right of r1: stores N2 identity
-    r1->>d2: ACK: Namespace is N1
-    Note left of d1: Already has <br>DEALER named N2
-    d1->>r2: Here is my<br>local Directory
-    Note right of r2: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators
-    d2->>r1: Here is my<br>local Directory
+    r1->>d2: V|N2.COORDINATOR|N1.COORDINATOR|H|ACK
+    Note left of d2: Name is already "N1"
+    d2->>r1: V|N2.COORDINATOR|N1.COORDINATOR|H|<br>Here is my local directory
     Note right of r1: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators
     Note over r1,d2: Sign out between two Coordinators
     Note right of r1: shall sign out from N2
@@ -296,30 +293,8 @@ sequenceDiagram
     deactivate d1
 :::
 
-
 :::{note}
-The sign-in procedure is symmetric, with exception of not creating a DEALER socket, if it already exists.
-:::
-
-These are the decision processes of `N1`'s Coordinator (at `address1`) for signing in:
-:::{mermaid}
-graph TD
-    COS([ROUTER receives<br>'CO_SIGNIN address2'<br>from N2.COORDINATOR]) --> Store[Store the identity of 'N2']
-    Store --> ACK[Respond 'ACK'<br>via ROUTER]
-    ACK-->DEAL{DEALER socket<br>with name 'N2'<br>already created?}
-    DEAL -->|yes| END([End])
-    DEAL -->|no| CREATE[Create DEALER<br>named 'N2']
-    CREATE --> CONNECT[Connect to address2]
-
-    CMD([Command to sign in<br>to address2])-->CREATE2[Create DEALER<br>named 'temp-NS']
-    CREATE2 --> CONNECT
-
-    CONNECT-->SEND[Send 'CO_SIGNIN address1']
-    SEND --> END
-
-    AR(['ACK' from N2.COORDINATOR<br>at DEALER socket]) --> Known{DEALER name == 'N2'?}
-    Known -->|no| Rename[Rename DEALER socket to 'N2'] -->SLD
-    Known -->|yes| SLD([Send my local Directory])
+Note that the DEALER socket responds with the local Directory to the received Acknowledgment.
 :::
 
 
