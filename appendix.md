@@ -11,7 +11,7 @@ A small introduction to ROUTER sockets, for more details see [zmq guide chapter 
 
 The ROUTER socket is mostly used in a server role as it can maintain connections to many peers.
 In order to distinguish peers, it assigns a random _identity_ to each connected peer.
-Application code does not know, which peer gets which identity, however, the identity of a peer stays the same for the lifetime of the connection.
+Application code does not know which peer gets which identity, however, the identity of a peer stays the same for the lifetime of the connection.
 
 If, for example, two Components `CA`, `CB` connect to a ROUTER socket, the socket assigns identities, which will be called `IA`, `IB` here (they can be any byte sequence).
 

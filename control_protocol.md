@@ -238,7 +238,7 @@ flowchart TB
 
 #### Coordinator coordination
 
-Each Coordinator shall keep an up-to-date global {ref}`directory` with the Names of all Components in the Network.
+Each Coordinator shall keep an up-to-date global {ref}`directory` with the Full names of all Components in the Network.
 For this, Coordinators shall notify each other about sign-ins and sign-outs of Components and Coordinators.
 On request, Coordinators shall send the Names of their local or global Directory, depending on the request type.
 
