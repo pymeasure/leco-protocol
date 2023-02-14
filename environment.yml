@@ -1,4 +1,4 @@
-name: experiment_control_protocol
+name: leco-protocol
 channels:
   - conda-forge
 dependencies:
