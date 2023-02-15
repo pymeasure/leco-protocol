@@ -1,7 +1,7 @@
 # Control protocol
 
 The control protocol transmits messages via its {ref}`transport-layer` from one Component to another.
-The {ref]}`message-layer` is the common language to understand commands, thus creating a remote procedure call.
+The {ref}`message-layer` is the common language to understand commands, thus creating a remote procedure call.
 
 
 (transport-layer)=
@@ -12,9 +12,10 @@ The transport layer ensures that a message arrives at its destination.
 
 ### Protocol basics
 
+
 #### Socket Configuration
 
-Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER<appendix.md#router-sockets>` socket, bound to an address.
+Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER <appendix.md#particularities-of-router-sockets>` socket, bound to an address.
 The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses at the port `12345`.
 
 {ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
@@ -60,6 +61,7 @@ A message consists of 4 or more frames.
 5. Message content: The optional payload, which can be 0 or more frames.
 
 
+(directory)=
 #### Directory
 
 Each Coordinator shall have a list of the Components (including other Coordinators) connected to it.
@@ -73,12 +75,18 @@ The _global Directory_ is the combination of the Directories of all Coordinators
 In the protocol examples, `CA`, `CB`, etc. indicate Component names.
 `N1`, `N2`, etc. indicate Node Namespaces and `Co1`, `Co2` their corresponding Coordinators.
 
-Here the Message content is expressed in plain English, for the exact definition see {ref}`message-layer`.
+Here the Message content is expressed in plain English and placed in the Content frame, for the exact definition see {ref}`message-layer`.
+
+:::{note}
+TBD: How to show the encoded content in the examples?
+:::
+
 
 In the exchange of messages, only the messages over the wire are shown, the connection identity used by the ROUTER socket is not shown.
 
 
 #### Communication with the Coordinator
+
 
 (sign-in)=
 ##### Initial connection
@@ -89,7 +97,7 @@ In that case, the Coordinator may indicate a suitable, still available variation
 The Component may retry SIGNIN with a different chosen name.
 
 After a successful handshake, the Coordinator shall store the (zmq) connection identity and corresponding Component name in its {ref}`directory`.
-It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`Coordinator coordination<coordinator-coordination>`.
+It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`coordinator-coordination`.
 Similarly, the Component shall store the Namespace and use it from this moment on, to generate its Full name.
 
 If a Component does send a message to someone without having signed in, the Coordinator shall refuse message handling and return an error.
@@ -130,11 +138,12 @@ TBD: Heartbeat details are still to be determined.
 :::
 
 
+(signing-out)=
 ##### Signing out
 
 A Component should send a SIGNOUT message to its Coordinator when it stops participating in the Network.
 The Coordinator shall ACKNOWLEDGE the sign-out and remove the Component name from its local {ref}`directory`.
-It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`Coordinator coordination<coordinator-coordination>`.
+It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`coordinator-coordination`.
 
 :::{mermaid}
 sequenceDiagram
@@ -236,6 +245,7 @@ flowchart TB
 :::
 
 
+(coordinator-coordination)=
 #### Coordinator coordination
 
 Each Coordinator shall keep an up-to-date global {ref}`directory` with the Full names of all Components in the Network.
@@ -245,6 +255,7 @@ On request, Coordinators shall send the Names of their local or global Directory
 For the format of the Messages, see {ref}`message-layer`.
 
 
+(coordinator-sign-in)=
 ##### Coordinator sign-in
 
 A Coordinator joins a Network by signing in to any Coordinator of that Network.

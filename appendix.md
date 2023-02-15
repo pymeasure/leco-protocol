@@ -1,8 +1,10 @@
 # Appendix
 
+
 ## ZMQ
 
 Some useful hints regarding how the zmq package works.
+
 
 (router-sockets)=
 ### Particularities of ROUTER sockets
