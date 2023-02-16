@@ -33,13 +33,14 @@ Only for acknowledging a {ref}`control_protocol.md#coordinator-sign-in`, it is p
 #### Naming scheme
 
 Each Component must have an individual name, given by the user, the _Component name_.
-A Component name must be a series of ASCII characters, without the character ".".
 Component names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
 A Coordinator itself must have the Component name `COORDINATOR`.
 
 Similarly, every Node must have a name, the _Namespace_.
 Every Namespace must be unique in the Network.
-It must be a series of ASCII characters, without the character ".".
+
+A Component name or a Namespace must be a series of printable ASCII characters (byte values 0x20 to 0x7E), without the character "." (byte value 0x2E).
+
 As each Component belongs to exactly one Node, it is fully identified by the combination of Namespace and Component name, which is globally unique.
 This _Full name_ is the composition of Namespace, ".", and Component name.
 For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
