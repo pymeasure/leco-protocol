@@ -6,8 +6,7 @@
 Some useful hints regarding how the zmq package works.
 
 
-(router-sockets)=
-### Particularities of ROUTER sockets
+### ROUTER sockets
 
 A small introduction to ROUTER sockets, for more details see [zmq guide chapter 3](https://zguide.zeromq.org/docs/chapter3/#Exploring-ROUTER-Sockets).
 
