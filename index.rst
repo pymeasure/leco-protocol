@@ -15,8 +15,10 @@
    components
    messages
    network-structure
+   control_protocol
    glossary
    Hello_world
+   appendix
 
 Indices and tables
 ==================

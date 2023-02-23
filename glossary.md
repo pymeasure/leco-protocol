@@ -10,6 +10,9 @@ Actor
 Component
     A type of entity, a set of which make up the LECO communication Network, see {ref}`components.md#components`.
 
+Component name
+    The individual name in a Node, under which a Component can be addressed, see {ref}`control_protocol.md#naming-scheme`.
+
 Coordinator
     A Component primarily concerned with routing/coordinating the message flow between other Components, see {ref}`components.md#coordinator`.
     There are Control Coordinators, Data Coordinators, and Logging Coordinators.
@@ -20,8 +23,15 @@ Device
 Director
     A Component which takes part in orchestrating a (i.e. LECO-controlled) measurement setup, see {ref}`components.md#director`.
 
+Directory
+    Each Coordinator maintains a local Directory with all the Components connected to it (i.e. other Coordinators and the Components of its own Node), and a global Directory with all Components in the whole Network, see {ref}`control_protocol.md#directory`.
+
 Driver
     An object that takes care of communicating with a Device. This object is external to LECO, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
+
+Full name
+    The name of a Component unique for the whole setup.
+    It consists of the namespace and component-name, see {ref}`control_protocol.md#naming-scheme`.
 
 LECO
     The **L**aboratory **E**xperiment **CO**ntrol protocol framework.
@@ -38,6 +48,9 @@ Message Layer
 
 Message Transport Mode (LMT/DMT)
     The Node-local Message Layer can have a local or distributed mode, see {ref}`network-structure.md#message-transport-mode-lmtdmt`.
+
+Namespace
+    The name of a Node in the Network, see {ref}`control_protocol.md#naming-scheme`.
 
 Node
     A Node is a local context in which (part of) a LECO deployment runs. 
