@@ -8,3 +8,5 @@ Communication will happen via messages (probably using [zeromq](https://zeromq.o
 
 [PyMeasure](https://pymeasure.readthedocs.io) is an obvious candidate for working with this protocol, and as such will influence the design somewhat, but we will take pains to make sure the protocol will be agnostic to the actual interface package (or language) used.
 The authors draw on their varied experience setting up such solutions in a homebrew fashion.
+
+See the [documentation](https://leco-laboratory-experiment-control-protocol.readthedocs.io/en/latest/) for a more exhaustive description of the protocol and its elements.
