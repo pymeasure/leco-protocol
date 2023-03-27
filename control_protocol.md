@@ -120,7 +120,7 @@ sequenceDiagram
     CA ->> N1: V|N1.CB|CA|H|Content
     Note right of N1: Does not know CA
     N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR:I do not know you
-    Note left of CA: Must send a SIGNIN message before further messaging.
+    Note left of CA: Must send a SIGNIN message<br> before further messaging.
 :::
 
 
@@ -257,6 +257,8 @@ During the sign-in procedure, Coordinators exchange their local Directories and 
 They shall sign in to all Coordinators, they are not yet signed in.
 The sign-in might happen because the Coordinator learns a new Coordinator address via Directory updates or at startup.
 The sign-out might happen because the Coordinator shuts down.
+
+Similarly to Component sign-in, the Coordinator shall refuse a sign-in request with an ERROR, if it is already connected to a Coordinator with the same Namespace as the requesting Coordinator's Namespace.
 
 These are the sign-in/sign-out sequences between Coordinators, where `address` is for example the host name and port number of the Coordinator's ROUTER socket.
 
