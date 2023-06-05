@@ -318,6 +318,22 @@ For the format of the Messages, see {ref}`control_protocol.md#message-layer`.
 
 ## Message layer
 
+The message layer contains the actual information exchanged between Components.
+As LECO is about controlling experiments, the message layer has to transmit commands, that is calling procedures remotely.
+
+We use the [JSON-RPC](https://www.jsonrpc.org/specification) standard to encode these remote procedure calls (RPC) and the responses.
+We further use the [OpenRPC](https://open-rpc.org/) standard to describe the possibly callable methods of a Component.
+
+Therefore, a Component MUST execute remote procedures according to JSON-RPC and return an appropriate response.
+A Component MUST also offer a list of all possibly callable methods in accordance with OpenRPC.
+
+For such a RPC message, the first content frame MUST consist in a JSON-RPC compatible content, for example a single request object or a batch.
+
+
+:::{note}
+TODO allow several frames for consecutive execution?
+:::
+
 
 ### Messages for Transport Layer
 
@@ -329,8 +345,6 @@ For the format of the Messages, see {ref}`control_protocol.md#message-layer`.
 - CO_SIGNIN
 - CO_SIGNOUT
 
-
-
 :::{note}
-TODO
+TODO How to make these messages work? Define them directly in the transport layer?
 :::
