@@ -58,7 +58,7 @@ A message consists of 4 or more frames.
 2. The receiver Full name or Component name, as appropriate.
 3. The sender Full name.
 4. A content header (abbreviated with "H" in examples).
-5. Message content: The optional payload, which can be 0 or more frames.
+5. Message content: The optional payload, which can be 0 or 1 frame.
 
 
 #### Directory
