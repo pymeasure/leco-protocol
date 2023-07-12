@@ -330,17 +330,490 @@ A Component MUST also offer a list of all possibly callable methods in accordanc
 For such a RPC message, the first content frame MUST consist in a JSON-RPC compatible content, for example a single request object or a batch of request objects.
 
 
+### List of methods
 
-### Messages for Transport Layer
+List of methods defined by LECO.
+You MAY implement the optional methods of this list and you MUST implement the methods obligatory for your type of Component.
+All methods implemented in a Component MUST adhere to this list or MUST have a name different to any method in this list.
 
-- SIGNIN
-- SIGNOUT
-- ACKNOWLEDGE
-- ERROR
-- PING
-- CO_SIGNIN
-- CO_SIGNOUT
+
+#### Component
+
+Any Component, i.e. any participant in the LECO protocol, MUST offer the following methods.
+
+::: json
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Component",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "pong",
+            "description": "Respond to a ping.",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        }
+    ],
+    "components": {
+        "schemas": {}
+    }
+}
+:::
+
+Any Component MAY offer ANY of the following methods.
+Components SHOULD offer ``shut_down``.
+
+::: json
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Component-optional",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "set_log_level",
+            "params": [
+                {
+                    "name": "level",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "shut_down",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+    ],
+    "components": {
+        "schemas": {}
+    }
+}
+:::
+
+
+#### Coordinator
+
+Control protocol Coordinators are also {ref}`Components <control_protocol.md#Component>` and MUST offer methods accordingly.
+Furthermore, Coordinators MUST offer the following methods.
+
+::: json
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Coordinator",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "sign_in",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "sign_out",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "coordinator_sign_in",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "coordinator_sign_out",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_nodes",
+            "params": [
+                {
+                    "name": "nodes",
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_remote_components",
+            "params": [
+                {
+                    "name": "components",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "compose_global_directory",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "compose_local_directory",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "required": true
+            },
+            "description": "Compose a dictionary with the local directory."
+        },
+        {
+            "name": "get_component_names",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "clean_addresses",
+            "params": [
+                {
+                    "name": "expiration_time",
+                    "schema": {
+                        "type": "number"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "description": "Clean all expired addresses from the directory.\n\n        :param float expiration_time: Expiration limit in s.\n        "
+        },
+    ],
+    "components": {
+        "schemas": {}
+    }
+}
+:::
+
+
+#### Actor
+
+An Actor is a {ref}`control_protocol.md#Component`.
+Additionally, it MUST offer the following methods.
+
+::: json
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Actor",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "get_parameters",
+            "params": [
+                {
+                    "name": "parameters",
+                    "schema": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        ]
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_parameters",
+            "params": [
+                {
+                    "name": "parameters",
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "call_action",
+            "params": [
+                {
+                    "name": "action",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                },
+                {
+                    "name": "_args",
+                    "schema": {
+                        "anyOf": [
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {},
+                "required": true
+            }
+        },
+    ],
+    "components": {
+        "schemas": {}
+    }
+}
+:::
+
+
+
+#### Polling Actor
+
+An {ref}`control_protocol.md#Actor`, which supports regular polling of values, MUST implement these methods, additionally to those of an Actor.
+
+::: json
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Polling Actor",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "start_polling",
+            "params": [
+                {
+                    "name": "polling_interval",
+                    "schema": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "stop_polling",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "get_polling_interval",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "number"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_polling_interval",
+            "params": [
+                {
+                    "name": "polling_interval",
+                    "schema": {
+                        "type": "number"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+    ],
+    "components": {
+        "schemas": {}
+    }
+}
+:::
+
+
+#### Locking Actor
+
+An {ref}`control_protocol.md#Actor` which support locking resources MUST offer the following methods.
 
 :::{note}
-TODO How to make these messages work? Define them directly in the transport layer?
+TBD change the python code to json
 :::
+
+::: python
+    def lock(self, resource: Optional[str] = None) -> bool: ...
+
+    def unlock(self, resource: Optional[str] = None) -> None: ...
+
+    def force_unlock(self, resource: Optional[str] = None) -> None: ...
+:::
+
+
+### Errors
+
+According to JSONRPC, error codes between -32000 and -32099 can be defined.
+LECO defines the following errors.
+
+Every error has a code and a message.
+Additionally they may have a ``data`` field with more information.
+
+
+#### Routing errors
+
+Errors related to routing (mainly emitted by Coordinators).
+They are in the range of -32000 to -32009.
+
+
+| code   | message                            | data                 | description                                                                          |
+|--------|------------------------------------|----------------------|--------------------------------------------------------------------------------------|
+| -32000 | You did not sign in!               | -                    | If a Component did not sign in.                                                      |
+| -32001 | The name is already taken.         | -                    | A Component tries to sign in, but another Component is signed in with the same name  |
+| -32002 | Node is not known.                 | Name of the node     | The node to which the message should be sent, is not known to this Coordinator.      |
+| -32003 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
