@@ -798,22 +798,22 @@ TBD change the python code to json
 
 ### Errors
 
-According to JSONRPC, error codes between -32000 and -32099 can be defined.
-LECO defines the following errors.
-
 Every error has a code and a message.
 Additionally they may have a ``data`` field with more information.
+
+According to JSONRPC, applications can define error codes between -32000 and -32099.
+LECO defines the following errors.
 
 
 #### Routing errors
 
 Errors related to routing (mainly emitted by Coordinators).
-They are in the range of -32000 to -32009.
+Their error codes are in the range of -32090 to -32099.
 
 
 | code   | message                            | data                 | description                                                                          |
 |--------|------------------------------------|----------------------|--------------------------------------------------------------------------------------|
-| -32000 | You did not sign in!               | -                    | If a Component did not sign in.                                                      |
-| -32001 | The name is already taken.         | -                    | A Component tries to sign in, but another Component is signed in with the same name  |
-| -32002 | Node is not known.                 | Name of the node     | The node to which the message should be sent, is not known to this Coordinator.      |
-| -32003 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
+| -32090 | You did not sign in!               | -                    | If a Component did not sign in.                                                      |
+| -32091 | The name is already taken.         | -                    | A Component tries to sign in, but another Component is signed in with the same name  |
+| -32092 | Node is not known.                 | Name of the node     | The node to which the message should be sent, is not known to this Coordinator.      |
+| -32093 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
