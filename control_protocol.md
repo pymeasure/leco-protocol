@@ -339,7 +339,7 @@ All methods implemented in a Component MUST adhere to this list or MUST have a n
 
 #### Component
 
-Any Component, i.e. any participant in the LECO protocol, MUST offer the following methods.
+Any Component, i.e. any participant in the LECO protocol, MUST offer the [OpenRPC Service Discovery Method](https://spec.open-rpc.org/#service-discovery-method) and the following methods.
 
 .. jsonschema:: schemas/actor.json
 
@@ -351,7 +351,7 @@ Components SHOULD offer ``shut_down``.
 
 #### Coordinator
 
-Control protocol Coordinators are also {ref}`Components <control_protocol.md#Component>` and MUST offer methods accordingly.
+Control protocol Coordinators are also {ref}`Components <control_protocol.md#Component>`.
 Furthermore, Coordinators MUST offer the following methods.
 
 .. jsonschema:: schemas/coordinator.json
@@ -367,7 +367,7 @@ Additionally, it MUST offer the following methods.
 
 #### Polling Actor
 
-An {ref}`control_protocol.md#Actor`, which supports regular polling of values, MUST implement these methods, additionally to those of an Actor.
+An {ref}`control_protocol.md#Actor`, which supports regular polling of values, MUST implement these methods.
 
 .. jsonschema:: schemas/polling_actor.json
 
@@ -406,7 +406,7 @@ Their error codes are in the range of -32090 to -32099.
 
 | code   | message                            | data                 | description                                                                          |
 |--------|------------------------------------|----------------------|--------------------------------------------------------------------------------------|
-| -32090 | Component not signed in yet!       | Name of the component| If a Component did not sign in.                                                      |
-| -32091 | The name is already taken.         | -                    | A Component tries to sign in, but another Component is signed in with the same name  |
-| -32092 | Node is unknown.                   | Name of the node     | The node to which the message should be sent, is not known to this Coordinator.      |
+| -32090 | Component not signed in yet!       | Name of the Component| If a Component did not sign in.                                                      |
+| -32091 | The name is already taken.         | Name of the Component| A Component tries to sign in, but another Component is signed in with the same name  |
+| -32092 | Node is unknown.                   | Name of the Node     | The Node to which the message should be sent, is not known to this Coordinator.      |
 | -32093 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |

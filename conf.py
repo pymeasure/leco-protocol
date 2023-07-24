@@ -7,13 +7,19 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'experiment_control_protocol'
-copyright = '2023, PyMeasure maintainers'
-author = 'PyMeasure maintainers'
+copyright = '2023, LECO maintainers'
+author = 'LECO maintainers'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['myst_parser', 'sphinxcontrib.mermaid', 'sphinx_rtd_theme', 'sphinx.ext.autodoc', 'sphinx-jsonschema']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx-jsonschema',
+    'myst_parser',
+    'sphinxcontrib.mermaid',
+    'sphinx_rtd_theme',
+]
 
 myst_enable_extensions = [
   "colon_fence",

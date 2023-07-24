@@ -11,7 +11,6 @@
             "params": [
                 {
                     "name": "polling_interval",
-                    "summary": "seconds",
                     "description": "Polling interval in seconds.",
                     "schema": {
                         "type": "number"
