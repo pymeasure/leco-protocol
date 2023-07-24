@@ -1,0 +1,77 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Polling Actor",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "start_polling",
+            "description": "Start to poll some values regularly.",
+            "params": [
+                {
+                    "name": "polling_interval",
+                    "summary": "seconds",
+                    "description": "Polling interval in seconds.",
+                    "schema": {
+                        "type": "number"
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "stop_polling",
+            "description": "Stop to poll regularly.",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "get_polling_interval",
+            "description": "Get the polling interval.",
+            "params": [],
+            "result": {
+                "name": "result",
+                "description": "The polling interval in seconds.",
+                "schema": {
+                    "type": "number"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_polling_interval",
+            "description": "Set the polling interval",
+            "params": [
+                {
+                    "name": "polling_interval",
+                    "description": "Polling interval in seconds.",
+                    "schema": {
+                        "type": "number"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        }
+    ]
+}

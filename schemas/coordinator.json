@@ -1,0 +1,211 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Coordinator",
+        "description": "Coordinates messages between LECO Components.",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "sign_in",
+            "params": [],
+            "description": "Sign in to this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "errors": [
+                {
+                    "code": -32091,
+                    "message": "The name is already taken.",
+                    "data": "Already taken name."
+                }
+            ]
+        },
+        {
+            "name": "sign_out",
+            "params": [],
+            "description": "Sign out from this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "coordinator_sign_in",
+            "params": [],
+            "description": "Sign in as a Coordinator to this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "coordinator_sign_out",
+            "params": [],
+            "description": "Sign out as a Coordinator from this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_nodes",
+            "params": [
+                {
+                    "name": "nodes",
+                    "schema": {
+                        "$ref": "#/components/nodes"
+                    }
+                }
+            ],
+            "description": "Set node addresses and connect to all nodes, to which there is not yet any connection.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "get_nodes",
+            "params": [],
+            "description": "Get the nodes known to this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/nodes"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_components",
+            "params": [
+                {
+                    "name": "components",
+                    "description": "List of Components' names.",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "required": true
+                }
+            ],
+            "description": "Update Directory with Components of another Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "get_local_components",
+            "params": [],
+            "description": "Get the locally connected Components.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/components_list"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "get_global_components",
+            "params": [],
+            "description": "Get all Components in this LECO network.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/global_directory"
+                }
+            }
+        },
+        {
+            "name": "clean_addresses",
+            "params": [
+                {
+                    "name": "expiration_time",
+                    "description": "Expiration time of Components and Coordinators in s.",
+                    "summary": "seconds",
+                    "schema": {
+                        "type": "number"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "description": "Clean all expired addresses from the directory."
+        }
+    ],
+        "components": {
+        "global_directory": {
+            "type": "array",
+            "description": "List of Namespaces and their Components.",
+            "items": {
+                "type": "object",
+                "description": "Namespace with connected Components.",
+                "properties": {
+                    "namespace": "string",
+                    "components": {
+                        "$ref": "#/components/components_list"
+                    }
+                },
+                "required": [ "namespace" ]
+            }
+        },
+        "nodes" : {
+            "type": "array",
+            "description": "List of nodes and their adresses.",
+            "items": {
+                "$ref": "#/components/node"
+            }
+        },
+        "node": {
+            "name": "node",
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "description": "Address at which the Coordinator can be reached, e.g. TCP address."
+                },
+                "namespace": {
+                    "type": "string",
+                    "description": "Namespace of the node."
+                }
+            },
+            "required": [ "address", "namespace" ]
+        },
+        "components_list": {
+            "type": "array",
+            "description": "List of Components' names.",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

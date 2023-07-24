@@ -13,7 +13,7 @@ author = 'PyMeasure maintainers'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['myst_parser', 'sphinxcontrib.mermaid', 'sphinx_rtd_theme']
+extensions = ['myst_parser', 'sphinxcontrib.mermaid', 'sphinx_rtd_theme', 'sphinx.ext.autodoc', 'sphinx-jsonschema']
 
 myst_enable_extensions = [
   "colon_fence",

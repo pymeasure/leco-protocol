@@ -1,0 +1,122 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Actor",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "get_parameters",
+            "params": [
+                {
+                    "name": "parameters",
+                    "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                        }
+                    },
+                    "required": true
+                }
+            ],
+            "description": "Get the values for parameters.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/parameter_value_list"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "set_parameters",
+            "params": [
+                {
+                    "name": "parameters",
+                    "schema": {
+                        "$ref": "#/components/parameter_value_list"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "call_action",
+            "description": "Call an Action of this Component. All other arguments are handed to the action.",
+            "params": [
+                {
+                    "name": "action",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                },
+                {
+                    "name": "args",
+                    "schema": {
+                        "type": "array",
+                        "description": "List of positional arguments.",
+                        "items": {
+                            "$ref": "#/components/any"
+                        }
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "description": "Result of the action.",
+                "schema": {
+                    "$ref": "#/components/any"
+                },
+                "required": true
+            }
+        }
+    ],
+    "components": {
+        "parameter_value_list": {
+            "description": "List of parameters and their values.",
+            "type": "array",
+            "items": {
+                "name": "parameter_value",
+                "properties": {
+                    "parameter": {
+                        "type": "string",
+                        "description": "Name of the parameter."
+                    },
+                    "value": {
+                        "$ref": "#/components/any"
+                    }
+                },
+                "required": [ "parameter", "value" ]
+            }
+        },
+        "any" : {
+            "anyOf": [
+                {
+                    "description": "Value of the parameter.",
+                    "type": "integer"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                },
+                {
+                    "type": "object"
+                }
+            ]
+        }
+    }
+}
