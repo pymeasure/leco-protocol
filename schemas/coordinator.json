@@ -78,10 +78,28 @@
                     "type": "null"
                 },
                 "required": true
-            }
+            },
+            "examples": [
+                {
+                    "name": "Add nodes example",
+                    "params": [
+                        {
+                            "name": "nodes",
+                            "value": {
+                                "Namespace1": "host_of_namespace1:12345",
+                                "Namespace2": "host_of_namespace2:54321"
+                            }
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": null
+                    }
+                }
+            ]
         },
         {
-            "name": "Send_nodes",
+            "name": "send_nodes",
             "params": [],
             "description": "Send the names and addresses of the nodes known to this Coordinator.",
             "result": {
@@ -90,7 +108,20 @@
                     "$ref": "#/components/nodes"
                 },
                 "required": true
-            }
+            },
+            "examples": [
+                {
+                    "name": "Send nodes example",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                                "Namespace1": "host_of_namespace1:12345",
+                                "Namespace2": "host_of_namespace2:54321"
+                            }
+                    }
+                }
+            ]
         },
         {
             "name": "record_components",
@@ -100,10 +131,7 @@
                     "name": "components",
                     "description": "List of Components' names.",
                     "schema": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "$ref": "#/components/components_array"
                     },
                     "required": true
                 }
@@ -123,10 +151,23 @@
             "result": {
                 "name": "result",
                 "schema": {
-                    "$ref": "#/components/components_list"
+                    "$ref": "#/components/components_array"
                 },
                 "required": true
-            }
+            },
+            "examples": [
+                {
+                    "name": "Send local directory example",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": [
+                            "ComponentA",
+                            "ComponentB"
+                        ]
+                    }
+                }
+            ]
         },
         {
             "name": "send_global_components",
@@ -135,13 +176,31 @@
             "result": {
                 "name": "result",
                 "schema": {
-                    "$ref": "#/components/global_directory"
+                    "type": "object",
+                    "description": "Object with 'namespace'-'array of component names' pairs.",
+                    "additionalProperties": {
+                        "$ref": "#/components/components_array"
+                    }
                 }
-            }
+            },
+            "examples": [
+                {
+                    "name": "Global directory example.",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                            "Namespace1": ["Namespace1.ComponentA", "Namespace1.ComponentB"],
+                            "Namespace2": ["Namespace2.ComponentC", "Namespace2.ComponentD", "Namespace2.ComponentE"],
+                            "Namespace3": ["Namespace3.ComponentF"]
+                        }
+                    }
+                }
+            ]
         },
         {
             "name": "remove_expired_adresses",
-            "description": "Clean all expired addresses from the directory."
+            "description": "Clean all expired addresses from the directory.",
             "params": [
                 {
                     "name": "expiration_time",
@@ -158,51 +217,19 @@
                     "type": "null"
                 },
                 "required": true
-            },
+            }
         }
     ],
         "components": {
-        "global_directory": {
-            "type": "array",
-            "description": "List of Namespaces and their Components.",
-            "items": {
+            "nodes" : {
                 "type": "object",
-                "description": "Namespace with connected Components.",
-                "properties": {
-                    "namespace": "string",
-                    "components": {
-                        "$ref": "#/components/components_list"
-                    }
-                },
-                "required": [ "namespace" ]
-            }
-        },
-        "nodes" : {
-            "type": "array",
-            "description": "List of nodes and their adresses.",
-            "items": {
-                "$ref": "#/components/node"
-            }
-        },
-        "node": {
-            "name": "node",
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "description": "Address at which the Coordinator can be reached, e.g. TCP address."
-                },
-                "namespace": {
-                    "type": "string",
-                    "description": "Namespace of the node."
-                }
+                "additionalProperties": {"type": "string"},
+                "description": "Object with 'node'-'address' pairs as properties."
             },
-            "required": [ "address", "namespace" ]
-        },
-        "components_list": {
-            "type": "array",
-            "description": "List of Components' names.",
-            "items": {
+            "components_array": {
+                "type": "array",
+                "description": "List of Components' names.",
+                "items": {
                 "type": "string"
             }
         }

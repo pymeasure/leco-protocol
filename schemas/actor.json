@@ -7,6 +7,7 @@
     "methods": [
         {
             "name": "get_parameters",
+            "description": "Get the values for parameters.",
             "params": [
                 {
                     "name": "parameters",
@@ -19,14 +20,33 @@
                     "required": true
                 }
             ],
-            "description": "Get the values for parameters.",
             "result": {
                 "name": "result",
                 "schema": {
-                    "$ref": "#/components/parameter_value_list"
+                    "type": "object",
+                    "description": "Object with parameter-value pairs",
+                    "additionalProperties": true
                 },
                 "required": true
-            }
+            },
+            "examples": [
+                {
+                    "name": "Get parameters example",
+                    "params": [
+                        {
+                            "name": "parameters",
+                            "value": ["parameter1", "parameter2"]
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                            "parameter1": "value_of_parameter1",
+                            "parameter2": "some_other_value"
+                        }
+                    }
+                }
+            ]
         },
         {
             "name": "set_parameters",
@@ -34,7 +54,10 @@
                 {
                     "name": "parameters",
                     "schema": {
-                        "$ref": "#/components/parameter_value_list"
+                        "type": "object",
+                        "description": "Object with parameter-value pairs",
+                        "additionalProperties": true
+
                     },
                     "required": true
                 }
@@ -45,7 +68,26 @@
                     "type": "null"
                 },
                 "required": true
-            }
+            },
+            "examples": [
+                {
+                    "name": "Set parameters example",
+                    "params": [
+                        {
+                            "name": "parameters",
+                            "value": {
+                                "parameter1": "value_of_parameter1",
+                                "parameter2": "some_other_value"
+                            }
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": null
+                    }
+                }
+            ]
+
         },
         {
             "name": "call_action",
@@ -77,27 +119,34 @@
                     "$ref": "#/components/any"
                 },
                 "required": true
-            }
+            },
+            "examples": [
+                {
+                    "name": "Calling some action with keyword arguments only.",
+                    "params": [
+                        {
+                            "name": "action",
+                            "value": "super_action"
+                        },
+                        {
+                            "name": "args",
+                            "value": null
+
+                        },
+                        {
+                            "name": "argument1",
+                            "value": 5
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": "result of 'super_action(argument1=5)'."
+                    }
+                }
+            ]
         }
     ],
     "components": {
-        "parameter_value_list": {
-            "description": "List of parameters and their values.",
-            "type": "array",
-            "items": {
-                "name": "parameter_value",
-                "properties": {
-                    "parameter": {
-                        "type": "string",
-                        "description": "Name of the parameter."
-                    },
-                    "value": {
-                        "$ref": "#/components/any"
-                    }
-                },
-                "required": [ "parameter", "value" ]
-            }
-        },
         "any" : {
             "anyOf": [
                 {
