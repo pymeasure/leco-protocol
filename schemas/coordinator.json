@@ -47,7 +47,14 @@
                     "type": "null"
                 },
                 "required": true
-            }
+            },
+            "errors": [
+                {
+                    "code": -32091,
+                    "message": "The name is already taken.",
+                    "data": "Already taken name."
+                }
+            ]
         },
         {
             "name": "coordinator_sign_out",

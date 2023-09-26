@@ -19,6 +19,8 @@ I can also reference the section {ref}`section-two` without specifying my title.
 
 :::{note}
 And here's a note with a colon fence!
+
+Note, that you have to use a colon fence in a markdown file instead of the normal directives in rst files.
 :::
 
 And finally, here's a cool mermaid diagram!
@@ -36,3 +38,20 @@ sequenceDiagram
   John->Bob: How about you?
   Bob-->John: Jolly good!
 :::
+
+
+
+## JSON Schema
+
+You can show json data in a data-viewer:
+
+:::{data-viewer}
+:expand:
+:file: schemas/component.json
+:::
+
+
+
+
+
+test

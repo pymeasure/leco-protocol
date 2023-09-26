@@ -341,12 +341,18 @@ All methods implemented in a Component MUST adhere to this list or MUST have a n
 
 Any Component, i.e. any participant in the LECO protocol, MUST offer the [OpenRPC Service Discovery Method](https://spec.open-rpc.org/#service-discovery-method) and the following methods.
 
-.. jsonschema:: schemas/actor.json
+:::{data-viewer}
+:expand:
+:file: schemas/component.json
+:::
 
 Any Component MAY offer ANY of the following methods.
 Components SHOULD offer ``shut_down``.
 
-.. jsonschema:: schemas/component_optional.json
+:::{data-viewer}
+:expand:
+:file: schemas/component_optional.json
+:::
 
 
 #### Coordinator
@@ -354,7 +360,10 @@ Components SHOULD offer ``shut_down``.
 Control protocol Coordinators are also {ref}`Components <control_protocol.md#Component>`.
 Furthermore, Coordinators MUST offer the following methods.
 
-.. jsonschema:: schemas/coordinator.json
+:::{data-viewer}
+:expand:
+:file: schemas/coordinator.json
+:::
 
 
 #### Actor
@@ -362,14 +371,20 @@ Furthermore, Coordinators MUST offer the following methods.
 An Actor is a {ref}`control_protocol.md#Component`.
 Additionally, it MUST offer the following methods.
 
-.. jsonschema:: schemas/actor.schema
+:::{data-viewer}
+:expand:
+:file: schemas/actor.json
+:::
 
 
 #### Polling Actor
 
 An {ref}`control_protocol.md#Actor`, which supports regular polling of values, MUST implement these methods.
 
-.. jsonschema:: schemas/polling_actor.json
+:::{data-viewer}
+:expand:
+:file: schemas/polling_actor.json
+:::
 
 
 #### Locking Actor

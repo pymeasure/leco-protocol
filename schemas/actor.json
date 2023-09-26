@@ -150,7 +150,6 @@
         "any" : {
             "anyOf": [
                 {
-                    "description": "Value of the parameter.",
                     "type": "integer"
                 },
                 {

@@ -7,4 +7,4 @@ dependencies:
   - sphinx=5.3.0
   - sphinxcontrib-mermaid=0.8.1
   - sphinx_rtd_theme=1.1.1
-  - sphinx-jsonschema=1.19.1
+  - sphinx_data_viewer=0.1.2

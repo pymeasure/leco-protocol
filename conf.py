@@ -15,10 +15,10 @@ author = 'LECO maintainers'
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx-jsonschema',
     'myst_parser',
     'sphinxcontrib.mermaid',
     'sphinx_rtd_theme',
+    "sphinx_data_viewer",
 ]
 
 myst_enable_extensions = [
