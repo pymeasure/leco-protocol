@@ -391,17 +391,12 @@ An {ref}`control_protocol.md#Actor`, which supports regular polling of values, M
 
 An {ref}`control_protocol.md#Actor` which support locking resources MUST offer the following methods.
 
-:::{note}
-TBD change the python code to json
+:::{data-viewer}
+:expand:
+:file: schemas/locking_actor.json
 :::
 
-::: python
-    def lock(self, resource: Optional[str] = None) -> bool: ...
-
-    def unlock(self, resource: Optional[str] = None) -> None: ...
-
-    def force_unlock(self, resource: Optional[str] = None) -> None: ...
-:::
+Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise {ref}`control_protocol.md#locking_errors`.
 
 
 ### Errors
@@ -425,3 +420,12 @@ Their error codes are in the range of -32090 to -32099.
 | -32091 | The name is already taken.         | Name of the Component| A Component tries to sign in, but another Component is signed in with the same name  |
 | -32092 | Node is unknown.                   | Name of the Node     | The Node to which the message should be sent, is not known to this Coordinator.      |
 | -32093 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
+
+
+#### Locking errors
+
+Errors related to locked Resources
+
+| code   | message          | data | description                                  |
+|--------|------------------|------|----------------------------------------------|
+| -32050 | Resource locked! | -    | The resource is locked by another component. |
