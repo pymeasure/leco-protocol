@@ -24,31 +24,7 @@
                     "description": "Whether locking succeeded or not."
                 },
                 "required": true
-            },
-            "examples": [
-                {
-                    "name": "Lock the 'channel1' resource of the Component",
-                    "params": [
-                        {
-                            "name": "resource",
-                            "value": "channel1"
-                        }
-                    ],
-                    "result": {
-                        "name": "result",
-                        "value": true
-                    }
-                },
-                {
-                    "name": "Lock Component example",
-                    "params": [
-                    ],
-                    "result": {
-                        "name": "result",
-                        "value": true
-                    }
-                }
-            ]
+            }
         },
         {
             "name": "unlock",
@@ -69,31 +45,7 @@
                     "description": "Whether unlocking succeeded or not."
                 },
                 "required": true
-            },
-            "examples": [
-                {
-                    "name": "Unock the 'channel1' resource of the Component",
-                    "params": [
-                        {
-                            "name": "resource",
-                            "value": "channel1"
-                        }
-                    ],
-                    "result": {
-                        "name": "result",
-                        "value": true
-                    }
-                },
-                {
-                    "name": "Unlock Component example",
-                    "params": [
-                    ],
-                    "result": {
-                        "name": "result",
-                        "value": true
-                    }
-                }
-            ]
+            }
         },
         {
             "name": "force_unlock",
@@ -114,31 +66,7 @@
                     "description": "Whether force unlocking succeeded or not."
                 },
                 "required": true
-            },
-            "examples": [
-                {
-                    "name": "Force unlock the 'channel1' resource of the Component",
-                    "params": [
-                        {
-                            "name": "resource",
-                            "value": "channel1"
-                        }
-                    ],
-                    "result": {
-                        "name": "result",
-                        "value": true
-                    }
-                },
-                {
-                    "name": "Force unlock Component example",
-                    "params": [
-                    ],
-                    "result": {
-                        "name": "result",
-                        "value": true
-                    }
-                }
-            ]
+            }
         }
     ]
 }

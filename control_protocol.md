@@ -400,7 +400,7 @@ An {ref}`control_protocol.md#Actor` which support locking resources MUST offer t
 :file: schemas/locking_actor.json
 :::
 
-Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise {ref}`control_protocol.md#errors`.
+Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise appropriate {ref}`control_protocol.md#errors`.
 
 
 ### Errors
