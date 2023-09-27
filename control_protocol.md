@@ -48,7 +48,7 @@ For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
 The receiver of a message may be specified by Component name alone if the receiver belongs to the same Node as the sender.
 In all other cases, the receiver of a message must be specified by the Full name.
 
-The sender of a message must be specified by Full name, except during SIGNIN, when the Component name alone is sufficient.
+The sender of a message must be specified by Full name, except for the `sign_in` message, when the Component name alone is sufficient.
 
 
 #### Message composition
@@ -91,10 +91,10 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 
 ##### Signing-in
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its Component name.
-The Coordinator shall indicate success/acceptance with an ACKNOWLEDGE response, giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a `sign_in` message (see {ref}`control_protocol.md#coordinator`) indicating its Component name.
+The Coordinator shall indicate success/acceptance with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
 In that case, the Coordinator may indicate a suitable, still available variation on the indicated Component name.
-The Component may retry SIGNIN with a different chosen name.
+The Component may retry signing in with a different chosen name.
 
 After a successful handshake, the Coordinator shall store the Component name in its {ref}`control_protocol.md#directory` and shall ensure message delivery to that Component (e.g. by storing the (zmq) connection identity with the local directory).
 It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`control_protocol.md#coordinator-coordination`.
@@ -106,21 +106,21 @@ If a Component does send a message to someone without having signed in, the Coor
 sequenceDiagram
     Note over CA,N1: Name "CA" is still free
     participant N1 as N1.COORDINATOR
-    CA ->> N1: V|COORDINATOR|CA|H|SIGNIN
+    CA ->> N1: V|COORDINATOR|CA|H|sign_in
     Note right of N1: Connection identity "IA"
     Note right of N1: Stores "CA" with identity "IA"
-    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE: Namespace is "N1"
+    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|result
     Note left of CA: Stores "N1" as Namespace
     Note over CA,N1: Name "CA" is already used
-    CA ->> N1: V|COORDINATOR|CA|H|SIGNIN
-    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: Name "CA" is already used.
+    CA ->> N1: V|COORDINATOR|CA|H|sign_in
+    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: The name is already taken.
     Note left of CA: May retry with another Name
-    Note over CA,N1: "CA" has not send SIGNIN
+    Note over CA,N1: "CA" has not send sign_in
     Note left of CA: Wants to send a message to CB
     CA ->> N1: V|N1.CB|CA|H|Content
     Note right of N1: Does not know CA
-    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR:I do not know you
-    Note left of CA: Must send a SIGNIN message<br> before further messaging.
+    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!
+    Note left of CA: Must send a sign_in message<br> before further messaging.
 :::
 
 
@@ -130,7 +130,7 @@ Heartbeats are used to know whether a communication peer is still online.
 
 Every message received counts as a heartbeat.
 
-A Component should and a Coordinator shall send a PING and wait some time before considering a connection dead.
+A Component should and a Coordinator shall send a `pong` request message (see {ref}`control_protocol.md#actor`) and wait some time before considering a connection dead.
 A Coordinator shall follow the {ref}`control_protocol.md#signing-out` for a signed in Component considered dead.
 
 :::{note}
@@ -140,18 +140,18 @@ TBD: Heartbeat details are still to be determined.
 
 ##### Signing out
 
-A Component should send a SIGNOUT message to its Coordinator when it stops participating in the Network.
-The Coordinator shall ACKNOWLEDGE the sign-out and remove the Component name from its local {ref}`control_protocol.md#directory`.
+A Component should send a `sign_out` message (see {ref}`control_protocol.md#coordinator`) to its Coordinator when it stops participating in the Network.
+The Coordinator shall acknowledge the sign-out with a `result` message and remove the Component name from its local {ref}`control_protocol.md#directory`.
 It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`control_protocol.md#coordinator-coordination`.
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> N1: V|COORDINATOR|N1.CA|H|SIGNOUT
+    CA ->> N1: V|COORDINATOR|N1.CA|H|sign_out
     participant N1 as N1.COORDINATOR
-    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE
+    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|result
     Note right of N1: Removes "CA" with identity "IA"<br> from local Directory
     Note right of N1: Notifies other Coordinators about sign-out of "CA"
-    Note left of CA: Shall not send any message anymore except SIGNIN
+    Note left of CA: Shall not send any message anymore except sign_in
 :::
 
 
@@ -215,9 +215,9 @@ flowchart TB
     CnS-->|yes| Clocal{CA in <br>local Directory?}
     Clocal -->|yes| CidKnown{iA is CA's identity?}
     CidKnown -->|yes| RemIdent
-    Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Sender unknown"| S
+    Clocal -.->|no| E1[ERROR: Component not signed in yet!] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!"| S
     S[send] ==> WA([N1.CA DEALER])
-    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Name and identity do not match"| S
+    CidKnown -.->|no| E2[ERROR: Component not signed in yet!]==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!"| S
     RemIdent[remove sender identity] == "V|nR.recipient|nS.CA|H|Content" ==> CnR
     CnR -- "is None" --> Local
     CnR{nR?} -- "== N1"--> Local
@@ -227,7 +227,7 @@ flowchart TB
     Local2a -->|yes, with Identity iB| Local2
     Local2[add recipient identity iB] == "iB|V|nR.recipient|nS.CA|H|Content" ==> R1[send]
     R1 == "V|nR.recipient|nS.CA|H|Content" ==> W1([Wire to N1.recipient DEALER])
-    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"V|nS.CA|N1.COORDINATOR|H|ERROR N1.recipient is unknown"|CnR
+    Local2a -.->|no| E3[ERROR: Receiver is not in addresses list<br>send Error to original sender] ==>|"V|nS.CA|N1.COORDINATOR|H|<br>ERROR: N1.recipient is unknown"|CnR
     CnR -- "== N2" --> Keep
     Keep[send to N2.COORDINATOR] == "V|nR.recipient|nS.CA|H|Content" ==> R2[send]
     R2 == "V|nR.recipient|nS.CA|H|Content" ==> W2([Wire to N2.COORDINATOR ROUTER])
@@ -238,7 +238,7 @@ flowchart TB
         R1
         S
     end
-    subgraph Co1 DEALER socket <br>to N2.COORDINATOR
+    subgraph "Co1 DEALER socket <br>to N2.COORDINATOR"
         R2
     end
 :::
@@ -275,27 +275,27 @@ sequenceDiagram
     activate d1
     Note left of d1: created with<br> name "temp-NS"
     d1-->>r2: connect to address2
-    d1->>r2: V|COORDINATOR|N1.COORDINATOR|H|<br>CO_SIGNIN
+    d1->>r2: V|COORDINATOR|N1.COORDINATOR|H|<br>coordinator_sign_in
     Note right of r2: stores N1 identity
-    r2->>d1: V|N1.COORDINATOR|N2.COORDINATOR|H|ACK
+    r2->>d1: V|N1.COORDINATOR|N2.COORDINATOR|H|result
     Note left of d1: DEALER name <br>set to "N2"
-    d1->>r2: V|N1.COORDINATOR|N2.COORDINATOR|H|<br>Here is my local directory<br>and Coordinator addresses
+    d1->>r2: V|N1.COORDINATOR|N2.COORDINATOR|H|<br>add_nodes(Coordinator addresses)<br>record_components
     Note right of r2: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators,<br>also N1
     Note over d1,r2: Mirror of above sign-in procedure
     activate d2
     Note left of d2: created with<br>name "N1"
     d2-->>r1: connect to address1
-    d2->>r1: V|COORDINATOR|N2.COORDINATOR|H|<br>CO_SIGNIN
+    d2->>r1: V|COORDINATOR|N2.COORDINATOR|H|<br>coordinator_sign_in
     Note right of r1: stores N2 identity
-    r1->>d2: V|N2.COORDINATOR|N1.COORDINATOR|H|ACK
+    r1->>d2: V|N2.COORDINATOR|N1.COORDINATOR|H|result
     Note left of d2: Name is already "N1"
-    d2->>r1: V|N2.COORDINATOR|N1.COORDINATOR|H|<br>Here is my local directory<br>and Coordinator addresses
+    d2->>r1: V|N2.COORDINATOR|N1.COORDINATOR|H|<br>add_nodes(Coordinator addresses)<br>record_components
     Note right of r1: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators
     Note over r1,d2: Sign out between two Coordinators
     Note right of r1: shall sign out from N2
-    d1->>r2: CO_SIGNOUT
+    d1->>r2: coordinator_sign_out
     Note right of r2: removes N1 identity
-    d2->>-r1: CO_SIGNOUT
+    d2->>-r1: coordinator_sign_out
     Note right of r1: removes N2 identity
     deactivate d1
 :::
@@ -310,6 +310,10 @@ Note that the DEALER socket responds with the local Directory and Coordinator ad
 Each Coordinator shall keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
 For this, whenever a Component signs in to or out from its Coordinator, the Coordinator shall notify all the other Coordinators regarding this event.
 The other Coordinators shall update their global Directory according to this message (add or remove an entry).
+
+:::{note}
+TBD: These updates have to be determined.
+:::
 
 On request, Coordinators shall send the Names of their local or global Directory, depending on the request type.
 
@@ -396,7 +400,7 @@ An {ref}`control_protocol.md#Actor` which support locking resources MUST offer t
 :file: schemas/locking_actor.json
 :::
 
-Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise {ref}`control_protocol.md#locking_errors`.
+Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise {ref}`control_protocol.md#errors`.
 
 
 ### Errors
