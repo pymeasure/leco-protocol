@@ -11,11 +11,10 @@
                 {
                     "name": "level",
                     "schema": {
-                        "type": "integer",
-                        "multipleOf": 10,
-                        "minimum": 0,
-                        "maximum": 100
+                        "type": "string",
+                        "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
                     },
+                    "description": "The logging level, for a description of the different levels see https://docs.python.org/3/library/logging.html#logging-levels.",
                     "required": true
                 }
             ],
