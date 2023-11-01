@@ -7,10 +7,11 @@
     "methods": [
         {
             "name": "get_parameters",
-            "description": "Get the values for parameters.",
+            "description": "Get values of Device parameters.",
             "params": [
                 {
                     "name": "parameters",
+                    "description": "List of parameter names to get the values of.",
                     "schema": {
                             "type": "array",
                             "items": {
@@ -50,12 +51,13 @@
         },
         {
             "name": "set_parameters",
+            "description": "Set values of Device parameters.",
             "params": [
                 {
                     "name": "parameters",
+                    "description": "Object with parameter-value pairs",
                     "schema": {
                         "type": "object",
-                        "description": "Object with parameter-value pairs",
                         "additionalProperties": true
 
                     },
@@ -91,10 +93,11 @@
         },
         {
             "name": "call_action",
-            "description": "Call an Action of this Component. All other arguments are handed to the action.",
+            "description": "Call an Action of the Device.",
             "params": [
                 {
                     "name": "action",
+                    "description": "Name of the action to call.",
                     "schema": {
                         "type": "string"
                     },
@@ -102,9 +105,9 @@
                 },
                 {
                     "name": "args",
+                    "description": "List of positional arguments.",
                     "schema": {
                         "type": "array",
-                        "description": "List of positional arguments.",
                         "items": {
                             "$ref": "#/components/any"
                         }
@@ -122,25 +125,21 @@
             },
             "examples": [
                 {
-                    "name": "Calling some action with keyword arguments only.",
+                    "name": "Calling some action 'action'.",
                     "params": [
                         {
                             "name": "action",
-                            "value": "super_action"
+                            "value": "action"
                         },
                         {
                             "name": "args",
-                            "value": null
+                            "value": [5, 7]
 
-                        },
-                        {
-                            "name": "argument1",
-                            "value": 5
                         }
                     ],
                     "result": {
                         "name": "result",
-                        "value": "result of 'super_action(argument1=5)'."
+                        "value": "result of `action(5, 7)`"
                     }
                 }
             ]
