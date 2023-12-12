@@ -16,6 +16,7 @@ The transport layer ensures that a message arrives at its destination.
 
 Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER <appendix.md#router-sockets>` socket, bound to an address.
 The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses at the port `12345`.
+The default port number is 12300.
 
 {ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
 
@@ -58,6 +59,9 @@ A message consists of 4 or more frames.
 2. The receiver Full name or Component name, as appropriate.
 3. The sender Full name.
 4. A content header (abbreviated with "H" in examples).
+   1. UUIDv7 as a `conversation id`
+   2. A three byte `message id`
+   3. A one byte `message type`. A value of `0` means "not defined", a value of `1` means JSON encoded.
 5. Message content: The optional payload, which can be 0 or more frames.
 
 
@@ -304,11 +308,14 @@ sequenceDiagram
 Note that the DEALER socket responds with the local Directory and Coordinator addresses to the received Acknowledgment.
 :::
 
+If a not signed in Coordinator tries to sign out from a second one, the latter one does ignore that message.
+If a Coordinator tries to sign out, but the message arrives via a different identity, the sign-out is rejected.
 
 ##### Coordinator updates
 
 Each Coordinator shall keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
 For this, whenever a Component signs in to or out from its Coordinator, the Coordinator shall notify all the other Coordinators regarding this event.
+For that, the Coordinators sends the other ones the full directory, i.e. all Components and Coordinators connected to the Coordinator.
 The other Coordinators shall update their global Directory according to this message (add or remove an entry).
 
 :::{note}
