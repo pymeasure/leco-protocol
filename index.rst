@@ -16,6 +16,7 @@
    messages
    network-structure
    control_protocol
+   data_protocol
    glossary
    Hello_world
    appendix
