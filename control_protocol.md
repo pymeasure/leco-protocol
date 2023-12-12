@@ -291,10 +291,14 @@ sequenceDiagram
 Note that the DEALER socket responds with the local Directory and Coordinator addresses to the received Acknowledgment.
 :::
 
+If a not signed in Coordinator tries to sign out from a second one, the latter one does ignore that message.
+If a Coordinator tries to sign out, but the message arrives via a different identity, the sign-out is rejected.
+
 ##### Coordinator updates
 
 Each Coordinator shall keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
 For this, whenever a Component signs in to or out from its Coordinator, the Coordinator shall notify all the other Coordinators regarding this event.
+For that, the Coordinators sends the other ones the full directory, i.e. all Components and Coordinators connected to the Coordinator.
 The other Coordinators shall update their global Directory according to this message (add or remove an entry).
 
 :::{note}
