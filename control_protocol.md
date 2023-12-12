@@ -54,6 +54,9 @@ A message consists of 4 or more frames.
 2. The receiver Full name or Component name, as appropriate.
 3. The sender Full name.
 4. A content header (abbreviated with "H" in examples).
+   1. UUIDv7 as a `conversation id`
+   2. A three byte `message id`
+   3. A one byte `message type`. A value of `0` means "not defined", a value of `1` means JSON encoded.
 5. Message content: The optional payload, which can be 0 or more frames.
 
 #### Directory
