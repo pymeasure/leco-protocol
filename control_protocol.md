@@ -13,6 +13,7 @@ The transport layer ensures that a message arrives at its destination.
 
 Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER <appendix.md#router-sockets>` socket, bound to an address.
 The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses at the port `12345`.
+The default port number is 12300.
 
 {ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
 
