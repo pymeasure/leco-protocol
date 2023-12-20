@@ -206,7 +206,7 @@
             ]
         },
         {
-            "name": "remove_expired_adresses",
+            "name": "remove_expired_addresses",
             "description": "Clean all expired addresses from the directory.",
             "params": [
                 {
