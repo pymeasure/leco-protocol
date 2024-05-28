@@ -22,6 +22,7 @@ That way, an answer to that message can be returned to this same peer, and not a
 Consequently, in order to send such an answer, the identity has to be prepended to the frames to send: Calling the ROUTER's send command with `IA|Reply A`, the socket will send `Reply A` to the peer, whose identity is `IA`, in this case that is `CA`.
 
 The following diagram shows this example communication with two Components:
+:::{mermaid}
 sequenceDiagram
     participant Code as Message handling
     participant ROUTER as ROUTER socket
