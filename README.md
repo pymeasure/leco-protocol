@@ -9,7 +9,7 @@ This initiative was born out of a desire of PyMeasure developers, contributors a
 LECO is meant to be a specification for a (programming-language-independent) protocol to enable users to run experiments with a number of hardware devices, including logging, data storage, plotting, and GUI.
 
 [PyMeasure](https://pymeasure.readthedocs.io) is an obvious candidate for working with this protocol, and as such will influence the design somewhat, but we will take pains to make sure the protocol will be agnostic to the actual interface package (or language) used.
-The authors draw on their varied experience setting up such solutions in a homebrew fashion.
+The authors draw on their varied experience setting up such solutions in a number of research laboratories.
 
 
 ## Overview
@@ -27,8 +27,8 @@ There exist two different communication protocols in LECO.
 
 A LECO network needs at least one _Coordinator_ (server), which routes the messages among the connected _Components_.
 
-Each _Component_ has a name unique in the network.
-This name consists in the name of the _Coordinator_ they are connected to and their own name.
+Each _Component_ has a name unique in the network, by which it may be addressed.
+This name consists of the name of the _Coordinator_ (_Namespace_) they are connected to and their own name.
 For example `N1.component1` is the full name of `component1` connected to the _Coordinator_ of the _Namespace_ `N1`.
 That _Coordinator_ itself is called `N1.COORDINATOR`, as _Coordinators_ are always called `COORDINATOR`.
 
