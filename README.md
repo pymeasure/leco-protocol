@@ -38,3 +38,5 @@ That _Coordinator_ itself is called `N1.COORDINATOR`, as _Coordinators_ are alwa
 There are LECO implementations in the following languages:
 
 - **Python**: [PyLECO](https://github.com/pymeasure/pyleco), a complete suite of Coordinators and Component building blocks.
+- **Rust**: [RuLECO](https://github.com/BenediktBurger/ruleco), Coordinator and a few Component building blocks.
+- **Labview**: [Labview Python Interfaces](https://git.rwth-aachen.de/nloqo/labview-python-interfaces), contains a data protocol publisher.
