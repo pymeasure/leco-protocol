@@ -3,14 +3,11 @@
 The control protocol transmits messages via its {ref}`control_protocol.md#transport-layer` from one Component to another.
 The {ref}`control_protocol.md#message-layer` is the common language to understand commands, thus creating a remote procedure call.
 
-
 ## Transport layer
 
 The transport layer ensures that a message arrives at its destination.
 
-
 ### Protocol basics
-
 
 #### Socket Configuration
 
@@ -28,7 +25,6 @@ While the number of DEALER sockets thus required scales badly with the number of
 
 Communicating with a Coordinator, messages must be sent to a Coordinator's ROUTER socket.
 Only for acknowledging a {ref}`control_protocol.md#coordinator-sign-in`, it is permitted to send a message to a Coordinator's DEALER socket.
-
 
 #### Naming scheme
 
@@ -48,18 +44,17 @@ For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
 The receiver of a message may be specified by Component name alone if the receiver belongs to the same Node as the sender.
 In all other cases, the receiver of a message must be specified by the Full name.
 
-The sender of a message must be specified by Full name, except during SIGNIN, when the Component name alone is sufficient.
-
+The sender of a message must be specified by Full name, except for the `sign_in` message, when the Component name alone is sufficient.
 
 #### Message composition
 
 A message consists of 4 or more frames.
+
 1. The protocol version (abbreviated with "V" in examples).
 2. The receiver Full name or Component name, as appropriate.
 3. The sender Full name.
 4. A content header (abbreviated with "H" in examples).
 5. Message content: The optional payload, which can be 0 or more frames.
-
 
 #### Directory
 
@@ -69,7 +64,6 @@ This is its _local Directory_.
 They shall also keep a list of the addresses of all Coordinators, they are connected to.
 
 Additionally, they shall maintain a _global Directory_, which is a Coordinator's copy of the union of the local Directories of all Coordinators in a Network.
-
 
 ### Conversation protocol
 
@@ -82,19 +76,16 @@ Here the Message content is expressed in plain English and placed in the Content
 TBD: How to show the encoded content in the examples?
 :::
 
-
 In the exchange of messages, only the messages over the wire are shown, the connection identity used by the ROUTER socket is not shown.
-
 
 #### Communication with the Coordinator
 
-
 ##### Signing-in
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a SIGNIN message indicating its Component name.
-The Coordinator shall indicate success/acceptance with an ACKNOWLEDGE response, giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a `sign_in` message (see {ref}`methods.md#coordinator`) indicating its Component name.
+The Coordinator shall indicate success/acceptance with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
 In that case, the Coordinator may indicate a suitable, still available variation on the indicated Component name.
-The Component may retry SIGNIN with a different chosen name.
+The Component may retry signing in with a different chosen name.
 
 After a successful handshake, the Coordinator shall store the Component name in its {ref}`control_protocol.md#directory` and shall ensure message delivery to that Component (e.g. by storing the (zmq) connection identity with the local directory).
 It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`control_protocol.md#coordinator-coordination`.
@@ -106,23 +97,22 @@ If a Component does send a message to someone without having signed in, the Coor
 sequenceDiagram
     Note over CA,N1: Name "CA" is still free
     participant N1 as N1.COORDINATOR
-    CA ->> N1: V|COORDINATOR|CA|H|SIGNIN
+    CA ->> N1: V|COORDINATOR|CA|H|sign_in
     Note right of N1: Connection identity "IA"
     Note right of N1: Stores "CA" with identity "IA"
-    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE: Namespace is "N1"
+    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|result
     Note left of CA: Stores "N1" as Namespace
     Note over CA,N1: Name "CA" is already used
-    CA ->> N1: V|COORDINATOR|CA|H|SIGNIN
-    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: Name "CA" is already used.
+    CA ->> N1: V|COORDINATOR|CA|H|sign_in
+    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: The name is already taken.
     Note left of CA: May retry with another Name
-    Note over CA,N1: "CA" has not send SIGNIN
+    Note over CA,N1: "CA" has not send sign_in
     Note left of CA: Wants to send a message to CB
     CA ->> N1: V|N1.CB|CA|H|Content
     Note right of N1: Does not know CA
-    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR:I do not know you
-    Note left of CA: Must send a SIGNIN message<br> before further messaging.
+    N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!
+    Note left of CA: Must send a sign_in message<br> before further messaging.
 :::
-
 
 ##### Heartbeat
 
@@ -130,37 +120,34 @@ Heartbeats are used to know whether a communication peer is still online.
 
 Every message received counts as a heartbeat.
 
-A Component should and a Coordinator shall send a PING and wait some time before considering a connection dead.
+A Component should and a Coordinator shall send a `pong` request message (see {ref}`methods.md#actor`) and wait some time before considering a connection dead.
 A Coordinator shall follow the {ref}`control_protocol.md#signing-out` for a signed in Component considered dead.
 
 :::{note}
 TBD: Heartbeat details are still to be determined.
 :::
 
-
 ##### Signing out
 
-A Component should send a SIGNOUT message to its Coordinator when it stops participating in the Network.
-The Coordinator shall ACKNOWLEDGE the sign-out and remove the Component name from its local {ref}`control_protocol.md#directory`.
+A Component should send a `sign_out` message (see {ref}`methods.md#coordinator`) to its Coordinator when it stops participating in the Network.
+The Coordinator shall acknowledge the sign-out with a `result` message and remove the Component name from its local {ref}`control_protocol.md#directory`.
 It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`control_protocol.md#coordinator-coordination`.
 
 :::{mermaid}
 sequenceDiagram
-    CA ->> N1: V|COORDINATOR|N1.CA|H|SIGNOUT
+    CA ->> N1: V|COORDINATOR|N1.CA|H|sign_out
     participant N1 as N1.COORDINATOR
-    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|ACKNOWLEDGE
+    N1 ->> CA: V|N1.CA|N1.COORDINATOR|H|result
     Note right of N1: Removes "CA" with identity "IA"<br> from local Directory
     Note right of N1: Notifies other Coordinators about sign-out of "CA"
-    Note left of CA: Shall not send any message anymore except SIGNIN
+    Note left of CA: Shall not send any message anymore except sign_in
 :::
-
 
 #### Communication with other Components
 
 The following two examples show how a message is transferred between two components `CA`, `CB` via one or two Coordinators.
 
 Coordinators shall route the message to the corresponding Coordinator or connected Component.
-
 
 :::{mermaid}
 sequenceDiagram
@@ -175,7 +162,6 @@ sequenceDiagram
     CB ->> N1: V|N1.CA|N1.CB|H| Property A has value 5.
     N1 ->> CA: V|N1.CA|N1.CB|H| Property A has value 5.
 :::
-
 
 :::{mermaid}
 sequenceDiagram
@@ -193,9 +179,9 @@ sequenceDiagram
 :::
 
 Prerequisites of Communication between two Components are:
+
 - Both Components are connected to a Coordinator and {ref}`signed in<control_protocol.md#signing-in>`.
 - Both Components are either connected to the same Coordinator (example one), or their Coordinators are connected to each other (example two).
-
 
 The following flow chart shows the decision scheme and message modification in the Coordinator `Co1` of Node `N1`.
 Its Full name is `N1.Coordinator`.
@@ -215,9 +201,9 @@ flowchart TB
     CnS-->|yes| Clocal{CA in <br>local Directory?}
     Clocal -->|yes| CidKnown{iA is CA's identity?}
     CidKnown -->|yes| RemIdent
-    Clocal -.->|no| E1[ERROR: Sender unknown] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Sender unknown"| S
+    Clocal -.->|no| E1[ERROR: Component not signed in yet!] ==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!"| S
     S[send] ==> WA([N1.CA DEALER])
-    CidKnown -.->|no| E2[ERROR: Name and identity do not match]==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Name and identity do not match"| S
+    CidKnown -.->|no| E2[ERROR: Component not signed in yet!]==>|"iA|V|nS.CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!"| S
     RemIdent[remove sender identity] == "V|nR.recipient|nS.CA|H|Content" ==> CnR
     CnR -- "is None" --> Local
     CnR{nR?} -- "== N1"--> Local
@@ -227,7 +213,7 @@ flowchart TB
     Local2a -->|yes, with Identity iB| Local2
     Local2[add recipient identity iB] == "iB|V|nR.recipient|nS.CA|H|Content" ==> R1[send]
     R1 == "V|nR.recipient|nS.CA|H|Content" ==> W1([Wire to N1.recipient DEALER])
-    Local2a -.->|no| E3[ERROR recipient unknown<br>send Error to original sender] ==>|"V|nS.CA|N1.COORDINATOR|H|ERROR N1.recipient is unknown"|CnR
+    Local2a -.->|no| E3[ERROR: Receiver is not in addresses list<br>send Error to original sender] ==>|"V|nS.CA|N1.COORDINATOR|H|<br>ERROR: N1.recipient is unknown"|CnR
     CnR -- "== N2" --> Keep
     Keep[send to N2.COORDINATOR] == "V|nR.recipient|nS.CA|H|Content" ==> R2[send]
     R2 == "V|nR.recipient|nS.CA|H|Content" ==> W2([Wire to N2.COORDINATOR ROUTER])
@@ -238,16 +224,14 @@ flowchart TB
         R1
         S
     end
-    subgraph Co1 DEALER socket <br>to N2.COORDINATOR
+    subgraph "Co1 DEALER socket <br>to N2.COORDINATOR"
         R2
     end
 :::
 
-
 #### Coordinator coordination
 
 Coordinators are the backbone of the Network and need to coordinate themselves.
-
 
 ##### Coordinator sign-in
 
@@ -275,27 +259,27 @@ sequenceDiagram
     activate d1
     Note left of d1: created with<br> name "temp-NS"
     d1-->>r2: connect to address2
-    d1->>r2: V|COORDINATOR|N1.COORDINATOR|H|<br>CO_SIGNIN
+    d1->>r2: V|COORDINATOR|N1.COORDINATOR|H|<br>coordinator_sign_in
     Note right of r2: stores N1 identity
-    r2->>d1: V|N1.COORDINATOR|N2.COORDINATOR|H|ACK
+    r2->>d1: V|N1.COORDINATOR|N2.COORDINATOR|H|result
     Note left of d1: DEALER name <br>set to "N2"
-    d1->>r2: V|N1.COORDINATOR|N2.COORDINATOR|H|<br>Here is my local directory<br>and Coordinator addresses
+    d1->>r2: V|N1.COORDINATOR|N2.COORDINATOR|H|<br>add_nodes(Coordinator addresses)<br>record_components
     Note right of r2: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators,<br>also N1
     Note over d1,r2: Mirror of above sign-in procedure
     activate d2
     Note left of d2: created with<br>name "N1"
     d2-->>r1: connect to address1
-    d2->>r1: V|COORDINATOR|N2.COORDINATOR|H|<br>CO_SIGNIN
+    d2->>r1: V|COORDINATOR|N2.COORDINATOR|H|<br>coordinator_sign_in
     Note right of r1: stores N2 identity
-    r1->>d2: V|N2.COORDINATOR|N1.COORDINATOR|H|ACK
+    r1->>d2: V|N2.COORDINATOR|N1.COORDINATOR|H|result
     Note left of d2: Name is already "N1"
-    d2->>r1: V|N2.COORDINATOR|N1.COORDINATOR|H|<br>Here is my local directory<br>and Coordinator addresses
+    d2->>r1: V|N2.COORDINATOR|N1.COORDINATOR|H|<br>add_nodes(Coordinator addresses)<br>record_components
     Note right of r1: Updates global <br>Directory and signs <br>in to all unknown<br>Coordinators
     Note over r1,d2: Sign out between two Coordinators
     Note right of r1: shall sign out from N2
-    d1->>r2: CO_SIGNOUT
+    d1->>r2: coordinator_sign_out
     Note right of r2: removes N1 identity
-    d2->>-r1: CO_SIGNOUT
+    d2->>-r1: coordinator_sign_out
     Note right of r1: removes N2 identity
     deactivate d1
 :::
@@ -304,24 +288,26 @@ sequenceDiagram
 Note that the DEALER socket responds with the local Directory and Coordinator addresses to the received Acknowledgment.
 :::
 
-
 ##### Coordinator updates
 
 Each Coordinator shall keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
 For this, whenever a Component signs in to or out from its Coordinator, the Coordinator shall notify all the other Coordinators regarding this event.
 The other Coordinators shall update their global Directory according to this message (add or remove an entry).
 
+:::{note}
+TBD: These updates have to be determined.
+:::
+
 On request, Coordinators shall send the Names of their local or global Directory, depending on the request type.
 
 For the format of the Messages, see {ref}`control_protocol.md#message-layer`.
-
 
 ## Message layer
 
 The message layer contains the actual information exchanged between Components.
 As LECO is about controlling experiments, the message layer has to transmit commands, that is calling procedures remotely.
 
-We use the [JSON-RPC](https://www.jsonrpc.org/specification) standard to encode these *remote procedure calls* (RPC) and the responses.
+We use the [JSON-RPC](https://www.jsonrpc.org/specification) standard to encode these _remote procedure calls_ (RPC) and the responses.
 We further use the [OpenRPC](https://open-rpc.org/) standard to describe the possibly callable methods of a Component.
 
 Therefore, a Component MUST execute remote procedures according to JSON-RPC and return an appropriate response.
@@ -329,18 +315,38 @@ A Component MUST also offer a list of all possibly callable methods in accordanc
 
 For such a RPC message, the first content frame MUST consist in a JSON-RPC compatible content, for example a single request object or a batch of request objects.
 
+For the definitions of methods see:
 
+:::{toctree}
+:maxdepth: 2
 
-### Messages for Transport Layer
-
-- SIGNIN
-- SIGNOUT
-- ACKNOWLEDGE
-- ERROR
-- PING
-- CO_SIGNIN
-- CO_SIGNOUT
-
-:::{note}
-TODO How to make these messages work? Define them directly in the transport layer?
+methods
 :::
+
+### Errors
+
+Every error has a code and a message.
+Additionally they may have a ``data`` field with more information.
+
+According to JSONRPC, applications can define error codes between -32000 and -32099.
+LECO defines the following errors.
+
+#### Routing errors
+
+Errors related to routing (mainly emitted by Coordinators).
+Their error codes are in the range of -32090 to -32099.
+
+| code   | message                            | data                 | description                                                                          |
+|--------|------------------------------------|----------------------|--------------------------------------------------------------------------------------|
+| -32090 | Component not signed in yet!       | Name of the Component| If a Component did not sign in.                                                      |
+| -32091 | The name is already taken.         | Name of the Component| A Component tries to sign in, but another Component is signed in with the same name  |
+| -32092 | Node is unknown.                   | Name of the Node     | The Node to which the message should be sent, is not known to this Coordinator.      |
+| -32093 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
+
+#### Locking errors
+
+Errors related to locked Resources
+
+| code   | message          | data | description                                  |
+|--------|------------------|------|----------------------------------------------|
+| -32050 | Resource locked! | -    | The resource is locked by another component. |

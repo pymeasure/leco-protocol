@@ -1,0 +1,45 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Component-optional",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "set_log_level",
+            "params": [
+                {
+                    "name": "level",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+                    },
+                    "summary": "The logging level.",
+                    "description": "The logging level, for a description of the different levels see [logging levels](https://docs.python.org/3/library/logging.html#logging-levels).",
+                    "required": true
+                }
+            ],
+            "summary": "Set the logging level.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "shut_down",
+            "params": [],
+            "summary": "Shut down the Component.",
+            "result": {
+                "name": "result",
+                "schema": {
+
+                    "type": "null"
+                },
+                "required": true
+            }
+        }
+    ]
+}

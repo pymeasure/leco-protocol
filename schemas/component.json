@@ -1,0 +1,21 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Component",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "pong",
+            "summary": "Respond to a ping.",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        }
+    ]
+}

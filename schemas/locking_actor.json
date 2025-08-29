@@ -1,0 +1,74 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Locking Actor",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "lock",
+            "summary": "Lock this Component or a resource of it, such that no other Component may use it.",
+            "params": [
+                {
+                    "name": "resource",
+                    "schema": {
+                            "type": "string"
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "boolean",
+                    "summary": "Whether locking succeeded or not."
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "unlock",
+            "summary": "Unlock this Component or a resource of it.",
+            "description": "Unlock this Component or a resource of it, such that another Component may use it again. Only the locking Component may unlock.",
+            "params": [
+                {
+                    "name": "resource",
+                    "schema": {
+                            "type": "string"
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "boolean",
+                    "summary": "Whether unlocking succeeded or not."
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "force_unlock",
+            "summary": "Unock this Component or a resource of it, even if locked by someone else.",
+            "description": "Unock this Component or a resource of it, such that another Component may use it. This may be used even if someone else locked the resource.",
+            "params": [
+                {
+                    "name": "resource",
+                    "schema": {
+                            "type": "string"
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "boolean",
+                    "summary": "Whether force unlocking succeeded or not."
+                },
+                "required": true
+            }
+        }
+    ]
+}

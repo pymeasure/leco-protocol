@@ -4,6 +4,8 @@ channels:
 dependencies:
   - myst-parser=0.18.1
   - python=3.11
+  - pip
   - sphinx=5.3.0
   - sphinxcontrib-mermaid=0.8.1
   - sphinx_rtd_theme=1.1.1
+  - sphinx-data-viewer=0.1.2

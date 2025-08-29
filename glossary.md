@@ -1,4 +1,5 @@
 # Glossary
+
 An alphabetical list of terms with a short description.
 To help distinguish between the plain English meaning of these terms, and our more specific use, we Capitalize terms from this glossary when we refer to the LECO-specific meaning.
 
@@ -53,8 +54,8 @@ Namespace
     The name of a Node in the Network, see {ref}`control_protocol.md#naming-scheme`.
 
 Node
-    A Node is a local context in which (part of) a LECO deployment runs. 
-    This may be a single application using one or more threads or processes. 
+    A Node is a local context in which (part of) a LECO deployment runs.
+    This may be a single application using one or more threads or processes.
     A LECO network has one or more Nodes, see {ref}`network-structure.md#node`.
 
 Network

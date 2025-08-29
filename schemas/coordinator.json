@@ -1,0 +1,244 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Coordinator",
+        "summary": "Coordinates messages between LECO Components.",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "sign_in",
+            "params": [],
+            "summary": "Sign in to this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "errors": [
+                {
+                    "code": -32091,
+                    "message": "The name is already taken.",
+                    "data": "Already taken name."
+                }
+            ]
+        },
+        {
+            "name": "sign_out",
+            "params": [],
+            "summary": "Sign out from this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "coordinator_sign_in",
+            "params": [],
+            "summary": "Sign in as a Coordinator to this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "errors": [
+                {
+                    "code": -32091,
+                    "message": "The name is already taken.",
+                    "data": "Already taken name."
+                }
+            ]
+        },
+        {
+            "name": "coordinator_sign_out",
+            "params": [],
+            "summary": "Sign out as a Coordinator from this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "add_nodes",
+            "summary": "Establish a connection to these nodes, if not yet connected.",
+            "params": [
+                {
+                    "name": "nodes",
+                    "schema": {
+                        "$ref": "#/components/nodes"
+                    }
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Add nodes example",
+                    "params": [
+                        {
+                            "name": "nodes",
+                            "value": {
+                                "Namespace1": "host_of_namespace1:12345",
+                                "Namespace2": "host_of_namespace2:54321"
+                            }
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": null
+                    }
+                }
+            ]
+        },
+        {
+            "name": "send_nodes",
+            "params": [],
+            "summary": "Send the names and addresses of the nodes known to this Coordinator.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/nodes"
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Send nodes example",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                                "Namespace1": "host_of_namespace1:12345",
+                                "Namespace2": "host_of_namespace2:54321"
+                            }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "record_components",
+            "summary": "Record Components of another Coordinator.",
+            "params": [
+                {
+                    "name": "components",
+                    "summary": "List of Components' names.",
+                    "schema": {
+                        "$ref": "#/components/components_array"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        },
+        {
+            "name": "send_local_components",
+            "params": [],
+            "summary": "Send the names of locally connected Components.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/components_array"
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Send local directory example",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": [
+                            "ComponentA",
+                            "ComponentB"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "send_global_components",
+            "params": [],
+            "summary": "Send the names of all Components in this LECO network.",
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "object",
+                    "summary": "Object with 'namespace'-'array of component names' pairs.",
+                    "additionalProperties": {
+                        "$ref": "#/components/components_array"
+                    }
+                }
+            },
+            "examples": [
+                {
+                    "name": "Global directory example.",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                            "Namespace1": ["Namespace1.ComponentA", "Namespace1.ComponentB"],
+                            "Namespace2": ["Namespace2.ComponentC", "Namespace2.ComponentD", "Namespace2.ComponentE"],
+                            "Namespace3": ["Namespace3.ComponentF"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "remove_expired_addresses",
+            "summary": "Clean all expired addresses from the directory.",
+            "params": [
+                {
+                    "name": "expiration_time",
+                    "summary": "Expiration time of Components and Coordinators in seconds.",
+                    "schema": {
+                        "type": "number"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            }
+        }
+    ],
+    "components": {
+        "nodes" : {
+            "type": "object",
+            "additionalProperties": {"type": "string"},
+            "summary": "Object with 'node'-'address' pairs as properties."
+        },
+        "components_array": {
+            "type": "array",
+            "summary": "List of Components' names.",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

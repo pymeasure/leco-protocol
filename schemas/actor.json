@@ -1,0 +1,169 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Actor",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "get_parameters",
+            "summary": "Get values of Device parameters.",
+            "params": [
+                {
+                    "name": "parameters",
+                    "summary": "List of parameter names to get the values of.",
+                    "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                        }
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "object",
+                    "summary": "Object with parameter-value pairs",
+                    "additionalProperties": true
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Get parameters example",
+                    "params": [
+                        {
+                            "name": "parameters",
+                            "value": ["parameter1", "parameter2"]
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                            "parameter1": "value_of_parameter1",
+                            "parameter2": "some_other_value"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "set_parameters",
+            "summary": "Set values of Device parameters.",
+            "params": [
+                {
+                    "name": "parameters",
+                    "summary": "Object with parameter-value pairs",
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": true
+
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Set parameters example",
+                    "params": [
+                        {
+                            "name": "parameters",
+                            "value": {
+                                "parameter1": "value_of_parameter1",
+                                "parameter2": "some_other_value"
+                            }
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": null
+                    }
+                }
+            ]
+
+        },
+        {
+            "name": "call_action",
+            "summary": "Call an Action of the Device.",
+            "params": [
+                {
+                    "name": "action",
+                    "summary": "Name of the action to call.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                },
+                {
+                    "name": "args",
+                    "summary": "List of positional arguments.",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/any"
+                        }
+                    },
+                    "required": false
+                }
+            ],
+            "result": {
+                "name": "result",
+                "summary": "Result of the action.",
+                "schema": {
+                    "$ref": "#/components/any"
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Calling some action 'action'.",
+                    "params": [
+                        {
+                            "name": "action",
+                            "value": "action"
+                        },
+                        {
+                            "name": "args",
+                            "value": [5, 7]
+
+                        }
+                    ],
+                    "result": {
+                        "name": "result",
+                        "value": "result of `action(5, 7)`"
+                    }
+                }
+            ]
+        }
+    ],
+    "components": {
+        "any" : {
+            "anyOf": [
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                },
+                {
+                    "type": "object"
+                }
+            ]
+        }
+    }
+}

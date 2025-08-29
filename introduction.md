@@ -9,6 +9,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 However, at this point the specification is still in the rough design phase, so there is, for example, no separation into normative and non-normative parts, yet.
 
 ## Contributions
+
 Contributions and feedback are welcome from interested participants!
 
 Lengthy discussions in PR comments or Github Discussions quickly become confusing and convoluted in the present UI.

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "leco-protocol"
+version = "0.1.0"
+description = "LECO - Laboratory Experiment Control Protocol Documentation"
+authors = [
+    {name = "LECO Contributors"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "myst-parser==0.18.1",
+    "sphinx==5.3.0",
+    "sphinxcontrib-mermaid==0.8.1",
+    "sphinx-rtd-theme==1.1.1",
+    "sphinx-data-viewer==0.1.2"
+]
+
+[tool.setuptools]
+packages = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]

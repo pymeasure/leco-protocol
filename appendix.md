@@ -1,10 +1,8 @@
 # Appendix
 
-
 ## ZMQ
 
 Some useful hints regarding how the zmq package works.
-
 
 ### ROUTER sockets
 
@@ -36,4 +34,3 @@ sequenceDiagram
     Code ->> ROUTER: "IB|Reply B"
     ROUTER ->> CB: "Reply B"
 :::
-
