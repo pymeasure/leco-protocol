@@ -2,14 +2,14 @@
     "openrpc": "1.2.6",
     "info": {
         "title": "Coordinator",
-        "description": "Coordinates messages between LECO Components.",
+        "summary": "Coordinates messages between LECO Components.",
         "version": "0.1.0"
     },
     "methods": [
         {
             "name": "sign_in",
             "params": [],
-            "description": "Sign in to this Coordinator.",
+            "summary": "Sign in to this Coordinator.",
             "result": {
                 "name": "result",
                 "schema": {
@@ -28,7 +28,7 @@
         {
             "name": "sign_out",
             "params": [],
-            "description": "Sign out from this Coordinator.",
+            "summary": "Sign out from this Coordinator.",
             "result": {
                 "name": "result",
                 "schema": {
@@ -40,7 +40,7 @@
         {
             "name": "coordinator_sign_in",
             "params": [],
-            "description": "Sign in as a Coordinator to this Coordinator.",
+            "summary": "Sign in as a Coordinator to this Coordinator.",
             "result": {
                 "name": "result",
                 "schema": {
@@ -59,7 +59,7 @@
         {
             "name": "coordinator_sign_out",
             "params": [],
-            "description": "Sign out as a Coordinator from this Coordinator.",
+            "summary": "Sign out as a Coordinator from this Coordinator.",
             "result": {
                 "name": "result",
                 "schema": {
@@ -70,7 +70,7 @@
         },
         {
             "name": "add_nodes",
-            "description": "Establish a connection to these nodes, if not yet connected.",
+            "summary": "Establish a connection to these nodes, if not yet connected.",
             "params": [
                 {
                     "name": "nodes",
@@ -108,7 +108,7 @@
         {
             "name": "send_nodes",
             "params": [],
-            "description": "Send the names and addresses of the nodes known to this Coordinator.",
+            "summary": "Send the names and addresses of the nodes known to this Coordinator.",
             "result": {
                 "name": "result",
                 "schema": {
@@ -132,11 +132,11 @@
         },
         {
             "name": "record_components",
-            "description": "Record Components of another Coordinator.",
+            "summary": "Record Components of another Coordinator.",
             "params": [
                 {
                     "name": "components",
-                    "description": "List of Components' names.",
+                    "summary": "List of Components' names.",
                     "schema": {
                         "$ref": "#/components/components_array"
                     },
@@ -154,7 +154,7 @@
         {
             "name": "send_local_components",
             "params": [],
-            "description": "Send the names of locally connected Components.",
+            "summary": "Send the names of locally connected Components.",
             "result": {
                 "name": "result",
                 "schema": {
@@ -179,12 +179,12 @@
         {
             "name": "send_global_components",
             "params": [],
-            "description": "Send the names of all Components in this LECO network.",
+            "summary": "Send the names of all Components in this LECO network.",
             "result": {
                 "name": "result",
                 "schema": {
                     "type": "object",
-                    "description": "Object with 'namespace'-'array of component names' pairs.",
+                    "summary": "Object with 'namespace'-'array of component names' pairs.",
                     "additionalProperties": {
                         "$ref": "#/components/components_array"
                     }
@@ -207,11 +207,11 @@
         },
         {
             "name": "remove_expired_addresses",
-            "description": "Clean all expired addresses from the directory.",
+            "summary": "Clean all expired addresses from the directory.",
             "params": [
                 {
                     "name": "expiration_time",
-                    "description": "Expiration time of Components and Coordinators in seconds.",
+                    "summary": "Expiration time of Components and Coordinators in seconds.",
                     "schema": {
                         "type": "number"
                     },
@@ -227,16 +227,16 @@
             }
         }
     ],
-        "components": {
-            "nodes" : {
-                "type": "object",
-                "additionalProperties": {"type": "string"},
-                "description": "Object with 'node'-'address' pairs as properties."
-            },
-            "components_array": {
-                "type": "array",
-                "description": "List of Components' names.",
-                "items": {
+    "components": {
+        "nodes" : {
+            "type": "object",
+            "additionalProperties": {"type": "string"},
+            "summary": "Object with 'node'-'address' pairs as properties."
+        },
+        "components_array": {
+            "type": "array",
+            "summary": "List of Components' names.",
+            "items": {
                 "type": "string"
             }
         }

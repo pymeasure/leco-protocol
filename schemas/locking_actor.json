@@ -7,7 +7,7 @@
     "methods": [
         {
             "name": "lock",
-            "description": "Lock this Component or a resource of it, such that no other Component may use it.",
+            "summary": "Lock this Component or a resource of it, such that no other Component may use it.",
             "params": [
                 {
                     "name": "resource",
@@ -21,14 +21,15 @@
                 "name": "result",
                 "schema": {
                     "type": "boolean",
-                    "description": "Whether locking succeeded or not."
+                    "summary": "Whether locking succeeded or not."
                 },
                 "required": true
             }
         },
         {
             "name": "unlock",
-            "description": "Unlock this Component or a resource of it, such that other Component may use it again. Only the locking Component may unlock.",
+            "summary": "Unlock this Component or a resource of it.",
+            "description": "Unlock this Component or a resource of it, such that another Component may use it again. Only the locking Component may unlock.",
             "params": [
                 {
                     "name": "resource",
@@ -42,14 +43,15 @@
                 "name": "result",
                 "schema": {
                     "type": "boolean",
-                    "description": "Whether unlocking succeeded or not."
+                    "summary": "Whether unlocking succeeded or not."
                 },
                 "required": true
             }
         },
         {
             "name": "force_unlock",
-            "description": "Unock this Component or a resource of it, such that other Component may use it. This may be used even if someone else locked the resource.",
+            "summary": "Unock this Component or a resource of it, even if locked by someone else.",
+            "description": "Unock this Component or a resource of it, such that another Component may use it. This may be used even if someone else locked the resource.",
             "params": [
                 {
                     "name": "resource",
@@ -63,7 +65,7 @@
                 "name": "result",
                 "schema": {
                     "type": "boolean",
-                    "description": "Whether force unlocking succeeded or not."
+                    "summary": "Whether force unlocking succeeded or not."
                 },
                 "required": true
             }

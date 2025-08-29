@@ -7,11 +7,11 @@
     "methods": [
         {
             "name": "get_parameters",
-            "description": "Get values of Device parameters.",
+            "summary": "Get values of Device parameters.",
             "params": [
                 {
                     "name": "parameters",
-                    "description": "List of parameter names to get the values of.",
+                    "summary": "List of parameter names to get the values of.",
                     "schema": {
                             "type": "array",
                             "items": {
@@ -25,7 +25,7 @@
                 "name": "result",
                 "schema": {
                     "type": "object",
-                    "description": "Object with parameter-value pairs",
+                    "summary": "Object with parameter-value pairs",
                     "additionalProperties": true
                 },
                 "required": true
@@ -51,11 +51,11 @@
         },
         {
             "name": "set_parameters",
-            "description": "Set values of Device parameters.",
+            "summary": "Set values of Device parameters.",
             "params": [
                 {
                     "name": "parameters",
-                    "description": "Object with parameter-value pairs",
+                    "summary": "Object with parameter-value pairs",
                     "schema": {
                         "type": "object",
                         "additionalProperties": true
@@ -93,11 +93,11 @@
         },
         {
             "name": "call_action",
-            "description": "Call an Action of the Device.",
+            "summary": "Call an Action of the Device.",
             "params": [
                 {
                     "name": "action",
-                    "description": "Name of the action to call.",
+                    "summary": "Name of the action to call.",
                     "schema": {
                         "type": "string"
                     },
@@ -105,7 +105,7 @@
                 },
                 {
                     "name": "args",
-                    "description": "List of positional arguments.",
+                    "summary": "List of positional arguments.",
                     "schema": {
                         "type": "array",
                         "items": {
@@ -117,7 +117,7 @@
             ],
             "result": {
                 "name": "result",
-                "description": "Result of the action.",
+                "summary": "Result of the action.",
                 "schema": {
                     "$ref": "#/components/any"
                 },

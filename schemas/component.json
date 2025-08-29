@@ -7,7 +7,7 @@
     "methods": [
         {
             "name": "pong",
-            "description": "Respond to a ping.",
+            "summary": "Respond to a ping.",
             "params": [],
             "result": {
                 "name": "result",

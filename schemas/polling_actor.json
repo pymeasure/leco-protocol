@@ -7,11 +7,11 @@
     "methods": [
         {
             "name": "start_polling",
-            "description": "Start to poll some values regularly.",
+            "summary": "Start to poll some values regularly.",
             "params": [
                 {
                     "name": "polling_interval",
-                    "description": "Polling interval in seconds.",
+                    "summary": "Polling interval in seconds.",
                     "schema": {
                         "type": "number"
                     },
@@ -28,7 +28,7 @@
         },
         {
             "name": "stop_polling",
-            "description": "Stop to poll regularly.",
+            "summary": "Stop to poll regularly.",
             "params": [],
             "result": {
                 "name": "result",
@@ -40,11 +40,11 @@
         },
         {
             "name": "get_polling_interval",
-            "description": "Get the polling interval.",
+            "summary": "Get the polling interval.",
             "params": [],
             "result": {
                 "name": "result",
-                "description": "The polling interval in seconds.",
+                "summary": "The polling interval in seconds.",
                 "schema": {
                     "type": "number"
                 },
@@ -53,11 +53,11 @@
         },
         {
             "name": "set_polling_interval",
-            "description": "Set the polling interval",
+            "summary": "Set the polling interval",
             "params": [
                 {
                     "name": "polling_interval",
-                    "description": "Polling interval in seconds.",
+                    "summary": "Polling interval in seconds.",
                     "schema": {
                         "type": "number"
                     },
