@@ -3,14 +3,11 @@
 The control protocol transmits messages via its {ref}`control_protocol.md#transport-layer` from one Component to another.
 The {ref}`control_protocol.md#message-layer` is the common language to understand commands, thus creating a remote procedure call.
 
-
 ## Transport layer
 
 The transport layer ensures that a message arrives at its destination.
 
-
 ### Protocol basics
-
 
 #### Socket Configuration
 
@@ -28,7 +25,6 @@ While the number of DEALER sockets thus required scales badly with the number of
 
 Communicating with a Coordinator, messages must be sent to a Coordinator's ROUTER socket.
 Only for acknowledging a {ref}`control_protocol.md#coordinator-sign-in`, it is permitted to send a message to a Coordinator's DEALER socket.
-
 
 #### Naming scheme
 
@@ -50,16 +46,15 @@ In all other cases, the receiver of a message must be specified by the Full name
 
 The sender of a message must be specified by Full name, except for the `sign_in` message, when the Component name alone is sufficient.
 
-
 #### Message composition
 
 A message consists of 4 or more frames.
+
 1. The protocol version (abbreviated with "V" in examples).
 2. The receiver Full name or Component name, as appropriate.
 3. The sender Full name.
 4. A content header (abbreviated with "H" in examples).
 5. Message content: The optional payload, which can be 0 or more frames.
-
 
 #### Directory
 
@@ -69,7 +64,6 @@ This is its _local Directory_.
 They shall also keep a list of the addresses of all Coordinators, they are connected to.
 
 Additionally, they shall maintain a _global Directory_, which is a Coordinator's copy of the union of the local Directories of all Coordinators in a Network.
-
 
 ### Conversation protocol
 
@@ -82,16 +76,13 @@ Here the Message content is expressed in plain English and placed in the Content
 TBD: How to show the encoded content in the examples?
 :::
 
-
 In the exchange of messages, only the messages over the wire are shown, the connection identity used by the ROUTER socket is not shown.
-
 
 #### Communication with the Coordinator
 
-
 ##### Signing-in
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a `sign_in` message (see {ref}`control_protocol.md#coordinator`) indicating its Component name.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a `sign_in` message (see {ref}`methods.md#coordinator`) indicating its Component name.
 The Coordinator shall indicate success/acceptance with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
 In that case, the Coordinator may indicate a suitable, still available variation on the indicated Component name.
 The Component may retry signing in with a different chosen name.
@@ -123,24 +114,22 @@ sequenceDiagram
     Note left of CA: Must send a sign_in message<br> before further messaging.
 :::
 
-
 ##### Heartbeat
 
 Heartbeats are used to know whether a communication peer is still online.
 
 Every message received counts as a heartbeat.
 
-A Component should and a Coordinator shall send a `pong` request message (see {ref}`control_protocol.md#actor`) and wait some time before considering a connection dead.
+A Component should and a Coordinator shall send a `pong` request message (see {ref}`methods.md#actor`) and wait some time before considering a connection dead.
 A Coordinator shall follow the {ref}`control_protocol.md#signing-out` for a signed in Component considered dead.
 
 :::{note}
 TBD: Heartbeat details are still to be determined.
 :::
 
-
 ##### Signing out
 
-A Component should send a `sign_out` message (see {ref}`control_protocol.md#coordinator`) to its Coordinator when it stops participating in the Network.
+A Component should send a `sign_out` message (see {ref}`methods.md#coordinator`) to its Coordinator when it stops participating in the Network.
 The Coordinator shall acknowledge the sign-out with a `result` message and remove the Component name from its local {ref}`control_protocol.md#directory`.
 It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`control_protocol.md#coordinator-coordination`.
 
@@ -154,13 +143,11 @@ sequenceDiagram
     Note left of CA: Shall not send any message anymore except sign_in
 :::
 
-
 #### Communication with other Components
 
 The following two examples show how a message is transferred between two components `CA`, `CB` via one or two Coordinators.
 
 Coordinators shall route the message to the corresponding Coordinator or connected Component.
-
 
 :::{mermaid}
 sequenceDiagram
@@ -175,7 +162,6 @@ sequenceDiagram
     CB ->> N1: V|N1.CA|N1.CB|H| Property A has value 5.
     N1 ->> CA: V|N1.CA|N1.CB|H| Property A has value 5.
 :::
-
 
 :::{mermaid}
 sequenceDiagram
@@ -193,6 +179,7 @@ sequenceDiagram
 :::
 
 Prerequisites of Communication between two Components are:
+
 - Both Components are connected to a Coordinator and {ref}`signed in<control_protocol.md#signing-in>`.
 - Both Components are either connected to the same Coordinator (example one), or their Coordinators are connected to each other (example two).
 
@@ -243,11 +230,9 @@ flowchart TB
     end
 :::
 
-
 #### Coordinator coordination
 
 Coordinators are the backbone of the Network and need to coordinate themselves.
-
 
 ##### Coordinator sign-in
 
@@ -304,7 +289,6 @@ sequenceDiagram
 Note that the DEALER socket responds with the local Directory and Coordinator addresses to the received Acknowledgment.
 :::
 
-
 ##### Coordinator updates
 
 Each Coordinator shall keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
@@ -319,13 +303,12 @@ On request, Coordinators shall send the Names of their local or global Directory
 
 For the format of the Messages, see {ref}`control_protocol.md#message-layer`.
 
-
 ## Message layer
 
 The message layer contains the actual information exchanged between Components.
 As LECO is about controlling experiments, the message layer has to transmit commands, that is calling procedures remotely.
 
-We use the [JSON-RPC](https://www.jsonrpc.org/specification) standard to encode these *remote procedure calls* (RPC) and the responses.
+We use the [JSON-RPC](https://www.jsonrpc.org/specification) standard to encode these _remote procedure calls_ (RPC) and the responses.
 We further use the [OpenRPC](https://open-rpc.org/) standard to describe the possibly callable methods of a Component.
 
 Therefore, a Component MUST execute remote procedures according to JSON-RPC and return an appropriate response.
@@ -333,75 +316,13 @@ A Component MUST also offer a list of all possibly callable methods in accordanc
 
 For such a RPC message, the first content frame MUST consist in a JSON-RPC compatible content, for example a single request object or a batch of request objects.
 
+For the definitions of methods see:
 
-### List of methods
+:::{toctree}
+:maxdepth: 2
 
-List of methods defined by LECO.
-You MAY implement the optional methods of this list and you MUST implement the methods obligatory for your type of Component.
-All methods implemented in a Component MUST adhere to this list or MUST have a name different to any method in this list.
-
-
-#### Component
-
-Any Component, i.e. any participant in the LECO protocol, MUST offer the [OpenRPC Service Discovery Method](https://spec.open-rpc.org/#service-discovery-method) and the following methods.
-
-:::{data-viewer}
-:expand:
-:file: schemas/component.json
+methods
 :::
-
-Any Component MAY offer ANY of the following methods.
-Components SHOULD offer ``shut_down``.
-
-:::{data-viewer}
-:expand:
-:file: schemas/component_optional.json
-:::
-
-
-#### Coordinator
-
-Control protocol Coordinators are also {ref}`Components <control_protocol.md#Component>`.
-Furthermore, Coordinators MUST offer the following methods.
-
-:::{leco-json-viewer}
-:expand:
-:file: schemas/coordinator.json
-:::
-
-
-#### Actor
-
-An Actor is a {ref}`control_protocol.md#Component`.
-Additionally, it MUST offer the following methods.
-
-:::{leco-json-viewer}
-:expand:
-:file: schemas/actor.json
-:::
-
-
-#### Polling Actor
-
-An {ref}`control_protocol.md#Actor`, which supports regular polling of values, MUST implement these methods.
-
-:::{data-viewer}
-:expand:
-:file: schemas/polling_actor.json
-:::
-
-
-#### Locking Actor
-
-An {ref}`control_protocol.md#Actor` which support locking resources MUST offer the following methods.
-
-:::{data-viewer}
-:expand:
-:file: schemas/locking_actor.json
-:::
-
-Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise appropriate {ref}`control_protocol.md#errors`.
-
 
 ### Errors
 
@@ -411,12 +332,10 @@ Additionally they may have a ``data`` field with more information.
 According to JSONRPC, applications can define error codes between -32000 and -32099.
 LECO defines the following errors.
 
-
 #### Routing errors
 
 Errors related to routing (mainly emitted by Coordinators).
 Their error codes are in the range of -32090 to -32099.
-
 
 | code   | message                            | data                 | description                                                                          |
 |--------|------------------------------------|----------------------|--------------------------------------------------------------------------------------|
@@ -424,7 +343,6 @@ Their error codes are in the range of -32090 to -32099.
 | -32091 | The name is already taken.         | Name of the Component| A Component tries to sign in, but another Component is signed in with the same name  |
 | -32092 | Node is unknown.                   | Name of the Node     | The Node to which the message should be sent, is not known to this Coordinator.      |
 | -32093 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
-
 
 #### Locking errors
 
