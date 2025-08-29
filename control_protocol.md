@@ -183,7 +183,6 @@ Prerequisites of Communication between two Components are:
 - Both Components are connected to a Coordinator and {ref}`signed in<control_protocol.md#signing-in>`.
 - Both Components are either connected to the same Coordinator (example one), or their Coordinators are connected to each other (example two).
 
-
 The following flow chart shows the decision scheme and message modification in the Coordinator `Co1` of Node `N1`.
 Its Full name is `N1.Coordinator`.
 `nS`, `nR` are placeholders for sender and recipient Namespaces.

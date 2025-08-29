@@ -1,22 +1,25 @@
 # Network structure
 
 ## Message Layer
+
 The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of LECO Messages (see {ref}`messages.md#messages`).
 
 ## Transport Layer
+
 The Transport Layer is the communication layer that transports LECO Messages between Components, making use of routing information in the Message header.
 This uses zeromq or simpler localised methods, see the section "Message Transport Mode".
 
 ## Node
-A Node is a local context in which (part of) a LECO deployment runs. 
-This may be a single application using one or more threads or processes. 
+
+A Node is a local context in which (part of) a LECO deployment runs.
+This may be a single application using one or more threads or processes.
 
 A LECO network has one or more Nodes.
 Components within a Node use the Distributed Message Transport (DMT/"distributed mode", the default) or the Local Message Transport (LMT/"local mode") to communicate with each other, see below.
 All Components of a Node must use the same Message Transport Mode.
 
 :::{admonition} Note
-LMT details are still notional and undefined, for now the spec focuses on DMT. 
+LMT details are still notional and undefined, for now the spec focuses on DMT.
 In the future this might be relaxed, so that Components within a Node might operate in different modes.
 :::
 :::{admonition} TODO
@@ -24,7 +27,8 @@ Decide how we track which Node a Component belongs to, and how the mode informat
 :::
 
 ## Multi-Node networks
-Every Component (except for Control Coordinators) is connected to exactly one Control Coordinator. 
+
+Every Component (except for Control Coordinators) is connected to exactly one Control Coordinator.
 The Control Coordinators are connected to each other, such that any Component may only send a message to any other Component via their respective Control Coordinators.
 Put differently, Components may only communicate to outside their Node via a Control Coordinator in their Node.
 
@@ -62,12 +66,11 @@ For example, the message `||Second frame|Third frame||Fifth frame` consists of 5
 
 For some useful information see our {ref}`appendix.md#zmq`.
 
-
 ### Local Message Transport (LMT)
 
 The Local Message Transport only works within a Node _and_ within a process.
 Local Message Transport options include queues between threads/processes and zeromq inproc.
 :::{admonition} Warning
-LMT details are still notional and not to be relied upon, this will be fleshed out at a later date. 
+LMT details are still notional and not to be relied upon, this will be fleshed out at a later date.
 The list of LMT options is not definitive yet.
 :::
