@@ -364,7 +364,7 @@ Components SHOULD offer ``shut_down``.
 Control protocol Coordinators are also {ref}`Components <control_protocol.md#Component>`.
 Furthermore, Coordinators MUST offer the following methods.
 
-:::{data-viewer}
+:::{leco-json-viewer}
 :expand:
 :file: schemas/coordinator.json
 :::
@@ -375,7 +375,7 @@ Furthermore, Coordinators MUST offer the following methods.
 An Actor is a {ref}`control_protocol.md#Component`.
 Additionally, it MUST offer the following methods.
 
-:::{data-viewer}
+:::{leco-json-viewer}
 :expand:
 :file: schemas/actor.json
 :::
