@@ -40,3 +40,51 @@ There are LECO implementations in the following languages:
 - **Python**: [PyLECO](https://github.com/pymeasure/pyleco), a complete suite of Coordinators and Component building blocks.
 - **Rust**: [RuLECO](https://github.com/BenediktBurger/ruleco), Coordinator and a few Component building blocks.
 - **Labview**: [Labview Python Interfaces](https://git.rwth-aachen.de/nloqo/labview-python-interfaces), contains a data protocol publisher.
+
+
+## Building Documentation
+
+This repository contains the source files for the LECO protocol documentation.
+To build the documentation locally, you'll need to set up a Python environment with the required dependencies.
+
+### Using Conda (Recommended for consistency with Read the Docs)
+
+1. Install [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge)
+2. Create the environment from the provided `environment.yml`:
+   ```bash
+   mamba env create -f environment.yml
+   ```
+3. Activate the environment:
+   ```bash
+   mamba activate leco-protocol
+   ```
+
+### Using Pip
+
+1. Create a virtual environment:
+   ```bash
+   python -m venv .venv
+   ```
+2. Activate the environment:
+   ```bash
+   # On Linux/macOS:
+   source .venv/bin/activate
+
+   # On Windows:
+   .venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -e .
+   ```
+
+### Building the Documentation
+
+Once you have set up the environment using either method above, you can build the documentation:
+
+```bash
+make html
+```
+
+The built documentation will be available in the `_build/html` directory.
+Open `_build/html/index.html` in your browser to view it.
