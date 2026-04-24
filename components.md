@@ -131,6 +131,12 @@ Multiple Control Coordinator instances MAY be necessary for large deployments, b
 A Data Coordinator is responsible for receiving and publishing data channel messages.
 It uses a publish-subscribe connection pattern.
 
+For single-Node deployments, a Data Coordinator MAY consist of a single proxy server (XSUB/XPUB).
+
+For multi-Node deployments, a Data Coordinator SHOULD use the [Gatherer/Distributor architecture](data_protocol.md#multi-node-configuration) to enable loop-free cross-Node data distribution.
+
+A Data Coordinator MAY participate in the control protocol (signing in as a Component) to allow the local Control Coordinator to dynamically configure remote Gatherer connections, see [Data Coordinator methods](methods.md#data-coordinator).
+
 ### Logging Coordinator
 
 A Logging Coordinator is responsible for receiving and publishing logging channel messages.

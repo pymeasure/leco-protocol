@@ -50,6 +50,31 @@ flowchart LR
 
 Control Coordinator to Control Coordinator communication always uses DMT.
 
+### Data Network Topology
+
+For data distribution across multiple Nodes, each Node's [Data Coordinator](components.md#data-coordinator) uses a [Gatherer/Distributor architecture](data_protocol.md#multi-node-configuration).
+Each Node's Distributor connects to the Gatherers of all other Nodes in the Network, ensuring that subscribers in any Node receive data published in any other Node.
+
+In this graph, data published by `Publisher1` would pass through `Gatherer N1` to `Distributor N1` (for local subscribers) and also to `Distributor N2` via the cross-Node connection (for remote subscribers).
+
+```mermaid
+flowchart LR
+    subgraph Node1
+        P1["Publisher 1"] -->|"PUB → XSUB"| G1["Gatherer N1"]
+        G1 -->|"XPUB → XSUB"| D1["Distributor N1"]
+        D1 -->|"XPUB → SUB"| S1["Subscriber 1"]
+    end
+    subgraph Node2
+        P2["Publisher 2"] -->|"PUB → XSUB"| G2["Gatherer N2"]
+        G2 -->|"XPUB → XSUB"| D2["Distributor N2"]
+        D2 -->|"XPUB → SUB"| S2["Subscriber 2"]
+    end
+    G1 -.->|"XPUB → XSUB"| D2
+    G2 -.->|"XPUB → XSUB"| D1
+```
+
+Cross-Node Gatherer connections can be configured statically or dynamically via the control protocol (see [Data Coordinator methods](methods.md#data-coordinator)).
+
 ## Message Transport Mode (LMT/DMT)
 
 The Node-local Message Layer can have a local or distributed mode.
