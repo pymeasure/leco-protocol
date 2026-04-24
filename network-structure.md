@@ -9,6 +9,8 @@ The Message Layer is the communication layer that concerns itself with (de)compo
 The Transport Layer is the communication layer that transports LECO Messages between Components, making use of routing information in the Message header.
 This uses zeromq or simpler localised methods, see the section "Message Transport Mode".
 
+The Transport Layer MAY provide authentication and encryption as defined in {doc}`security`.
+
 ## Node
 
 A Node is a local context in which (part of) a LECO deployment runs.
@@ -65,6 +67,8 @@ An empty frame is indicated with two frame separators `||`, even at the beginnin
 For example, the message `||Second frame|Third frame||Fifth frame` consists of 5 frames, with the first and fourth frames being empty frames.
 
 For some useful information see our {ref}`appendix.md#zmq`.
+
+When using DMT, implementations SHOULD enable the `CURVE` security mode as defined in {doc}`security` to protect against unauthorized access and eavesdropping.
 
 ### Local Message Transport (LMT)
 
