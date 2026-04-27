@@ -8,12 +8,12 @@ The transport layer ensures that a message arrives at its destination.
 
 ### Socket configuration
 
-A `proxy server` is the transmitting station, it shall offer an XSUBSCRIBER and an XPUBLISHER socket.
-The two sockets shall be connected, e.g. via the `zmq.proxy_server` method.
-Each of both sockets shall be bound to its own address.
+A `proxy server` is the transmitting station, it SHALL offer an XSUBSCRIBER and an XPUBLISHER socket.
+The two sockets SHALL be connected, e.g. via the `zmq.proxy_server` method.
+Each of both sockets SHALL be bound to its own address.
 
 A `Publisher` is a Component, which sends data messages via the data protocol.
-It shall have a PUBLISHER socket connecting to the proxy server's XSUBSCRIBER socket.
+It SHALL have a PUBLISHER socket connecting to the proxy server's XSUBSCRIBER socket.
 
 A `Subscriber` is a Component, which wants to reveice data messages via the data protocol.
 It SHALL have a SUBSCRIBER socket connecting to the proxy server's XPUBLISHER socket.
