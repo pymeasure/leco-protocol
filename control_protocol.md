@@ -71,6 +71,35 @@ The JSON-RPC body in the first content frame carries the **application-level** r
 
 For example, in the `sign_in` method, the Component name is carried in the sender frame of the envelope (Component name only, since the Namespace is not yet known). The JSON-RPC `sign_in` request has no parameters. Upon success, the Coordinator replies with its own Full name as the sender (e.g. `N1.COORDINATOR`); the Component deduces its Namespace by extracting the Namespace portion from that sender Full name. The JSON-RPC `result` is `null`.
 
+##### Wire format test vectors
+
+The following hex dumps show complete encoded messages with frame boundaries marked by `|`. Each frame is a contiguous byte sequence; the `|` separator is for readability only and is not transmitted.
+
+**Test vector 1: `sign_in` request from Component `CA`**
+
+Assumptions: protocol version = `0x00`, conversation_id = `0190a2b3c4d5e6f7a8b9c0d1e2f3a4b5` (example UUIDv7), message_id = `0x000001`, message_type = `0x01` (JSON).
+
+```
+00 | 434F4F5244494E41544F52 | 4341 | 0190a2b3c4d5e6f7a8b9c0d1e2f3a4b5 000001 01 | 7B226A736F6E727063223A22322E30222C226D6574686F64223A227369676E5F696E222C226964223A317D
+```
+
+Frame breakdown:
+- Frame 1 (`0x00`): protocol version 0
+- Frame 2 (`COORDINATOR`): receiver
+- Frame 3 (`CA`): sender (Component name only, as per sign_in convention)
+- Frame 4 (20 bytes): content header
+- Frame 5: `{"jsonrpc":"2.0","method":"sign_in","id":1}`
+
+**Test vector 2: `sign_in` result from Coordinator `N1.COORDINATOR` to `N1.CA`**
+
+The Component deduces its Namespace (`N1`) from the sender frame of the envelope (`N1.COORDINATOR`).
+
+```
+00 | 4E312E4341 | 4E312E434F4F5244494E41544F52 | 0190a2b3c4d5e6f7a8b9c0d1e2f3a4b5 000001 01 | 7B226A736F6E727063223A22322E30222C22726573756C74223A6E756C6C2C226964223A317D
+```
+
+Frame 5 decoded: `{"jsonrpc":"2.0","result":null,"id":1}`
+
 #### Directory
 
 Each Coordinator SHALL have a list of the Components connected to it.
@@ -80,6 +109,51 @@ They SHALL also keep a list of the addresses of all Coordinators, they are conne
 
 Additionally, they SHALL maintain a _global Directory_, which is a Coordinator's copy of the union of the local Directories of all Coordinators in a Network.
 
+### Component lifecycle state machine
+
+A Component progresses through the following states when interacting with a Coordinator:
+
+| State          | Description                                                 |
+|----------------|-------------------------------------------------------------|
+| `DISCONNECTED` | Not connected to any Coordinator.                           |
+| `CONNECTED`    | ZMQ connection established, but not yet signed in.          |
+| `SIGNED_IN`    | Successfully signed in; normal messaging is allowed.        |
+| `SIGNED_OUT`   | Signed out gracefully; only `sign_in` messages MAY be sent. |
+
+State transitions:
+
+| From           | To             | Trigger                             | Action                                             |
+|----------------|----------------|-------------------------------------|----------------------------------------------------|
+| `DISCONNECTED` | `CONNECTED`    | ZMQ connection established          | —                                                  |
+| `CONNECTED`    | `SIGNED_IN`    | `sign_in` result received           | Store Namespace; begin normal messaging            |
+| `CONNECTED`    | `CONNECTED`    | `sign_in` error (name taken)        | MAY retry with a different Component name          |
+| `SIGNED_IN`    | `SIGNED_OUT`   | `sign_out` result received          | Stop all messaging except `sign_in`                |
+| `SIGNED_IN`    | `DISCONNECTED` | Connection lost / heartbeat timeout | Coordinator removes Component from local Directory |
+| `SIGNED_OUT`   | `CONNECTED`    | Ready to re-sign-in                 | MAY send a new `sign_in` message                   |
+
+A Coordinator receiving a message from a Component in the `CONNECTED` state (not signed in) MUST respond with a routing error (`-32090`, see {ref}`control_protocol.md#routing-errors`).
+
+### Coordinator-to-Coordinator state machine
+
+A Coordinator connection to another Coordinator follows a similar lifecycle:
+
+| State          | Description                                                      |
+|----------------|------------------------------------------------------------------|
+| `DISCONNECTED` | No ZMQ connection to the remote Coordinator.                     |
+| `CONNECTED`    | DEALER socket connected, but not yet signed in.                  |
+| `SIGNED_IN`    | Mutual sign-in complete; Directory and node addresses exchanged. |
+| `SIGNED_OUT`   | Signed out; DEALER socket MAY be disconnected.                   |
+
+State transitions:
+
+| From           | To             | Trigger                                       | Action                                                                                |
+|----------------|----------------|-----------------------------------------------|---------------------------------------------------------------------------------------|
+| `DISCONNECTED` | `CONNECTED`    | DEALER socket connects to remote ROUTER       | —                                                                                     |
+| `CONNECTED`    | `SIGNED_IN`    | `coordinator_sign_in` result received         | Exchange Directories and node addresses; sign in to any newly discovered Coordinators |
+| `CONNECTED`    | `CONNECTED`    | `coordinator_sign_in` error (Namespace taken) | MAY retry or abort                                                                    |
+| `SIGNED_IN`    | `SIGNED_OUT`   | `coordinator_sign_out` sent/received          | Remove remote Namespace from global Directory; disconnect DEALER                      |
+| `SIGNED_IN`    | `DISCONNECTED` | Connection lost / heartbeat timeout           | Remove remote Namespace entries from global Directory                                 |
+
 ### Conversation protocol
 
 In the protocol examples, `CA`, `CB`, etc. indicate Component names.
@@ -88,7 +162,7 @@ In the protocol examples, `CA`, `CB`, etc. indicate Component names.
 Here the Message content is expressed in plain English and placed in the Content frame, for the exact definition see {ref}`control_protocol.md#message-layer`.
 
 :::{note}
-TBD: How to show the encoded content in the examples?
+The conversation protocol examples below use a human-readable notation for message content. For exact byte-level encodings, see the {ref}`wire format test vectors <control_protocol.md#wire-format-test-vectors>`.
 :::
 
 In the exchange of messages, only the messages over the wire are shown, the connection identity used by the ROUTER socket is not shown.
