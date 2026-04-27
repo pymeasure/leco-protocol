@@ -61,7 +61,16 @@ A message consists of 4 or more ZMQ frames.
    | 16     | 3      | `message_id`      | Unsigned 24-bit integer, big-endian            |
    | 19     | 1      | `message_type`    | Unsigned 8-bit integer                         |
 
-5. **Message content**: 0 or more additional ZMQ frames constituting the payload.
+   Defined `message_type` values:
+
+   | Value | Meaning      |
+   |-------|--------------|
+   | 0     | Not defined  |
+   | 1     | JSON encoded |
+
+   Values 2–127 are reserved for future protocol use. Values 128–255 are available for implementation-defined use.
+
+5. **Message content**: 0 or more additional ZMQ frames constituting the payload. When `message_type` is `1`, the first content frame MUST be a UTF-8 encoded JSON-RPC object (a single request, a single response, or a batch array). Additional content frames beyond the first are permitted for implementation-defined use but MUST be ignored by receivers that do not understand them.
 
 ##### Envelope vs. JSON-RPC body
 
