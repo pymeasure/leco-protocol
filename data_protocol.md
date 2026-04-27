@@ -100,16 +100,51 @@ Subscribers can subscribe to all messages from a specific Component by subscribi
 
 ### Header
 
-Similar to the {ref}`control protocol header <control_protocol.md#message-composition>`, the header consists in
-1. UUIDv7
-2. a one byte `message_type` (`0` not defined, `1` JSON, `>127` user defined)
+A single ZMQ frame of exactly 17 bytes, laid out as follows:
+
+| Offset | Length | Field             | Encoding                                       |
+|--------|--------|-------------------|------------------------------------------------|
+| 0      | 16     | `conversation_id` | UUIDv7, 16 bytes in network (big-endian) order |
+| 16     | 1      | `message_type`    | Unsigned 8-bit integer                         |
+
+Defined `message_type` values:
+
+| Value | Meaning      |
+|-------|--------------|
+| 0     | Not defined  |
+| 1     | JSON encoded |
+
+Values 2–127 are reserved for future protocol use. Values 128–255 are available for implementation-defined use.
 
 ### Content
 
+The first content frame carries the payload. When `message_type` is `1`, the first content frame MUST be a UTF-8 encoded JSON value. Additional content frames beyond the first are permitted for implementation-defined use but MUST be ignored by receivers that do not understand them.
+
 #### Log message content
 
-For log messages, the content is a JSON encoded list of:
+For log messages (`message_type` = `1`), the content is a JSON encoded list of:
 - `record.asctime`: Timestamp formatted as `'%Y-%m-%d %H:%M:%S'`
 - `record.levelname`: Logger level name
 - `record.name`: Logger name
 - `record.text` (including traceback)
+
+### Relationship to the control protocol
+
+Publishers and Subscribers are Components and MAY also participate in the control protocol by connecting to their Node's Control Coordinator and signing in. Doing so allows them to be addressed by Full name and enables remote management (e.g. configuring subscriptions, adjusting log levels, or shutting down).
+
+A Publisher MUST use the same Full name as the topic that it uses when signed into the control protocol, to allow Subscribers to discover and address it.
+
+### Wire format test vector
+
+**Test vector: Log message from `N1.Recorder`**
+
+Assumptions: conversation_id = `0190a2b3c4d5e6f7a8b9c0d1e2f3a4b5`, message_type = `0x01` (JSON).
+
+```
+4E312E5265636F72646572 | 0190a2b3c4d5e6f7a8b9c0d1e2f3a4b5 01 | 5B22323032352D30342D32342031323A30303A3030222C2022494E464F222C20227265636F72646572222C20224D6561737572656D656E742073746172746564225D
+```
+
+Frame breakdown:
+- Frame 1: topic `N1.Recorder` (ASCII)
+- Frame 2 (17 bytes): header (UUIDv7 + message_type)
+- Frame 3: JSON content `["2025-04-24 12:00:00","INFO","recorder","Measurement started"]`
