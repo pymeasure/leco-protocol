@@ -50,8 +50,8 @@
         },
         {
             "name": "force_unlock",
-            "summary": "Unock this Component or a resource of it, even if locked by someone else.",
-            "description": "Unock this Component or a resource of it, such that another Component may use it. This may be used even if someone else locked the resource.",
+            "summary": "Unlock this Component or a resource of it, even if locked by someone else.",
+            "description": "Unlock this Component or a resource of it, such that another Component may use it. This may be used even if someone else locked the resource.",
             "params": [
                 {
                     "name": "resource",

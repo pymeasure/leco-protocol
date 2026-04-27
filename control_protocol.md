@@ -20,11 +20,11 @@ Coordinators SHALL have one DEALER socket per other Coordinator in the Network.
 This DEALER socket SHALL connect to the other Coordinator's ROUTER socket.
 
 :::{note}
-While the number of DEALER sockets thus required scales badly with the number of Connectors in a LECO Network, the scope of the protocol means that at most a few Coordinators will be involved.
+While the number of DEALER sockets thus required scales badly with the number of Coordinators in a LECO Network, the scope of the protocol means that at most a few Coordinators will be involved.
 :::
 
 Communicating with a Coordinator, messages MUST be sent to a Coordinator's ROUTER socket.
-Only for acknowledging a {ref}`control_protocol.md#coordinator-sign-in`, it is permitted to send a message to a Coordinator's DEALER socket.
+Only for acknowledging a {ref}`control_protocol.md#coordinator-sign-in`, a Coordinator MAY send a response via its DEALER socket (i.e. the reply may arrive from the DEALER socket the requesting Coordinator connected to, rather than via the ROUTER socket).
 
 #### Naming scheme
 
@@ -48,13 +48,28 @@ The sender of a message MUST be specified by Full name, except for the `sign_in`
 
 #### Message composition
 
-A message consists of 4 or more frames.
+A message consists of 4 or more ZMQ frames.
 
-1. The protocol version (abbreviated with "V" in examples) as a single byte, for example `0` (`0x00`).
-2. The receiver Full name or Component name, as appropriate.
-3. The sender Full name.
-4. A content header (abbreviated with "H" in examples).
-5. Message content: The optional payload, which can be 0 or more frames.
+1. **Protocol version** (abbreviated with "V" in examples): a single byte, for example `0` (`0x00`).
+2. **Receiver**: the receiver Full name or Component name as appropriate, encoded as printable ASCII bytes (no length prefix, no null terminator; the ZMQ frame boundary delimits the string), as defined in the {ref}`naming scheme <control_protocol.md#naming-scheme>`.
+3. **Sender**: the sender Full name, encoded as printable ASCII bytes (same framing as receiver).
+4. **Content header** (abbreviated with "H" in examples): a single ZMQ frame of exactly 20 bytes, laid out as follows:
+
+   | Offset | Length | Field             | Encoding                                       |
+   |--------|--------|-------------------|------------------------------------------------|
+   | 0      | 16     | `conversation_id` | UUIDv7, 16 bytes in network (big-endian) order |
+   | 16     | 3      | `message_id`      | Unsigned 24-bit integer, big-endian            |
+   | 19     | 1      | `message_type`    | Unsigned 8-bit integer                         |
+
+5. **Message content**: 0 or more additional ZMQ frames constituting the payload.
+
+##### Envelope vs. JSON-RPC body
+
+The first three frames (protocol version, receiver, sender) and the content header form the **LECO envelope**. They carry routing and metadata information processed by Coordinators and the transport layer.
+
+The JSON-RPC body in the first content frame carries the **application-level** request, response, or error. JSON-RPC parameters carry method arguments and results; they MUST NOT duplicate information that is already present in the envelope (e.g., sender or receiver names).
+
+For example, in the `sign_in` method, the Component name is carried in the sender frame of the envelope (Component name only, since the Namespace is not yet known). The JSON-RPC `sign_in` request has no parameters. Upon success, the Coordinator replies with its own Full name as the sender (e.g. `N1.COORDINATOR`); the Component deduces its Namespace by extracting the Namespace portion from that sender Full name. The JSON-RPC `result` is `null`.
 
 #### Directory
 
@@ -82,16 +97,17 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 
 ##### Signing-in
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) SHALL send a `sign_in` message (see {ref}`methods.md#coordinator`) indicating its Component name.
-The Coordinator SHALL indicate success/acceptance with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
-In that case, the Coordinator MAY indicate a suitable, still available variation on the indicated Component name.
-The Component MAY retry signing in with a different chosen name.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) SHALL send a `sign_in` message (see {ref}`methods.md#coordinator`) indicating its Component name in the sender frame of the envelope.
 
-After a successful handshake, the Coordinator SHALL store the Component name in its {ref}`control_protocol.md#directory` and SHALL ensure message delivery to that Component (e.g. by storing the (zmq) connection identity with the local directory).
-It SHALL also notify the other Coordinators in the network that this Component signed in, see {ref}`control_protocol.md#coordinator-coordination`.
-Similarly, the Component SHALL store the Namespace and use it from this moment on, to generate its Full name.
+**Success:** The Coordinator SHALL accept the sign-in with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), using its own Full name as the sender in the envelope (e.g. `N1.COORDINATOR`). The Component deduces its Namespace from the Namespace portion of that sender Full name. After a successful handshake:
 
-If a Component does send a message to someone without having signed in, the Coordinator SHALL refuse message handling and return an error.
+- The Coordinator SHALL store the Component name in its {ref}`control_protocol.md#directory` and SHALL ensure message delivery to that Component (e.g. by storing the (zmq) connection identity with the local directory).
+- The Coordinator SHALL notify the other Coordinators in the network that this Component signed in, see {ref}`control_protocol.md#coordinator-coordination`.
+- The Component SHALL store the Namespace and use it from this moment on, to generate its Full name.
+
+**Error:** If the Component name is already taken, the Coordinator SHALL reply with an ERROR. The Coordinator MAY indicate a suitable, still available variation on the indicated Component name. The Component MAY retry signing in with a different chosen name.
+
+**Unsigned Components:** If a Component sends a message without having signed in, the Coordinator SHALL refuse message handling and return an error.
 
 :::{mermaid}
 sequenceDiagram
@@ -237,7 +253,7 @@ Coordinators are the backbone of the Network and need to coordinate themselves.
 
 A Coordinator joins a Network by signing in to any Coordinator of that Network.
 The sign-in/sign-out procedure between two Coordinators is more thorough than that of Components.
-During the sign-in procedure, Coordinators exchange their local Directories and addresses of all known Coordinatos.
+During the sign-in procedure, Coordinators exchange their local Directories and addresses of all known Coordinators.
 They SHALL sign in to all Coordinators, they are not yet signed in.
 The sign-in might happen because the Coordinator learns a new Coordinator address via Directory updates or at startup.
 The sign-out might happen because the Coordinator shuts down.
@@ -336,12 +352,12 @@ LECO defines the following errors.
 Errors related to routing (mainly emitted by Coordinators).
 Their error codes are in the range of -32090 to -32099.
 
-| code   | message                            | data                 | description                                                                          |
-|--------|------------------------------------|----------------------|--------------------------------------------------------------------------------------|
-| -32090 | Component not signed in yet!       | Name of the Component| If a Component did not sign in.                                                      |
-| -32091 | The name is already taken.         | Name of the Component| A Component tries to sign in, but another Component is signed in with the same name  |
-| -32092 | Node is unknown.                   | Name of the Node     | The Node to which the message should be sent, is not known to this Coordinator.      |
-| -32093 | Receiver is not in addresses list. | Name of the receiver | The Component to which the message should be sent, is not known to this Coordinator. |
+| code   | message                            | data                  | description                                                                          |
+|--------|------------------------------------|-----------------------|--------------------------------------------------------------------------------------|
+| -32090 | Component not signed in yet!       | Name of the Component | If a Component did not sign in.                                                      |
+| -32091 | The name is already taken.         | Name of the Component | A Component tries to sign in, but another Component is signed in with the same name  |
+| -32092 | Node is unknown.                   | Name of the Node      | The Node to which the message should be sent, is not known to this Coordinator.      |
+| -32093 | Receiver is not in addresses list. | Name of the receiver  | The Component to which the message should be sent, is not known to this Coordinator. |
 
 #### Locking errors
 

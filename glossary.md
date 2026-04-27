@@ -28,7 +28,7 @@ Directory
     Each Coordinator maintains a local Directory with all the Components connected to it (i.e. other Coordinators and the Components of its own Node), and a global Directory with all Components in the whole Network, see {ref}`control_protocol.md#directory`.
 
 Driver
-    An object that takes care of communicating with a Device. This object is external to LECO, for example coming from and instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
+    An object that takes care of communicating with a Device. This object is external to LECO, for example coming from an instrument control library like `pymeasure`, `instrumentkit` or `yaq`. See {ref}`components.md#driver`.
 
 Full name
     The name of a Component unique for the whole setup.
@@ -44,7 +44,7 @@ Message
 Message Layer
     The Message Layer is the communication layer that concerns itself with LECO message (de)composition, validation, serialisation, etc., see {ref}`network-structure.md#message-layer`.
     :::{admonition} TODO
-    This is maybe gonna use Avro, but we still need to hash that out.
+    The serialisation format for the Message Layer is not yet fully specified; currently JSON encoding is used (see {ref}`control_protocol.md#message-layer`).
     :::
 
 Message Transport Mode (LMT/DMT)

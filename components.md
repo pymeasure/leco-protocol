@@ -133,8 +133,8 @@ It uses a publish-subscribe connection pattern.
 
 ### Logging Coordinator
 
-A Data Coordinator is responsible for receiving and publishing logging channel messages.
-Structurally, it is identical to a Data Controller, except that it deals with logging, not data channel messages.
+A Logging Coordinator is responsible for receiving and publishing logging channel messages.
+Structurally, it is identical to a Data Coordinator, except that it deals with logging, not data channel messages.
 
 ## Observer
 
