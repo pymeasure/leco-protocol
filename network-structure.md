@@ -16,7 +16,7 @@ This may be a single application using one or more threads or processes.
 
 A LECO network has one or more Nodes.
 Components within a Node use the Distributed Message Transport (DMT/"distributed mode", the default) or the Local Message Transport (LMT/"local mode") to communicate with each other, see below.
-All Components of a Node must use the same Message Transport Mode.
+All Components of a Node MUST use the same Message Transport Mode.
 
 :::{admonition} Note
 LMT details are still notional and undefined, for now the spec focuses on DMT.
@@ -30,7 +30,7 @@ Decide how we track which Node a Component belongs to, and how the mode informat
 
 Every Component (except for Control Coordinators) is connected to exactly one Control Coordinator.
 The Control Coordinators are connected to each other, such that any Component may only send a message to any other Component via their respective Control Coordinators.
-Put differently, Components may only communicate to outside their Node via a Control Coordinator in their Node.
+Put differently, Components MAY only communicate to outside their Node via a Control Coordinator in their Node.
 
 In this graph, messages would pass from `Component1` to `Coordinator1` to `Coordinator2` to the destination `Component4`.
 

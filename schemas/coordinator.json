@@ -52,7 +52,7 @@
                 {
                     "code": -32091,
                     "message": "The name is already taken.",
-                    "data": "Already taken name."
+                    "data": "Name of the Component"
                 }
             ]
         },

@@ -23,7 +23,7 @@ Components SHOULD offer ``shut_down``.
 
 ## Coordinator
 
-Control protocol Coordinators are also {ref}`Components <methods.md#Component>`.
+Control protocol Coordinators are also {ref}`Components <methods.md#component>`.
 Furthermore, Coordinators MUST offer the following methods.
 
 :::{leco-json-viewer}
@@ -33,7 +33,7 @@ Furthermore, Coordinators MUST offer the following methods.
 
 ## Actor
 
-An Actor is a {ref}`methods.md#Component`.
+An Actor is a {ref}`methods.md#component`.
 Additionally, it MUST offer the following methods.
 
 :::{leco-json-viewer}
@@ -43,7 +43,7 @@ Additionally, it MUST offer the following methods.
 
 ## Polling Actor
 
-An {ref}`methods.md#Actor`, which supports regular polling of values, MUST implement these methods.
+An {ref}`methods.md#actor`, which supports regular polling of values, MUST implement these methods.
 
 :::{data-viewer}
 :expand:
@@ -52,7 +52,7 @@ An {ref}`methods.md#Actor`, which supports regular polling of values, MUST imple
 
 ## Locking Actor
 
-An {ref}`methods.md#Actor` which support locking resources MUST offer the following methods.
+An {ref}`methods.md#actor` which supports locking resources MUST offer the following methods.
 
 :::{data-viewer}
 :expand:
