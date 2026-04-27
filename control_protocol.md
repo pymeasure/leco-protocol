@@ -50,7 +50,7 @@ The sender of a message must be specified by Full name, except for the `sign_in`
 
 A message consists of 4 or more frames.
 
-1. The protocol version (abbreviated with "V" in examples).
+1. The protocol version (abbreviated with "V" in examples) as a single byte, for example `0` (`0x00`).
 2. The receiver Full name or Component name, as appropriate.
 3. The sender Full name.
 4. A content header (abbreviated with "H" in examples).
