@@ -11,40 +11,40 @@ The transport layer ensures that a message arrives at its destination.
 
 #### Socket Configuration
 
-Each {ref}`Coordinator <components.md#coordinator>` shall offer one {ref}`ROUTER <appendix.md#router-sockets>` socket, bound to an address.
+Each {ref}`Coordinator <components.md#coordinator>` SHALL offer one {ref}`ROUTER <appendix.md#router-sockets>` socket, bound to an address.
 The address consists of a host (this can be the host name, an IP address of the device, or "\*" for all IP addresses of the device) and a port number, for example `*:12345` for all IP addresses at the port `12345`.
 
-{ref}`Components <components.md#components>` shall have one DEALER socket connecting to one Coordinator's ROUTER socket.
+{ref}`Components <components.md#components>` SHALL have one DEALER socket connecting to one Coordinator's ROUTER socket.
 
-Coordinators shall have one DEALER socket per other Coordinator in the Network.
-This DEALER socket shall connect to the other Coordinator's ROUTER socket.
+Coordinators SHALL have one DEALER socket per other Coordinator in the Network.
+This DEALER socket SHALL connect to the other Coordinator's ROUTER socket.
 
 :::{note}
 While the number of DEALER sockets thus required scales badly with the number of Connectors in a LECO Network, the scope of the protocol means that at most a few Coordinators will be involved.
 :::
 
-Communicating with a Coordinator, messages must be sent to a Coordinator's ROUTER socket.
+Communicating with a Coordinator, messages MUST be sent to a Coordinator's ROUTER socket.
 Only for acknowledging a {ref}`control_protocol.md#coordinator-sign-in`, it is permitted to send a message to a Coordinator's DEALER socket.
 
 #### Naming scheme
 
-Each Component must have an individual name, given by the user, the _Component name_.
-Component names must be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
-A Coordinator itself must have the Component name `COORDINATOR`.
+Each Component MUST have an individual name, given by the user, the _Component name_.
+Component names MUST be unique in a {ref}`Node <network-structure.md#node>`, i.e. among the Components (except other Coordinators) connected to a single Coordinator.
+A Coordinator itself MUST have the Component name `COORDINATOR`.
 
-Similarly, every Node must have a name, the _Namespace_.
-Every Namespace must be unique in the Network.
+Similarly, every Node MUST have a name, the _Namespace_.
+Every Namespace MUST be unique in the Network.
 
-A Component name or a Namespace must be a series of printable ASCII characters (byte values 0x20 to 0x7E), without the character "." (byte value 0x2E).
+A Component name or a Namespace MUST be a series of printable ASCII characters (byte values 0x20 to 0x7E), without the character "." (byte value 0x2E).
 
 As each Component belongs to exactly one Node, it is fully identified by the combination of Namespace and Component name, which is globally unique.
 This _Full name_ is the composition of Namespace, ".", and Component name.
 For example `N1.CA` is the Full name of the Component `CA` in the Node `N1`.
 
-The receiver of a message may be specified by Component name alone if the receiver belongs to the same Node as the sender.
-In all other cases, the receiver of a message must be specified by the Full name.
+The receiver of a message MAY be specified by Component name alone if the receiver belongs to the same Node as the sender.
+In all other cases, the receiver of a message MUST be specified by the Full name.
 
-The sender of a message must be specified by Full name, except for the `sign_in` message, when the Component name alone is sufficient.
+The sender of a message MUST be specified by Full name, except for the `sign_in` message, when the Component name alone is sufficient.
 
 #### Message composition
 
@@ -58,12 +58,12 @@ A message consists of 4 or more frames.
 
 #### Directory
 
-Each Coordinator shall have a list of the Components connected to it.
+Each Coordinator SHALL have a list of the Components connected to it.
 This is its _local Directory_.
 
-They shall also keep a list of the addresses of all Coordinators, they are connected to.
+They SHALL also keep a list of the addresses of all Coordinators, they are connected to.
 
-Additionally, they shall maintain a _global Directory_, which is a Coordinator's copy of the union of the local Directories of all Coordinators in a Network.
+Additionally, they SHALL maintain a _global Directory_, which is a Coordinator's copy of the union of the local Directories of all Coordinators in a Network.
 
 ### Conversation protocol
 
@@ -82,16 +82,16 @@ In the exchange of messages, only the messages over the wire are shown, the conn
 
 ##### Signing-in
 
-After connecting to a Coordinator (`Co1`), a Component (`CA`) shall send a `sign_in` message (see {ref}`methods.md#coordinator`) indicating its Component name.
-The Coordinator shall indicate success/acceptance with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
-In that case, the Coordinator may indicate a suitable, still available variation on the indicated Component name.
-The Component may retry signing in with a different chosen name.
+After connecting to a Coordinator (`Co1`), a Component (`CA`) SHALL send a `sign_in` message (see {ref}`methods.md#coordinator`) indicating its Component name.
+The Coordinator SHALL indicate success/acceptance with a `result` response (according to [JSON-RPC](https://www.jsonrpc.org/specification)), giving the Namespace and other relevant information, or reply with an ERROR, e.g. if the Component name is already taken.
+In that case, the Coordinator MAY indicate a suitable, still available variation on the indicated Component name.
+The Component MAY retry signing in with a different chosen name.
 
-After a successful handshake, the Coordinator shall store the Component name in its {ref}`control_protocol.md#directory` and shall ensure message delivery to that Component (e.g. by storing the (zmq) connection identity with the local directory).
-It shall also notify the other Coordinators in the network that this Component signed in, see {ref}`control_protocol.md#coordinator-coordination`.
-Similarly, the Component shall store the Namespace and use it from this moment on, to generate its Full name.
+After a successful handshake, the Coordinator SHALL store the Component name in its {ref}`control_protocol.md#directory` and SHALL ensure message delivery to that Component (e.g. by storing the (zmq) connection identity with the local directory).
+It SHALL also notify the other Coordinators in the network that this Component signed in, see {ref}`control_protocol.md#coordinator-coordination`.
+Similarly, the Component SHALL store the Namespace and use it from this moment on, to generate its Full name.
 
-If a Component does send a message to someone without having signed in, the Coordinator shall refuse message handling and return an error.
+If a Component does send a message to someone without having signed in, the Coordinator SHALL refuse message handling and return an error.
 
 :::{mermaid}
 sequenceDiagram
@@ -120,8 +120,8 @@ Heartbeats are used to know whether a communication peer is still online.
 
 Every message received counts as a heartbeat.
 
-A Component should and a Coordinator shall send a `pong` request message (see {ref}`methods.md#actor`) and wait some time before considering a connection dead.
-A Coordinator shall follow the {ref}`control_protocol.md#signing-out` for a signed in Component considered dead.
+A Component SHOULD and a Coordinator SHALL send a `pong` request message (see {ref}`methods.md#actor`) and wait some time before considering a connection dead.
+A Coordinator SHALL follow the {ref}`control_protocol.md#signing-out` for a signed in Component considered dead.
 
 :::{note}
 TBD: Heartbeat details are still to be determined.
@@ -129,9 +129,9 @@ TBD: Heartbeat details are still to be determined.
 
 ##### Signing out
 
-A Component should send a `sign_out` message (see {ref}`methods.md#coordinator`) to its Coordinator when it stops participating in the Network.
-The Coordinator shall acknowledge the sign-out with a `result` message and remove the Component name from its local {ref}`control_protocol.md#directory`.
-It shall also notify the other Coordinators in the network that this Component signed out, see {ref}`control_protocol.md#coordinator-coordination`.
+A Component SHOULD send a `sign_out` message (see {ref}`methods.md#coordinator`) to its Coordinator when it stops participating in the Network.
+The Coordinator SHALL acknowledge the sign-out with a `result` message and remove the Component name from its local {ref}`control_protocol.md#directory`.
+It SHALL also notify the other Coordinators in the network that this Component signed out, see {ref}`control_protocol.md#coordinator-coordination`.
 
 :::{mermaid}
 sequenceDiagram
@@ -147,7 +147,7 @@ sequenceDiagram
 
 The following two examples show how a message is transferred between two components `CA`, `CB` via one or two Coordinators.
 
-Coordinators shall route the message to the corresponding Coordinator or connected Component.
+Coordinators SHALL route the message to the corresponding Coordinator or connected Component.
 
 :::{mermaid}
 sequenceDiagram
@@ -238,11 +238,11 @@ Coordinators are the backbone of the Network and need to coordinate themselves.
 A Coordinator joins a Network by signing in to any Coordinator of that Network.
 The sign-in/sign-out procedure between two Coordinators is more thorough than that of Components.
 During the sign-in procedure, Coordinators exchange their local Directories and addresses of all known Coordinatos.
-They shall sign in to all Coordinators, they are not yet signed in.
+They SHALL sign in to all Coordinators, they are not yet signed in.
 The sign-in might happen because the Coordinator learns a new Coordinator address via Directory updates or at startup.
 The sign-out might happen because the Coordinator shuts down.
 
-Similarly to Component sign-in, the Coordinator shall refuse a sign-in request with an ERROR, if it is already connected to a Coordinator with the same Namespace as the requesting Coordinator's Namespace.
+Similarly to Component sign-in, the Coordinator SHALL refuse a sign-in request with an ERROR, if it is already connected to a Coordinator with the same Namespace as the requesting Coordinator's Namespace.
 
 These are the sign-in/sign-out sequences between Coordinators, where `address` is for example the host name and port number of the Coordinator's ROUTER socket.
 
@@ -290,15 +290,15 @@ Note that the DEALER socket responds with the local Directory and Coordinator ad
 
 ##### Coordinator updates
 
-Each Coordinator shall keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
-For this, whenever a Component signs in to or out from its Coordinator, the Coordinator shall notify all the other Coordinators regarding this event.
-The other Coordinators shall update their global Directory according to this message (add or remove an entry).
+Each Coordinator SHALL keep an up-to-date global {ref}`control_protocol.md#directory` with the Full names of all Components in the Network.
+For this, whenever a Component signs in to or out from its Coordinator, the Coordinator SHALL notify all the other Coordinators regarding this event.
+The other Coordinators SHALL update their global Directory according to this message (add or remove an entry).
 
 :::{note}
 TBD: These updates have to be determined.
 :::
 
-On request, Coordinators shall send the Names of their local or global Directory, depending on the request type.
+On request, Coordinators SHALL send the Names of their local or global Directory, depending on the request type.
 
 For the format of the Messages, see {ref}`control_protocol.md#message-layer`.
 

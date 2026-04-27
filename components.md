@@ -16,23 +16,23 @@ Potentially a GUI could be attached here too.
 ## Actor
 
 An Actor is a component that interfaces with a (hardware) Device and that has a specific API on the LECO side.
-An Actor must contain a separate Driver object which communicates with the Device.
+An Actor MUST contain a separate Driver object which communicates with the Device.
 
 We define how the other LECO components interact with the Actor, how it determines and announces its capabilities, etc.
 An Actor implements the mapping between LECO messages and Driver calls/attribute access.
 
-An Actor must contain/manage/provide
+An Actor MUST contain/manage/provide
 
 * An Driver that communicates with the connected Device, including managing its lifecycle (init, operations, shutdown)
 * The name of the connected instrument
 * A list of available Parameters (properties/attributes to get/set) and Actions (methods to call)
 * `set`/`get`/`get_all`/`call` interfaces (for incoming commands to use to act on Parameters and Actions)
 
-An Actor may contain/manage
+An Actor MAY contain/manage
 
 * A list of Parameters to poll/publish regularly (and the interval for that)
 * A cache of parameter values (to avoid unnecessary communication).
-  * If caching is included, the `get*` interfaces must include a configurable cache timeout and a way to force fetching a fresh value.
+  * If caching is included, the `get*` interfaces MUST include a configurable cache timeout and a way to force fetching a fresh value.
 * Concurrent access management/locking
 * Logging configuration
 
@@ -44,7 +44,7 @@ This is the place where all instrument libraries (including pymeasure) wire thei
 
 Interfacing with the Driver is the task of instrument-library-specific Actors.
 
-Concerning the LECO, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) should not be relevant for the protocol details.
+Concerning the LECO, we draw the abstraction boundary at the Driver -- the details on how this communicates with a Device (SCPI, dll, ...) SHOULD NOT be relevant for the protocol details.
 
 :::{admonition} TODO
 We might want to add the notion of "Channels", especially for the multi-Director stuff
@@ -61,11 +61,11 @@ A Parameter represents a property (in the English, not the Pythonic sense) of th
 It has a name and can be read(`get`) or `set`.
 
 :::{note}
-Recent values may be cached in the Actor.
+Recent values MAY be cached in the Actor.
 :::
 
-It may correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the Driver.
-It may have unit information that is used when sending data over the Network.
+It MAY correspond closely to _attributes_ or Python (or PyMeasure) _properties_ of the Driver.
+It MAY have unit information that is used when sending data over the Network.
 
 ## Procedures
 
@@ -80,7 +80,7 @@ This is a placeholder, we have not fleshed out the concept yet
 
 The processor runs some kind of processing operation on one or more inputs and produces one or more outputs.
 It can be stateless (e.g. temperature conversion) or stateful (like a PID controller).
-It may act regularly of its own accord.
+It MAY act regularly of its own accord.
 
 The Processor would send commands to an Actor, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
 
@@ -120,10 +120,10 @@ The use of a Coordinator avoids the complexity/scaling of a purely point-to-poin
 A Control Coordinator is concerned with routing control channel messages from/to different Components, using a distributed request-reply communication pattern.
 
 Every network needs at least one Control Coordinator.
-Every Node must have exactly one Control Coordinator, all other Components within one Node directly exchange messages only with their Node's Control Coordinator.
+Every Node MUST have exactly one Control Coordinator, all other Components within one Node directly exchange messages only with their Node's Control Coordinator.
 
 :::{admonition} Note
-Multiple Control Coordinator instances may be necessary for large deployments, but a single coordinator instance should be sufficient for operation.
+Multiple Control Coordinator instances MAY be necessary for large deployments, but a single coordinator instance SHOULD be sufficient for operation.
 :::
 
 ### Data Coordinator
