@@ -2,7 +2,7 @@
 
 ## Message Layer
 
-The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of LECO Messages (see {ref}`messages.md#messages`).
+The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of LECO Messages (see [Messages](messages.md#messages)).
 
 ## Transport Layer
 
@@ -64,7 +64,7 @@ In this documentation, the separation between frames is indicated by `|`.
 An empty frame is indicated with two frame separators `||`, even at the beginning or end of a message.
 For example, the message `||Second frame|Third frame||Fifth frame` consists of 5 frames, with the first and fourth frames being empty frames.
 
-For some useful information see our {ref}`appendix.md#zmq`.
+For some useful information see our [ZMQ](appendix.md#zmq).
 
 ### Local Message Transport (LMT)
 
