@@ -25,7 +25,7 @@ Note, that you have to use a colon fence in a markdown file instead of the norma
 
 And finally, here's a cool mermaid diagram!
 
-:::{mermaid}
+```mermaid
 sequenceDiagram
   participant Alice
   participant Bob
@@ -37,7 +37,7 @@ sequenceDiagram
   John-->Alice: Great!
   John->Bob: How about you?
   Bob-->John: Jolly good!
-:::
+```
 
 
 

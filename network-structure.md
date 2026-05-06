@@ -34,7 +34,7 @@ Put differently, Components MAY only communicate to outside their Node via a Con
 
 In this graph, messages would pass from `Component1` to `Coordinator1` to `Coordinator2` to the destination `Component4`.
 
-:::{mermaid}
+```mermaid
 flowchart LR
 
     subgraph Node1
@@ -46,7 +46,7 @@ flowchart LR
         Coordinator2 -- "connects to" --- Component3
         Coordinator2 -- "connects to" --- Component4
     end
-:::
+```
 
 Control Coordinator to Control Coordinator communication always uses DMT.
 

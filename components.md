@@ -85,7 +85,7 @@ It MAY act regularly of its own accord.
 The Processor would send commands to an Actor, instructing it to `set`/`get`/`call` a given Parameter/Action by name, with a value if appropriate, and receive replies.
 
 This could look for example like this:
-:::{mermaid}
+```mermaid
 sequenceDiagram
     par
         Processor1->>Actor42: GET temp_K
@@ -101,7 +101,7 @@ sequenceDiagram
     Note over Processor1: computes average temperature, converts to degC
     Note over Processor1: stores/caches value maybe
     Processor1->>Observer1: "Average oven temperature" 14.47 degC
-:::
+```
 
 ## Coordinator
 

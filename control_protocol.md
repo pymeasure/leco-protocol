@@ -109,7 +109,7 @@ After connecting to a Coordinator (`Co1`), a Component (`CA`) SHALL send a `sign
 
 **Unsigned Components:** If a Component sends a message without having signed in, the Coordinator SHALL refuse message handling and return an error.
 
-:::{mermaid}
+```mermaid
 sequenceDiagram
     Note over CA,N1: Name "CA" is still free
     participant N1 as N1.COORDINATOR
@@ -128,7 +128,7 @@ sequenceDiagram
     Note right of N1: Does not know CA
     N1 ->> CA: V|CA|N1.COORDINATOR|H|ERROR: Component not signed in yet!
     Note left of CA: Must send a sign_in message<br> before further messaging.
-:::
+```
 
 ##### Heartbeat
 
@@ -149,7 +149,7 @@ A Component SHOULD send a `sign_out` message (see {ref}`methods.md#coordinator`)
 The Coordinator SHALL acknowledge the sign-out with a `result` message and remove the Component name from its local {ref}`control_protocol.md#directory`.
 It SHALL also notify the other Coordinators in the network that this Component signed out, see {ref}`control_protocol.md#coordinator-coordination`.
 
-:::{mermaid}
+```mermaid
 sequenceDiagram
     CA ->> N1: V|COORDINATOR|N1.CA|H|sign_out
     participant N1 as N1.COORDINATOR
@@ -157,7 +157,7 @@ sequenceDiagram
     Note right of N1: Removes "CA" with identity "IA"<br> from local Directory
     Note right of N1: Notifies other Coordinators about sign-out of "CA"
     Note left of CA: Shall not send any message anymore except sign_in
-:::
+```
 
 #### Communication with other Components
 
@@ -165,7 +165,7 @@ The following two examples show how a message is transferred between two compone
 
 Coordinators SHALL route the message to the corresponding Coordinator or connected Component.
 
-:::{mermaid}
+```mermaid
 sequenceDiagram
     alt Full name
         CA ->> N1: V|N1.CB|N1.CA|H| Give me property A.
@@ -177,9 +177,9 @@ sequenceDiagram
     Note left of CB: Reads property A
     CB ->> N1: V|N1.CA|N1.CB|H| Property A has value 5.
     N1 ->> CA: V|N1.CA|N1.CB|H| Property A has value 5.
-:::
+```
 
-:::{mermaid}
+```mermaid
 sequenceDiagram
     CA ->> N1: V|N2.CB|N1.CA|H| Give me property A.
     participant N1 as N1.COORDINATOR
@@ -192,7 +192,7 @@ sequenceDiagram
     Note over N1,N2: N2 DEALER socket sends to N1 ROUTER
     N2 ->> N1: V|N1.CA|N2.CB|H| Property A has value 5.
     N1 ->> CA: V|N1.CA|N2.CB|H| Property A has value 5.
-:::
+```
 
 Prerequisites of Communication between two Components are:
 
@@ -208,7 +208,7 @@ Bold arrows indicate message flow, thin lines indicate decision flow.
 Thin, dotted lines indicate decision flow in case of errors.
 Placeholder values are written in lowercase, while actually known values begin with an uppercase letter.
 
-:::{mermaid}
+```mermaid
 flowchart TB
     C1([N1.CA DEALER]) == "V|nR.recipient|nS.CA|H|Content" ==> R0
     C0([nS.COORDINATOR DEALER]) == "V|nR.recipient|nS.CA|H|Content" ==> R0
@@ -243,7 +243,7 @@ flowchart TB
     subgraph "Co1 DEALER socket <br>to N2.COORDINATOR"
         R2
     end
-:::
+```
 
 #### Coordinator coordination
 
@@ -262,7 +262,7 @@ Similarly to Component sign-in, the Coordinator SHALL refuse a sign-in request w
 
 These are the sign-in/sign-out sequences between Coordinators, where `address` is for example the host name and port number of the Coordinator's ROUTER socket.
 
-:::{mermaid}
+```mermaid
 sequenceDiagram
     participant r1 as ROUTER
     participant d1 as DEALER
@@ -298,7 +298,7 @@ sequenceDiagram
     d2->>-r1: coordinator_sign_out
     Note right of r1: removes N2 identity
     deactivate d1
-:::
+```
 
 :::{note}
 Note that the DEALER socket responds with the local Directory and Coordinator addresses to the received Acknowledgment.
