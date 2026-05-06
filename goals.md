@@ -1,6 +1,6 @@
 # Goals
 
-To guide the design of the specification, here we have articulated the high-level goals of this protocol. Relevant Capitalized terms are defined in our {ref}`glossary.md#glossary`.
+To guide the design of the specification, here we have articulated the high-level goals of this protocol. Relevant Capitalized terms are defined in our [Glossary](glossary.md#glossary).
 
 ## Tying diverse solutions together
 

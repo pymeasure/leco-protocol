@@ -23,7 +23,7 @@ Components SHOULD offer ``shut_down``.
 
 ## Coordinator
 
-Control protocol Coordinators are also {ref}`Components <methods.md#component>`.
+Control protocol Coordinators are also [Components](methods.md#component).
 Furthermore, Coordinators MUST offer the following methods.
 
 :::{leco-json-viewer}
@@ -33,7 +33,7 @@ Furthermore, Coordinators MUST offer the following methods.
 
 ## Actor
 
-An Actor is a {ref}`methods.md#component`.
+An Actor is a [Component](methods.md#component).
 Additionally, it MUST offer the following methods.
 
 :::{leco-json-viewer}
@@ -43,7 +43,7 @@ Additionally, it MUST offer the following methods.
 
 ## Polling Actor
 
-An {ref}`methods.md#actor`, which supports regular polling of values, MUST implement these methods.
+An [Actor](methods.md#actor), which supports regular polling of values, MUST implement these methods.
 
 :::{data-viewer}
 :expand:
@@ -52,11 +52,11 @@ An {ref}`methods.md#actor`, which supports regular polling of values, MUST imple
 
 ## Locking Actor
 
-An {ref}`methods.md#actor` which supports locking resources MUST offer the following methods.
+An [Actor](methods.md#actor) which supports locking resources MUST offer the following methods.
 
 :::{data-viewer}
 :expand:
 :file: schemas/locking_actor.json
 :::
 
-Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise appropriate {ref}`control_protocol.md#errors`.
+Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise appropriate [Errors](control_protocol.md#errors).

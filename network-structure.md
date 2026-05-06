@@ -2,7 +2,7 @@
 
 ## Message Layer
 
-The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of LECO Messages (see {ref}`messages.md#messages`).
+The Message Layer is the communication layer that concerns itself with (de)composition, validation, serialisation, etc. of LECO Messages (see [Messages](messages.md#messages)).
 
 ## Transport Layer
 
@@ -34,7 +34,7 @@ Put differently, Components MAY only communicate to outside their Node via a Con
 
 In this graph, messages would pass from `Component1` to `Coordinator1` to `Coordinator2` to the destination `Component4`.
 
-:::{mermaid}
+```mermaid
 flowchart LR
 
     subgraph Node1
@@ -46,7 +46,7 @@ flowchart LR
         Coordinator2 -- "connects to" --- Component3
         Coordinator2 -- "connects to" --- Component4
     end
-:::
+```
 
 Control Coordinator to Control Coordinator communication always uses DMT.
 
@@ -64,7 +64,7 @@ In this documentation, the separation between frames is indicated by `|`.
 An empty frame is indicated with two frame separators `||`, even at the beginning or end of a message.
 For example, the message `||Second frame|Third frame||Fifth frame` consists of 5 frames, with the first and fourth frames being empty frames.
 
-For some useful information see our {ref}`appendix.md#zmq`.
+For some useful information see our [ZMQ](appendix.md#zmq).
 
 ### Local Message Transport (LMT)
 

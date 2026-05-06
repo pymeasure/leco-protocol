@@ -30,7 +30,9 @@ extensions = [
 
 myst_enable_extensions = [
     "colon_fence",
+    "attrs_block",
 ]
+myst_fence_as_directive = ["mermaid"]
 myst_heading_anchors = 5
 
 templates_path = ["_templates"]
