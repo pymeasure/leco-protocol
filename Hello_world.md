@@ -14,8 +14,8 @@ Here's my admonition content
 And some more content.
 
 % This comment won't make it into the outputs!
-And here's {ref}`a reference to this section <section-two>`.
-I can also reference the section {ref}`section-two` without specifying my title.
+And here's [a reference to this section](#section-two).
+I can also reference the section [](#section-two) without specifying my title.
 
 :::{note}
 And here's a note with a colon fence!
