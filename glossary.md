@@ -61,6 +61,12 @@ Node
 Network
     The web of Components communicating with each other in a LECO deployment.
 
+CURVE
+    A security mode using CurveZMQ (RFC 50) for authentication and encryption based on Curve25519 key pairs, see {doc}`security`.
+
+Security mode
+    The security configuration of a LECO Network, either `NONE` (no security) or `CURVE` (authenticated and encrypted), see {ref}`security.md#security-modes`.
+
 Observer
     A Component that receives data from other Components, e.g. for logging, storage, or plotting, see [Observer](components.md#observer).
 

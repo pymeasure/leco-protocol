@@ -7,6 +7,13 @@ The [Message layer](control_protocol.md#message-layer) is the common language to
 
 The transport layer ensures that a message arrives at its destination.
 
+### Security
+
+The control protocol supports optional authentication and encryption as defined in {doc}`security`.
+
+When the `CURVE` security mode is enabled, all control channel connections (Component-to-Coordinator and Coordinator-to-Coordinator) are authenticated and encrypted using CurveZMQ before any LECO messages are exchanged.
+The LECO message format and protocol flows remain unchanged; security operates entirely at the ZMQ transport layer.
+
 ### Protocol basics
 
 #### Socket Configuration

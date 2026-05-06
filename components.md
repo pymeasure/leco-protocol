@@ -122,6 +122,10 @@ A Control Coordinator is concerned with routing control channel messages from/to
 Every network needs at least one Control Coordinator.
 Every Node MUST have exactly one Control Coordinator, all other Components within one Node directly exchange messages only with their Node's Control Coordinator.
 
+A Control Coordinator is responsible for enforcing the Network's security mode as defined in {doc}`security`:
+it SHALL reject connections that do not match the configured security mode,
+and in `CURVE` mode, it SHALL validate client public keys via ZAP before accepting a connection.
+
 :::{admonition} Note
 Multiple Control Coordinator instances MAY be necessary for large deployments, but a single coordinator instance SHOULD be sufficient for operation.
 :::
