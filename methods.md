@@ -60,3 +60,13 @@ An [Actor](methods.md#actor) which supports locking resources MUST offer the fol
 :::
 
 Accessing a locked resource (the whole Component or parts of it) or trying to unlock one, locked by another Component, will raise appropriate [Errors](control_protocol.md#errors).
+
+## Data Coordinator
+
+A [Component](methods.md#component) acting as a [Data Coordinator](components.md#data-coordinator), which participates in the control protocol to allow dynamic configuration of remote [Gatherer](glossary.md#gatherer) connections for multi-Node data distribution.
+It MAY offer the following methods.
+
+:::{leco-json-viewer}
+:expand:
+:file: schemas/data_coordinator.json
+:::

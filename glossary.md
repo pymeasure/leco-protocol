@@ -24,6 +24,9 @@ Device
 Director
     A Component which takes part in orchestrating a (i.e. LECO-controlled) measurement setup, see [Director](components.md#director).
 
+Distributor
+    The second proxy server in a multi-Node Data Coordinator, which distributes messages to local subscribers, receiving from both the local and remote Gatherers. See [Data Protocol](data_protocol.md#multi-node-configuration).
+
 Directory
     Each Coordinator maintains a local Directory with all the Components connected to it (i.e. other Coordinators and the Components of its own Node), and a global Directory with all Components in the whole Network, see [Directory](control_protocol.md#directory).
 
@@ -33,6 +36,9 @@ Driver
 Full name
     The name of a Component unique for the whole setup.
     It consists of the namespace and component-name, see [Naming scheme](control_protocol.md#naming-scheme).
+
+Gatherer
+    The first proxy server in a multi-Node Data Coordinator, which collects messages from local publishers. See [Data Protocol](data_protocol.md#multi-node-configuration).
 
 LECO
     The **L**aboratory **E**xperiment **CO**ntrol protocol framework.

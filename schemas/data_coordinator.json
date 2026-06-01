@@ -1,0 +1,142 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "title": "Data Coordinator",
+        "summary": "Methods for a Data Coordinator participating in the control protocol to manage remote Gatherer connections.",
+        "version": "0.1.0"
+    },
+    "methods": [
+        {
+            "name": "connect_to_gatherer",
+            "summary": "Connect the local Distributor to a remote Gatherer's XPUB socket.",
+            "params": [
+                {
+                    "name": "address",
+                    "summary": "Address of the remote Gatherer's XPUB socket (e.g. 'host:11101').",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "errors": [
+                {
+                    "code": -32110,
+                    "message": "Already connected to this Gatherer.",
+                    "data": "Address of the already connected Gatherer."
+                }
+            ]
+        },
+        {
+            "name": "disconnect_from_gatherer",
+            "summary": "Disconnect the local Distributor from a remote Gatherer's XPUB socket.",
+            "params": [
+                {
+                    "name": "address",
+                    "summary": "Address of the remote Gatherer's XPUB socket to disconnect from.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "null"
+                },
+                "required": true
+            },
+            "errors": [
+                {
+                    "code": -32111,
+                    "message": "Not connected to this Gatherer.",
+                    "data": "Address of the Gatherer."
+                }
+            ]
+        },
+        {
+            "name": "list_gatherers",
+            "summary": "List the addresses of remote Gatherers the local Distributor is connected to.",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "List gatherers example",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": [
+                            "host_of_node2:11101",
+                            "host_of_node3:11101"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "send_data_addresses",
+            "summary": "Send the bound socket addresses of this Data Coordinator's Gatherer and Distributor.",
+            "description": "Returns the addresses that local publishers, local subscribers, and remote Distributors need to connect to. The Distributor's XSUB address is not included as it is an outbound connection.",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/data_addresses"
+                },
+                "required": true
+            },
+            "examples": [
+                {
+                    "name": "Data addresses example",
+                    "params": [],
+                    "result": {
+                        "name": "result",
+                        "value": {
+                            "gatherer_xsub": "*:11100",
+                            "gatherer_xpub": "*:11101",
+                            "distributor_xpub": "*:11099"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "components": {
+        "data_addresses": {
+            "type": "object",
+            "summary": "Bound socket addresses of a Data Coordinator.",
+            "properties": {
+                "gatherer_xsub": {
+                    "type": "string",
+                    "summary": "Address of the Gatherer's XSUB socket for local publishers to connect to."
+                },
+                "gatherer_xpub": {
+                    "type": "string",
+                    "summary": "Address of the Gatherer's XPUB socket for remote Distributors to connect to."
+                },
+                "distributor_xpub": {
+                    "type": "string",
+                    "summary": "Address of the Distributor's XPUB socket for local subscribers to connect to."
+                }
+            },
+            "required": ["gatherer_xsub", "gatherer_xpub", "distributor_xpub"]
+        }
+    }
+}
